@@ -2,74 +2,98 @@
 
 城市道路既有通信光纤 DAS 空洞探测科研级算法原型平台。
 
-本项目面向道路地下空洞、脱空、松散区、管沟、管线周边扰动、弱夹层和破碎带等浅层异常体。典型几何为单侧 DAS-like 接收：光纤沿道路方向布设，近似位于 `y = 0`；震源线位于道路另一侧或道路边缘，近似位于 `y = W`；异常体位于道路下方 `(x0, y0, h)`。
+项目面向道路地下空洞、脱空、松散区、管沟、管线周边扰动、弱夹层和破碎带等浅层异常体。典型几何为单侧 DAS-like 接收：光纤沿道路方向布设，近似位于 `y = 0`；震源线位于道路另一侧或道路边缘，近似位于 `y = W`；异常体位于道路下方 `(x0, y0, h)`。
 
-## 当前已实现能力
+## 当前 Stage 2 已实现
 
-- `main.py` 统一入口与 argparse 参数中心。
-- 道路、光纤、震源、异常体和时间采样的派生参数统一解析。
-- 坐标约定：`x` 沿道路和光纤方向，`y` 横穿道路方向，`z` 深度向下为正。
-- 均匀等效瑞雷波速度模型：`uniform effective Rayleigh velocity`。
-- Ricker 子波、直达瑞雷波、异常体等效散射/绕射波。
-- 多炮数据输出形状：`shot × time × channel`。
-- point receiver 级别的 `DAS-like response approximation`。
-- 输出数组、metadata、参数快照、几何图、炮集图和 Markdown 报告。
-- pytest 基础测试。
+- `main.py` 统一 argparse 参数中心。
+- DAS-like point receiver approximation。
+- uniform effective Rayleigh velocity。
+- 运动学直达波 + 等效散射/绕射波多炮正演。
+- 中文几何图、中文炮集图、中文报告。
+- 运动学伪波场快照和传播示意 GIF。
+- 直达波到时预测、直达波 mute、局部能量属性。
+- 基础 x-y-h 多炮扫描定位。
+- `score_volume` 输出和扫描切片图。
 
 ## 如何运行
-
-如果系统 PATH 中有 Python：
-
-```bash
-python main.py --task debug
-python main.py --task forward
-python main.py --task full_pipeline
-```
 
 当前本机环境可使用：
 
 ```bash
+D:\HczApp\Anaconda\envs\mywork\python.exe -m pytest
 D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task debug
-D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task forward
+D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task forward --max-shot-gather-figures 2 --wavefield-snapshot-count 8
+D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task full_pipeline --max-shot-gather-figures 2 --wavefield-snapshot-count 8
 ```
 
-小规模调试入口：
+如果系统 PATH 中有 Python，也可以把前缀替换为 `python`。
+
+## 输出目录
+
+每次运行会创建：
+
+```text
+outputs/<run_name>_<timestamp>/
+├── arrays/
+├── figures/
+├── snapshots/
+├── animations/
+├── reports/
+├── logs/
+└── metadata/
+```
+
+文件名前缀：
+
+- `arr_`：数组，例如 `arr_synthetic_data.npy`、`arr_score_volume.npy`
+- `fig_`：普通静态图，例如 `fig_geometry.png`
+- `snap_`：运动学伪波场快照
+- `anim_`：传播示意 GIF
+- `report_`：Markdown 报告
+- `meta_`：元数据
+- `log_`：日志
+- `params_`：参数快照
+
+## 控制输出数量
 
 ```bash
-D:\HczApp\Anaconda\envs\mywork\python.exe run_debug.py
+--max-shot-gather-figures 2
+--wavefield-snapshot-count 8
+--save-wavefield-snapshots false
+--save-wavefield-animation false
 ```
 
-## 输出结果
+默认只输出少量炮集图和有限数量伪波场帧，不会保存所有炮或所有时间帧。
 
-每次运行会在 `outputs/<run_name>_<timestamp>/` 下创建独立目录，典型内容包括：
+## 基础扫描定位
 
-- `params_snapshot.json`
-- `metadata.json`
-- `saved_arrays/synthetic_data.npy`
-- `saved_arrays/time_axis.npy`
-- `saved_arrays/channel_x.npy`
-- `saved_arrays/shot_x.npy`
-- `figures/geometry.png`
-- `figures/shot_gather_*.png`
-- `reports/forward_report.md`
-- `logs/run_log.txt`
+Stage 2 的扫描方法是 `diffraction_energy_stack`：
 
-## 当前近似条件
+1. 构建候选异常体位置 `x-y-h` 网格；
+2. 计算 `source -> candidate -> receiver` 理论散射走时；
+3. 在 DAS-like 数据中沿对应走时时间窗提取局部能量；
+4. 对所有 shot 和 channel 求平均形成 `score_volume`；
+5. 最高得分位置作为 `best_location`。
+
+`score_volume` 保存于：
+
+```text
+arrays/arr_score_volume.npy
+arrays/arr_scan_x_grid.npy
+arrays/arr_scan_y_grid.npy
+arrays/arr_scan_depth_grid.npy
+```
+
+## 当前近似和限制
 
 - 当前结果必须称为 `DAS-like response approximation`。
-- 当前第一阶段采用 `kinematic approximation`。
+- 当前正演、伪波场和扫描都属于 `kinematic approximation`。
+- 伪波场快照是 `kinematic pseudo-wavefield snapshot`，不是弹性波方程数值模拟。
+- GIF 是传播示意动图，不是真实全波场模拟。
 - 当前速度模型为 `uniform effective Rayleigh velocity`。
-- 多个散射点表示异常体形状是运动学等效散射近似，不是真实边界散射模拟。
-- gauge length 已进入统一参数和 metadata，但在 point receiver 模式下不参与波形计算。
+- 当前 DAS-like 响应是点式接收近似，尚未实现真实 gauge length 响应。
+- `best_location` 是运动学局部能量聚焦结果，不能作为工程确诊结论。
+- 单侧 DAS-like 几何下，横向 y 和埋深 h 可能耦合。
 
-## 不是什么
-
-- 不是完整 DAS 仪器模拟。
-- 不是完整三维弹性波全波场模拟。
-- 不是可安装发布的软件包。
-- 不是工业级工程确诊软件。
-- 当前结果不能作为工程确诊结论。
-
-## 后续路线
-
-后续阶段将逐步加入多炮扫描定位、绕射/散射识别、置信度评价、鲁棒性分析、DAS gauge length 响应、分层速度模型和局部全波场验证。
+后续阶段再做完整置信度、鲁棒性参数扫描、DAS gauge length、分层速度和局部全波场验证。

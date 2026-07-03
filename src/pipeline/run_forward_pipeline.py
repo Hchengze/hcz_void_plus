@@ -1,4 +1,4 @@
-"""Stage 1 正演 pipeline。"""
+"""Stage 2 正演与中文可视化 pipeline。"""
 
 from __future__ import annotations
 
@@ -17,6 +17,11 @@ from src.utils.path_manager import ensure_output_subdirs
 from src.utils.random_seed import set_random_seed
 from src.visualization.plot_gather import plot_shot_gather
 from src.visualization.plot_geometry import plot_geometry
+from src.visualization.plot_pseudo_wavefield import (
+    save_pseudo_wavefield_animation,
+    save_pseudo_wavefield_snapshots,
+)
+from src.visualization.plot_style import setup_chinese_matplotlib
 
 
 def _write_forward_report(
@@ -24,63 +29,57 @@ def _write_forward_report(
     output_path: Path,
     synthetic_data: np.ndarray,
     scatter_xyz: np.ndarray,
+    snapshot_paths: list[Path],
+    animation_info: dict[str, object],
+    font_info: dict[str, object],
 ) -> None:
-    """写出简要 Markdown 报告。"""
+    """写出中文正演报告。"""
 
-    content = f"""# Forward Report
+    animation_text = "成功" if animation_info.get("success") else f"未生成：{animation_info.get('reason')}"
+    font_text = font_info.get("font_name") or font_info.get("warning") or "默认字体"
+    content = f"""# 正演报告
 
-本报告由 hcz_void_plus Stage 1 自动生成。
+## 本次运行
 
-## 数据形状
+- task：`{params.project.task}`
+- 数据形状：`{tuple(synthetic_data.shape)}`，维度顺序为 `shot × time × channel`
+- DAS-like 接收级别：`{params.das_like.response_level}`
+- 速度模型：`uniform effective Rayleigh velocity = {params.velocity.rayleigh_velocity_mps} m/s`
+- 中文字体：`{font_text}`
 
-- synthetic_data shape: `{tuple(synthetic_data.shape)}`
-- 维度顺序: `shot × time × channel`
-- n_shot: `{params.source.shot_count}`
-- n_time: `{params.derived.nt}`
-- n_channel: `{params.fiber.channel_count}`
+## 当前近似条件
 
-## 当前近似
+- 正演：`kinematic approximation`
+- 接收：`DAS-like response approximation`
+- 伪波场：`kinematic pseudo-wavefield snapshot`
+- 伪波场和 GIF 只是传播示意，不是真实弹性波方程数值模拟。
 
-- forward: `kinematic approximation`
-- DAS-like: `DAS-like response approximation`
-- receiver: `point_receiver approximation`
-- velocity: `uniform effective Rayleigh velocity`
+## 异常体真值
 
-## 重要限制
+- 类型：`{params.anomaly.anomaly_type}`
+- 位置：x=`{params.anomaly.x0_m}` m，y=`{params.anomaly.y0_m}` m，h=`{params.anomaly.depth_m}` m
+- 等效散射点数量：`{scatter_xyz.shape[0]}`
+- 说明：多个散射点表示异常体形状是运动学等效散射近似，不是真实边界散射模拟。
 
-当前结果不是完整 DAS 仪器模拟，也不是完整三维弹性波全波场模拟。gauge length 参数已经进入统一参数中心和 metadata，但在 point receiver 模式下不参与波形计算。本结果用于科研算法原型调试，不能作为工程确诊结论。
+## 输出
 
-## 异常体与散射点
+- 炮集图最大数量：`{params.output.max_shot_gather_figures}`
+- 运动学伪波场快照：`{len(snapshot_paths)}` 张
+- 动图：{animation_text}
 
-- anomaly type: `{params.anomaly.anomaly_type}`
-- scatter point mode: `{params.anomaly.scatter_point_mode}`
-- scatter point count: `{scatter_xyz.shape[0]}`
-- note: 多个散射点表示异常体形状是运动学等效散射近似，不是真实边界散射模拟。
+## 限制
 
-## 后续阶段
-
-scan、confidence、robustness、多炮联合定位、DAS gauge length 响应增强、分层速度模型和局部全波场验证将在后续阶段实现。
+当前结果不是完整 DAS 仪器模拟，不是完整三维弹性波全波场模拟，不能作为工程确诊结论。
 """
     output_path.write_text(content, encoding="utf-8")
 
 
 def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
-    """运行最小 DAS-like 运动学正演闭环。
-
-    步骤：
-        1. 设置随机种子；
-        2. 生成几何；
-        3. 构建速度模型；
-        4. 构建异常体和散射点；
-        5. 生成多炮 DAS-like 合成数据；
-        6. 保存数组；
-        7. 保存 params snapshot 和 metadata；
-        8. 绘制几何图和若干炮集图；
-        9. 输出简要 Markdown 报告和日志。
-    """
+    """运行 DAS-like 运动学多炮正演、中文图件和伪波场输出。"""
 
     set_random_seed(params)
     paths = ensure_output_subdirs(params)
+    font_info = setup_chinese_matplotlib()
 
     receiver_xyz = generate_receiver_xyz(params)
     source_xyz = generate_source_xyz(params)
@@ -101,35 +100,75 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     )
     synthetic_data = forward_result["synthetic_data"]
 
-    save_json(paths["root"] / "params_snapshot.json", params)
-    metadata = build_metadata(params, synthetic_data, scatter_xyz, scatter_weight)
-    save_json(paths["root"] / "metadata.json", metadata)
-
     if params.output.save_arrays:
-        np.save(paths["arrays"] / "synthetic_data.npy", synthetic_data)
-        np.save(paths["arrays"] / "time_axis.npy", params.derived.time_axis)
-        np.save(paths["arrays"] / "channel_x.npy", params.derived.channel_x)
-        np.save(paths["arrays"] / "shot_x.npy", params.derived.shot_x)
+        np.save(paths["arrays"] / "arr_synthetic_data.npy", synthetic_data)
+        np.save(paths["arrays"] / "arr_time_axis.npy", params.derived.time_axis)
+        np.save(paths["arrays"] / "arr_channel_x.npy", params.derived.channel_x)
+        np.save(paths["arrays"] / "arr_shot_x.npy", params.derived.shot_x)
 
     if params.output.save_figures:
-        plot_geometry(params, receiver_xyz, source_xyz, scatter_xyz, paths["figures"] / "geometry.png")
-        n_fig = min(params.task.max_shot_figures, params.source.shot_count)
+        plot_geometry(params, receiver_xyz, source_xyz, scatter_xyz, paths["figures"] / "fig_geometry.png")
+        n_fig = min(params.output.max_shot_gather_figures, params.source.shot_count)
         for shot_index in range(n_fig):
-            plot_shot_gather(params, synthetic_data, shot_index, paths["figures"] / f"shot_gather_{shot_index:03d}.png")
+            plot_shot_gather(params, synthetic_data, shot_index, paths["figures"] / f"fig_shot_gather_{shot_index:03d}.png")
+
+    snapshot_paths = save_pseudo_wavefield_snapshots(
+        params,
+        source_xyz,
+        scatter_xyz,
+        scatter_weight,
+        velocity_model.get_velocity(),
+        paths["snapshots"],
+    )
+    animation_info = save_pseudo_wavefield_animation(
+        params,
+        source_xyz,
+        scatter_xyz,
+        scatter_weight,
+        velocity_model.get_velocity(),
+        paths["animations"] / "anim_pseudo_wavefield.gif",
+    )
+    wavefield_info = {
+        "snapshot_count": len(snapshot_paths),
+        "snapshot_files": [str(path) for path in snapshot_paths],
+        "animation": animation_info,
+    }
+
+    metadata = build_metadata(params, synthetic_data, scatter_xyz, scatter_weight, font_info, wavefield_info)
+    save_json(paths["metadata"] / "params_snapshot.json", params)
+    save_json(paths["metadata"] / "meta_run.json", metadata)
 
     if params.output.save_report:
-        _write_forward_report(params, paths["reports"] / "forward_report.md", synthetic_data, scatter_xyz)
+        _write_forward_report(
+            params,
+            paths["reports"] / "report_forward.md",
+            synthetic_data,
+            scatter_xyz,
+            snapshot_paths,
+            animation_info,
+            font_info,
+        )
 
     log_text = (
-        "Stage 1 forward pipeline completed.\n"
+        "Stage 2 forward pipeline completed.\n"
         "Approximation: kinematic approximation + DAS-like response approximation.\n"
+        "Pseudo wavefield: kinematic pseudo-wavefield snapshot, not true elastic wavefield.\n"
         f"Output directory: {paths['root']}\n"
         f"Data shape: {synthetic_data.shape} (shot × time × channel)\n"
     )
-    (paths["logs"] / "run_log.txt").write_text(log_text, encoding="utf-8")
+    (paths["logs"] / "log_run.txt").write_text(log_text, encoding="utf-8")
 
     return {
+        "paths": paths,
         "output_run_dir": str(paths["root"]),
+        "synthetic_data": synthetic_data,
         "synthetic_data_shape": synthetic_data.shape,
+        "receiver_xyz": receiver_xyz,
+        "source_xyz": source_xyz,
+        "velocity_model": velocity_model,
+        "scatter_xyz": scatter_xyz,
+        "scatter_weight": scatter_weight,
+        "font_info": font_info,
+        "wavefield_info": wavefield_info,
         "metadata": metadata,
     }

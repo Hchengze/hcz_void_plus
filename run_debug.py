@@ -20,7 +20,13 @@ if __name__ == "__main__":
             "3",
             "--time-record-length-s",
             "0.45",
-            "--max-shot-figures",
+            "--max-shot-gather-figures",
             "2",
+            "--wavefield-snapshot-count",
+            "4",
+            "--wavefield-grid-nx",
+            "60",
+            "--wavefield-grid-ny",
+            "30",
         ]
     )

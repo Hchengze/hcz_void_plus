@@ -1,12 +1,13 @@
 """hcz_void_plus 的统一入口与参数中心。
 
-本文件是本项目 Stage 1 的总入口。所有默认参数、命令行覆盖参数、派生参数
-和参数校验都集中在这里，算法模块只接收这里生成的 params 对象。
+本文件是项目唯一参数中心。所有默认参数、命令行参数、派生参数和参数校验
+都集中在这里；src、experiments、visualization 和 pipeline 中的算法模块只能
+接收这里生成的 params 对象，不能再维护第二套局部参数。
 
 坐标约定：
     x：沿道路和光纤方向，单位 m；
     y：横穿道路方向，单位 m，光纤近似位于 y=0，震源线近似位于 y=W；
-    z：深度方向，向下为正，单位 m。
+    z / h：深度方向，向下为正，单位 m。
 """
 
 from __future__ import annotations
@@ -20,11 +21,14 @@ from typing import Any, Iterable
 import numpy as np
 
 
+MAX_SCAN_GRID_POINTS = 250_000
+
+
 def str_to_bool(value: str | bool) -> bool:
     """解析命令行布尔值。
 
-    物理和输出参数中有一些开关，例如是否加入噪声、是否保存图件。使用显式
-    true/false 可以避免 argparse 的 store_true 在默认值和覆盖值之间产生歧义。
+    许多科研运行开关需要显式 true/false，例如是否保存伪波场快照、是否保存
+    GIF、是否启用直达波 mute。统一解析可以避免不同脚本中出现不同布尔写法。
     """
 
     if isinstance(value, bool):
@@ -40,42 +44,49 @@ def str_to_bool(value: str | bool) -> bool:
 def build_arg_parser() -> argparse.ArgumentParser:
     """构建 argparse 参数解析器。
 
-    参数按科研含义分组，而不是按代码模块分组。这样做的目的，是让道路几何、
-    光纤几何、震源几何、时间采样、速度模型、异常体和输出行为在同一个入口
-    中被统一管理，避免算法模块各自维护一套局部参数。
+    参数按物理和流程含义分组。所有新增参数必须先进入这里，算法模块只能读取
+    main.py 解析、派生和校验后的 params，保证正演、绘图、扫描和报告使用同一
+    套场景定义。
     """
 
     parser = argparse.ArgumentParser(
-        description=(
-            "城市道路既有通信光纤 DAS-like 空洞探测："
-            "Stage 1 运动学等效散射正演骨架"
-        )
+        description="城市道路既有通信光纤 DAS-like 空洞探测：运动学正演与基础扫描定位"
     )
 
     project = parser.add_argument_group("project 参数组")
-    project.add_argument("--task", default="debug", choices=["debug", "forward", "full_pipeline", "scan", "robustness"], help="运行任务。scan/robustness 为后续阶段预留。")
-    project.add_argument("--run-name", default="stage1_forward", help="本次运行名称，会和时间戳一起组成输出目录名。")
+    project.add_argument(
+        "--task",
+        default="debug",
+        choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
+        help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
+    )
+    project.add_argument("--run-name", default="stage2_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
     road.add_argument("--road-width-m", type=float, default=18.0, help="道路横向宽度 W，单位 m。")
     road.add_argument("--road-length-m", type=float, default=120.0, help="道路沿 x 方向长度，单位 m。")
-    road.add_argument("--road-surface-z-m", type=float, default=0.0, help="路面 z 坐标，单位 m；本项目约定 z 向下为正。")
+    road.add_argument("--road-surface-z-m", type=float, default=0.0, help="路面 z 坐标，单位 m；z 向下为正。")
 
     fiber = parser.add_argument_group("fiber 光纤参数组")
     fiber.add_argument("--fiber-y-m", type=float, default=0.0, help="光纤横向 y 坐标，典型单侧几何中近似为 0。")
-    fiber.add_argument("--fiber-z-m", type=float, default=0.0, help="光纤埋深/等效接收深度，单位 m。")
+    fiber.add_argument("--fiber-z-m", type=float, default=0.0, help="光纤等效接收深度，单位 m。")
     fiber.add_argument("--fiber-x-start-m", type=float, default=0.0, help="第一个 DAS-like 通道的 x 坐标，单位 m。")
     fiber.add_argument("--fiber-channel-spacing-m", type=float, default=1.0, help="相邻光纤通道间距，单位 m。")
-    fiber.add_argument("--fiber-channel-count", type=int, default=121, help="光纤通道数量，是主参数；末端坐标由程序派生。")
+    fiber.add_argument("--fiber-channel-count", type=int, default=121, help="光纤通道数量，是主参数。")
 
     source = parser.add_argument_group("source 震源参数组")
-    source.add_argument("--source-y-m", type=float, default=None, help="震源线 y 坐标；若不设置，则自动等于 road_width_m。")
+    source.add_argument("--source-y-m", type=float, default=None, help="震源线 y 坐标；未设置时自动等于 road_width_m。")
     source.add_argument("--source-z-m", type=float, default=0.0, help="震源 z 坐标，单位 m。")
     source.add_argument("--source-x-start-m", type=float, default=10.0, help="第一个炮点的 x 坐标，单位 m。")
     source.add_argument("--source-shot-spacing-m", type=float, default=10.0, help="相邻炮点间距，单位 m。")
-    source.add_argument("--source-shot-count", type=int, default=9, help="炮点数量，是主参数；末端坐标由程序派生。")
-    source.add_argument("--source-type", default="hammer", choices=["hammer", "drop_weight", "small_active", "vehicle"], help="震源类型标签，仅进入 metadata。")
+    source.add_argument("--source-shot-count", type=int, default=9, help="炮点数量，是主参数。")
+    source.add_argument(
+        "--source-type",
+        default="hammer",
+        choices=["hammer", "drop_weight", "small_active", "vehicle"],
+        help="震源类型标签，仅进入 metadata 和报告。",
+    )
 
     time = parser.add_argument_group("time 时间采样参数组")
     time.add_argument("--time-dt-s", type=float, default=0.001, help="时间采样间隔，单位 s。")
@@ -83,22 +94,32 @@ def build_arg_parser() -> argparse.ArgumentParser:
     time.add_argument("--time-t0-s", type=float, default=0.02, help="震源激发和记录参考零时之间的等效延迟，单位 s。")
 
     velocity = parser.add_argument_group("velocity 速度模型参数组")
-    velocity.add_argument("--velocity-model-type", default="uniform", choices=["uniform"], help="速度模型类型；Stage 1 仅实现 uniform。")
+    velocity.add_argument("--velocity-model-type", default="uniform", choices=["uniform"], help="Stage 2 仅实现 uniform。")
     velocity.add_argument("--rayleigh-velocity-mps", type=float, default=260.0, help="等效瑞雷波速度，单位 m/s。")
 
     anomaly = parser.add_argument_group("anomaly 异常体参数组")
-    anomaly.add_argument("--anomaly-type", default="cavity", choices=["cavity"], help="异常体类型；Stage 1 至少支持 cavity。")
+    anomaly.add_argument("--anomaly-type", default="cavity", choices=["cavity"], help="异常体类型；Stage 2 支持 cavity。")
     anomaly.add_argument("--anomaly-x0-m", type=float, default=60.0, help="异常体中心 x 坐标，单位 m。")
     anomaly.add_argument("--anomaly-y0-m", type=float, default=9.0, help="异常体中心 y 坐标，单位 m。")
-    anomaly.add_argument("--anomaly-depth-m", type=float, default=3.0, help="异常体中心深度 h，单位 m，z 向下为正。")
+    anomaly.add_argument("--anomaly-depth-m", type=float, default=3.0, help="异常体中心深度 h，单位 m，向下为正。")
     anomaly.add_argument("--anomaly-radius-m", type=float, default=1.5, help="异常体等效半径，单位 m。")
     anomaly.add_argument("--scatter-strength", type=float, default=0.8, help="等效散射强度，无量纲。")
-    anomaly.add_argument("--scatter-point-mode", default="center_and_boundary", choices=["center", "center_and_boundary"], help="等效散射点表达方式。")
+    anomaly.add_argument(
+        "--scatter-point-mode",
+        default="center_and_boundary",
+        choices=["center", "center_and_boundary"],
+        help="等效散射点表达方式。",
+    )
 
     das_like = parser.add_argument_group("das_like DAS-like 接收参数组")
-    das_like.add_argument("--das-response-level", default="point_receiver", choices=["point_receiver"], help="DAS-like 响应层级；Stage 1 仅实现点式接收近似。")
-    das_like.add_argument("--gauge-length-m", type=float, default=10.0, help="DAS gauge length 参数，单位 m；point_receiver 阶段不参与波形计算。")
-    das_like.add_argument("--strain-rate", type=str_to_bool, default=False, help="是否输出应变率类标签；Stage 1 仅进入 metadata。")
+    das_like.add_argument(
+        "--das-response-level",
+        default="point_receiver",
+        choices=["point_receiver"],
+        help="DAS-like 响应层级；Stage 2 仍为点式接收近似。",
+    )
+    das_like.add_argument("--gauge-length-m", type=float, default=10.0, help="DAS gauge length 参数；point_receiver 不参与波形计算。")
+    das_like.add_argument("--strain-rate", type=str_to_bool, default=False, help="应变率标签；Stage 2 仅进入 metadata。")
 
     noise = parser.add_argument_group("noise 噪声参数组")
     noise.add_argument("--noise-enabled", type=str_to_bool, default=False, help="是否加入高斯白噪声。")
@@ -106,23 +127,55 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
     output = parser.add_argument_group("output 输出参数组")
     output.add_argument("--output-root-dir", default="outputs", help="输出根目录。")
-    output.add_argument("--save-figures", type=str_to_bool, default=True, help="是否保存几何图和炮集图。")
+    output.add_argument("--save-figures", type=str_to_bool, default=True, help="是否保存静态图。")
     output.add_argument("--save-arrays", type=str_to_bool, default=True, help="是否保存 numpy 数组。")
     output.add_argument("--save-report", type=str_to_bool, default=True, help="是否保存 Markdown 报告。")
+    output.add_argument("--figure-language", default="zh", choices=["zh", "en"], help="图件和报告的人类可读语言，默认中文。")
+    output.add_argument("--max-shot-gather-figures", type=int, default=3, help="最多保存多少张炮集图。")
+    output.add_argument("--save-wavefield-snapshots", type=str_to_bool, default=True, help="是否保存运动学伪波场快照。")
+    output.add_argument("--save-wavefield-animation", type=str_to_bool, default=True, help="是否尝试保存运动学伪波场 GIF。")
+    output.add_argument("--wavefield-snapshot-count", type=int, default=12, help="保存伪波场快照帧数。")
+    output.add_argument("--wavefield-grid-nx", type=int, default=160, help="伪波场 x 方向网格数。")
+    output.add_argument("--wavefield-grid-ny", type=int, default=80, help="伪波场 y 方向网格数。")
+    output.add_argument("--wavefield-animation-fps", type=float, default=4.0, help="伪波场 GIF 帧率。")
+    output.add_argument("--wavefield-shot-index", type=int, default=0, help="用于伪波场展示的炮点索引，从 0 开始。")
+    output.add_argument("--output-prefix-style", default="compact", choices=["compact"], help="输出文件前缀规则，Stage 2 使用 compact。")
+    output.add_argument(
+        "--max-shot-figures",
+        type=int,
+        default=None,
+        help="兼容 Stage 1 的旧参数；若设置，会覆盖 --max-shot-gather-figures。",
+    )
+
+    scan = parser.add_argument_group("scan 扫描定位参数组")
+    scan.add_argument("--scan-enabled", type=str_to_bool, default=True, help="是否启用基础 x-y-h 多炮扫描定位。")
+    scan.add_argument("--scan-x-min-m", type=float, default=20.0, help="扫描 x 最小值，单位 m。")
+    scan.add_argument("--scan-x-max-m", type=float, default=180.0, help="扫描 x 最大值，单位 m。")
+    scan.add_argument("--scan-x-step-m", type=float, default=2.0, help="扫描 x 步长，单位 m。")
+    scan.add_argument("--scan-y-min-m", type=float, default=2.0, help="扫描 y 最小值，单位 m。")
+    scan.add_argument("--scan-y-max-m", type=float, default=18.0, help="扫描 y 最大值，单位 m。")
+    scan.add_argument("--scan-y-step-m", type=float, default=1.0, help="扫描 y 步长，单位 m。")
+    scan.add_argument("--scan-depth-min-m", type=float, default=0.5, help="扫描深度最小值，单位 m。")
+    scan.add_argument("--scan-depth-max-m", type=float, default=8.0, help="扫描深度最大值，单位 m。")
+    scan.add_argument("--scan-depth-step-m", type=float, default=0.5, help="扫描深度步长，单位 m。")
+    scan.add_argument(
+        "--score-method",
+        default="diffraction_energy_stack",
+        choices=["diffraction_energy_stack"],
+        help="扫描得分方法；Stage 2 采用绕射能量叠加。",
+    )
+    scan.add_argument("--direct-mute-enabled", type=str_to_bool, default=True, help="扫描前是否按预测直达波时间窗 mute。")
+    scan.add_argument("--direct-mute-half-width-s", type=float, default=0.02, help="直达波 mute 半窗长，单位 s。")
+    scan.add_argument("--scan-time-window-half-width-s", type=float, default=0.015, help="扫描能量拾取半窗长，单位 s。")
 
     task = parser.add_argument_group("task 任务控制参数组")
-    task.add_argument("--max-shot-figures", type=int, default=3, help="最多保存多少张炮集 QC 图。")
     task.add_argument("--wavelet-frequency-hz", type=float, default=35.0, help="Ricker 子波主频，单位 Hz。")
 
     return parser
 
 
 def parse_arguments(argv: Iterable[str] | None = None) -> argparse.Namespace:
-    """解析命令行参数。
-
-    测试可传入 argv，真实命令行运行时使用系统参数。解析完成后尚未派生任何
-    几何数组，因此 source_y_m 仍可能为 None。
-    """
+    """解析命令行参数。测试可传入 argv，真实运行时使用系统参数。"""
 
     return build_arg_parser().parse_args(argv)
 
@@ -132,12 +185,11 @@ def _namespace(**kwargs: Any) -> SimpleNamespace:
 
 
 def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
-    """将 argparse 的扁平参数转换为分组 params 对象。
+    """将 argparse 的扁平参数转换为分组 params 对象。"""
 
-    params 是算法模块唯一可见的参数对象。这里先保留原始命令行含义，再经过
-    raw 校验、派生参数解析和 resolved 校验，保证传入 src/ 的参数已经自洽。
-    """
-
+    max_shot_gather_figures = (
+        args.max_shot_figures if args.max_shot_figures is not None else args.max_shot_gather_figures
+    )
     params = _namespace(
         project=_namespace(task=args.task, run_name=args.run_name, random_seed=args.random_seed),
         road=_namespace(width_m=args.road_width_m, length_m=args.road_length_m, surface_z_m=args.road_surface_z_m),
@@ -178,8 +230,34 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             save_figures=args.save_figures,
             save_arrays=args.save_arrays,
             save_report=args.save_report,
+            figure_language=args.figure_language,
+            max_shot_gather_figures=max_shot_gather_figures,
+            save_wavefield_snapshots=args.save_wavefield_snapshots,
+            save_wavefield_animation=args.save_wavefield_animation,
+            wavefield_snapshot_count=args.wavefield_snapshot_count,
+            wavefield_grid_nx=args.wavefield_grid_nx,
+            wavefield_grid_ny=args.wavefield_grid_ny,
+            wavefield_animation_fps=args.wavefield_animation_fps,
+            wavefield_shot_index=args.wavefield_shot_index,
+            prefix_style=args.output_prefix_style,
         ),
-        task=_namespace(max_shot_figures=args.max_shot_figures, wavelet_frequency_hz=args.wavelet_frequency_hz),
+        scan=_namespace(
+            enabled=args.scan_enabled,
+            x_min_m=args.scan_x_min_m,
+            x_max_m=args.scan_x_max_m,
+            x_step_m=args.scan_x_step_m,
+            y_min_m=args.scan_y_min_m,
+            y_max_m=args.scan_y_max_m,
+            y_step_m=args.scan_y_step_m,
+            depth_min_m=args.scan_depth_min_m,
+            depth_max_m=args.scan_depth_max_m,
+            depth_step_m=args.scan_depth_step_m,
+            score_method=args.score_method,
+            direct_mute_enabled=args.direct_mute_enabled,
+            direct_mute_half_width_s=args.direct_mute_half_width_s,
+            time_window_half_width_s=args.scan_time_window_half_width_s,
+        ),
+        task=_namespace(wavelet_frequency_hz=args.wavelet_frequency_hz),
         derived=_namespace(),
     )
 
@@ -190,11 +268,7 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
 
 
 def validate_raw_params(params: SimpleNamespace) -> None:
-    """校验用户直接给出的原始参数。
-
-    raw 校验只检查无需派生即可判断的条件。错误信息使用中文，并同时给出当前
-    值和合理条件，便于科研调参时快速定位问题。
-    """
+    """校验无需派生即可判断的原始参数。"""
 
     if params.road.width_m <= 0:
         raise ValueError(f"road_width_m 错误：当前值为 {params.road.width_m}，合理条件是道路宽度 > 0。")
@@ -216,15 +290,12 @@ def validate_raw_params(params: SimpleNamespace) -> None:
             f"采样间隔为 {params.time.dt_s}，合理条件是记录长度 > 采样间隔。"
         )
     if params.velocity.rayleigh_velocity_mps <= 0:
-        raise ValueError(
-            f"rayleigh_velocity_mps 错误：当前值为 {params.velocity.rayleigh_velocity_mps}，合理条件是瑞雷波速度 > 0。"
-        )
+        raise ValueError(f"rayleigh_velocity_mps 错误：当前值为 {params.velocity.rayleigh_velocity_mps}，合理条件是速度 > 0。")
     if params.anomaly.depth_m <= 0:
         raise ValueError(f"anomaly_depth_m 错误：当前值为 {params.anomaly.depth_m}，合理条件是异常体深度 > 0。")
     if not (0.0 <= params.anomaly.y0_m <= params.road.width_m):
         raise ValueError(
-            f"anomaly_y0_m 错误：当前值为 {params.anomaly.y0_m}，"
-            f"合理条件是位于道路范围 0 <= y <= {params.road.width_m}。"
+            f"anomaly_y0_m 错误：当前值为 {params.anomaly.y0_m}，合理条件是 0 <= y <= {params.road.width_m}。"
         )
     if params.das_like.gauge_length_m < params.fiber.channel_spacing_m:
         raise ValueError(
@@ -232,25 +303,67 @@ def validate_raw_params(params: SimpleNamespace) -> None:
             f"通道间距为 {params.fiber.channel_spacing_m}，合理条件是 gauge length >= 通道间距。"
         )
     if not (-20.0 <= params.noise.snr_db <= 100.0):
-        raise ValueError(f"noise_snr_db 错误：当前值为 {params.noise.snr_db}，合理条件是 -20 到 100 dB 的研究范围。")
-    if params.task.max_shot_figures < 0:
-        raise ValueError(f"max_shot_figures 错误：当前值为 {params.task.max_shot_figures}，合理条件是 >= 0。")
-    if params.task.wavelet_frequency_hz <= 0:
+        raise ValueError(f"noise_snr_db 错误：当前值为 {params.noise.snr_db}，合理条件是 -20 到 100 dB。")
+    if params.output.max_shot_gather_figures < 0:
         raise ValueError(
-            f"wavelet_frequency_hz 错误：当前值为 {params.task.wavelet_frequency_hz}，合理条件是 Ricker 主频 > 0。"
+            f"max_shot_gather_figures 错误：当前值为 {params.output.max_shot_gather_figures}，合理条件是 >= 0。"
         )
+    if params.output.wavefield_snapshot_count < 1:
+        raise ValueError(
+            f"wavefield_snapshot_count 错误：当前值为 {params.output.wavefield_snapshot_count}，合理条件是 >= 1。"
+        )
+    if params.output.wavefield_grid_nx < 10:
+        raise ValueError(f"wavefield_grid_nx 错误：当前值为 {params.output.wavefield_grid_nx}，合理条件是 >= 10。")
+    if params.output.wavefield_grid_ny < 10:
+        raise ValueError(f"wavefield_grid_ny 错误：当前值为 {params.output.wavefield_grid_ny}，合理条件是 >= 10。")
+    if params.output.wavefield_animation_fps <= 0:
+        raise ValueError(
+            f"wavefield_animation_fps 错误：当前值为 {params.output.wavefield_animation_fps}，合理条件是 > 0。"
+        )
+    if params.scan.x_step_m <= 0:
+        raise ValueError(f"scan_x_step_m 错误：当前值为 {params.scan.x_step_m}，合理条件是 > 0。")
+    if params.scan.y_step_m <= 0:
+        raise ValueError(f"scan_y_step_m 错误：当前值为 {params.scan.y_step_m}，合理条件是 > 0。")
+    if params.scan.depth_step_m <= 0:
+        raise ValueError(f"scan_depth_step_m 错误：当前值为 {params.scan.depth_step_m}，合理条件是 > 0。")
+    if params.scan.x_min_m >= params.scan.x_max_m:
+        raise ValueError(
+            f"scan_x_min_m/scan_x_max_m 错误：当前值为 {params.scan.x_min_m}/{params.scan.x_max_m}，合理条件是 min < max。"
+        )
+    if params.scan.y_min_m >= params.scan.y_max_m:
+        raise ValueError(
+            f"scan_y_min_m/scan_y_max_m 错误：当前值为 {params.scan.y_min_m}/{params.scan.y_max_m}，合理条件是 min < max。"
+        )
+    if params.scan.depth_min_m >= params.scan.depth_max_m:
+        raise ValueError(
+            "scan_depth_min_m/scan_depth_max_m 错误："
+            f"当前值为 {params.scan.depth_min_m}/{params.scan.depth_max_m}，合理条件是 min < max。"
+        )
+    if params.scan.direct_mute_half_width_s < 0:
+        raise ValueError(
+            f"direct_mute_half_width_s 错误：当前值为 {params.scan.direct_mute_half_width_s}，合理条件是 >= 0。"
+        )
+    if params.scan.time_window_half_width_s <= 0:
+        raise ValueError(
+            f"scan_time_window_half_width_s 错误：当前值为 {params.scan.time_window_half_width_s}，合理条件是 > 0。"
+        )
+    if params.task.wavelet_frequency_hz <= 0:
+        raise ValueError(f"wavelet_frequency_hz 错误：当前值为 {params.task.wavelet_frequency_hz}，合理条件是 > 0。")
+
+
+def _make_inclusive_grid(start: float, stop: float, step: float) -> np.ndarray:
+    """生成包含 stop 附近端点的一维扫描网格。"""
+
+    count = int(np.floor((stop - start) / step)) + 1
+    grid = start + np.arange(count, dtype=float) * step
+    return grid[grid <= stop + 1.0e-9]
 
 
 def resolve_derived_params(params: SimpleNamespace) -> None:
-    """由主参数派生几何数组、时间轴和输出目录。
-
-    这里集中处理所有“由一个参数自动推出另一个参数”的逻辑。例如通道数量是
-    主参数，光纤末端 x 坐标由通道数量和间距派生；炮点数量也是主参数，炮线
-    末端坐标由炮数和炮间距派生。算法模块不能再次私自推导这些值。
-    """
+    """集中派生几何数组、时间轴、扫描网格和输出目录。"""
 
     if params.source.y_m is None:
-        # 单侧 DAS-like 典型几何：光纤在 y=0，震源线在道路另一侧 y=W。
+        # 单侧 DAS-like 几何：光纤近似在 y=0，震源线默认在道路另一侧 y=W。
         params.source.y_m = params.road.width_m
 
     channel_indices = np.arange(params.fiber.channel_count, dtype=float)
@@ -264,8 +377,6 @@ def resolve_derived_params(params: SimpleNamespace) -> None:
     params.derived.nt = nt
     params.derived.time_axis = np.arange(nt, dtype=float) * params.time.dt_s
 
-    # gauge_channel_count 表示一个 gauge length 覆盖的离散通道数。Stage 1 的
-    # point_receiver 近似不使用它参与波形计算，但仍派生并写入 metadata。
     gauge_intervals = int(np.ceil(params.das_like.gauge_length_m / params.fiber.channel_spacing_m))
     params.derived.gauge_channel_count = gauge_intervals + 1
 
@@ -284,17 +395,25 @@ def resolve_derived_params(params: SimpleNamespace) -> None:
         ]
     )
 
+    params.derived.scan_x_grid = _make_inclusive_grid(params.scan.x_min_m, params.scan.x_max_m, params.scan.x_step_m)
+    params.derived.scan_y_grid = _make_inclusive_grid(params.scan.y_min_m, params.scan.y_max_m, params.scan.y_step_m)
+    params.derived.scan_depth_grid = _make_inclusive_grid(
+        params.scan.depth_min_m, params.scan.depth_max_m, params.scan.depth_step_m
+    )
+    params.derived.scan_shape = (
+        len(params.derived.scan_x_grid),
+        len(params.derived.scan_y_grid),
+        len(params.derived.scan_depth_grid),
+    )
+    params.derived.scan_grid_point_count = int(np.prod(params.derived.scan_shape))
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_run_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "_" for ch in params.project.run_name)
     params.derived.output_run_dir = str(Path(params.output.root_dir) / f"{safe_run_name}_{timestamp}")
 
 
 def validate_resolved_params(params: SimpleNamespace) -> None:
-    """校验派生后的完整参数对象。
-
-    resolved 校验关注需要派生量才能判断的条件，例如 gauge length 是否超过光纤
-    有效长度、时间轴长度是否等于 nt、输出目录根路径是否可创建。
-    """
+    """校验派生后的完整参数对象。"""
 
     effective_fiber_length = params.derived.fiber_x_end_m - params.fiber.x_start_m
     if params.das_like.gauge_length_m > effective_fiber_length:
@@ -303,30 +422,25 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
             f"光纤有效长度为 {effective_fiber_length}，合理条件是不大于光纤有效长度。"
         )
     if len(params.derived.channel_x) != params.fiber.channel_count:
-        raise ValueError(
-            f"channel_x 派生错误：当前数量为 {len(params.derived.channel_x)}，"
-            f"应等于 fiber_channel_count={params.fiber.channel_count}。"
-        )
+        raise ValueError("channel_x 派生错误：数量必须等于 fiber_channel_count。")
     if len(params.derived.shot_x) != params.source.shot_count:
-        raise ValueError(
-            f"shot_x 派生错误：当前数量为 {len(params.derived.shot_x)}，"
-            f"应等于 source_shot_count={params.source.shot_count}。"
-        )
+        raise ValueError("shot_x 派生错误：数量必须等于 source_shot_count。")
     if len(params.derived.time_axis) != params.derived.nt:
-        raise ValueError(
-            f"time_axis 派生错误：当前长度为 {len(params.derived.time_axis)}，应等于 nt={params.derived.nt}。"
-        )
+        raise ValueError("time_axis 派生错误：长度必须等于 nt。")
     if params.derived.receiver_xyz.shape != (params.fiber.channel_count, 3):
-        raise ValueError(
-            f"receiver_xyz 维度错误：当前 shape={params.derived.receiver_xyz.shape}，"
-            f"合理条件是 ({params.fiber.channel_count}, 3)。"
-        )
+        raise ValueError(f"receiver_xyz 维度错误：当前 shape={params.derived.receiver_xyz.shape}。")
     if params.derived.source_xyz.shape != (params.source.shot_count, 3):
+        raise ValueError(f"source_xyz 维度错误：当前 shape={params.derived.source_xyz.shape}。")
+    if not (0 <= params.output.wavefield_shot_index < params.source.shot_count):
         raise ValueError(
-            f"source_xyz 维度错误：当前 shape={params.derived.source_xyz.shape}，"
-            f"合理条件是 ({params.source.shot_count}, 3)。"
+            f"wavefield_shot_index 错误：当前值为 {params.output.wavefield_shot_index}，"
+            f"合理条件是 0 <= index < {params.source.shot_count}。"
         )
-
+    if params.derived.scan_grid_point_count > MAX_SCAN_GRID_POINTS:
+        raise ValueError(
+            f"扫描网格点数过大：当前为 {params.derived.scan_grid_point_count}，"
+            f"上限为 {MAX_SCAN_GRID_POINTS}。请增大步长或缩小扫描范围。"
+        )
     try:
         Path(params.output.root_dir).mkdir(parents=True, exist_ok=True)
     except OSError as exc:
@@ -334,25 +448,22 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 
 
 def print_params_summary(params: SimpleNamespace) -> None:
-    """在终端打印最小参数摘要，便于确认本次运行场景。"""
+    """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 1 参数摘要 ===")
+    print("=== hcz_void_plus Stage 2 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")
     print(f"fiber channels: {params.fiber.channel_count}, x=[{params.fiber.x_start_m}, {params.derived.fiber_x_end_m}] m")
     print(f"shots: {params.source.shot_count}, source_y={params.source.y_m} m")
     print(f"time: nt={params.derived.nt}, dt={params.time.dt_s} s")
+    print(f"scan grid: {params.derived.scan_shape}, points={params.derived.scan_grid_point_count}")
     print("approximation: kinematic approximation + DAS-like response approximation")
     print(f"output_run_dir: {params.derived.output_run_dir}")
 
 
 def create_output_dir(params: SimpleNamespace) -> Path:
-    """创建本次运行独立输出目录。
-
-    只创建 outputs/<run_name>_<timestamp> 这一类结果目录，不创建 config 或 para
-    目录。后续数组、图件、报告、日志目录由 pipeline 统一创建。
-    """
+    """创建本次运行独立输出根目录。"""
 
     output_run_dir = Path(params.derived.output_run_dir)
     output_run_dir.mkdir(parents=True, exist_ok=True)
@@ -360,12 +471,7 @@ def create_output_dir(params: SimpleNamespace) -> Path:
 
 
 def dispatch_task(params: SimpleNamespace) -> dict[str, Any]:
-    """根据 --task 调度科研流程。
-
-    debug 和 forward 都走同一套 run_forward_pipeline，不维护第二套算法逻辑；
-    full_pipeline 当前调用 forward，并在报告中诚实标注 scan/confidence/robustness
-    属于后续阶段。
-    """
+    """根据 --task 调度科研流程。"""
 
     create_output_dir(params)
     print_params_summary(params)
@@ -378,7 +484,11 @@ def dispatch_task(params: SimpleNamespace) -> dict[str, Any]:
         from src.pipeline.run_full_pipeline import run_full_pipeline
 
         return run_full_pipeline(params)
-    raise ValueError(f"task={params.project.task} 已预留，但 Stage 1 尚未实现。")
+    if params.project.task == "scan":
+        from src.pipeline.run_full_pipeline import run_full_pipeline
+
+        return run_full_pipeline(params)
+    raise ValueError(f"task={params.project.task} 已预留，但 Stage 2 尚未实现该独立流程。")
 
 
 def main(argv: Iterable[str] | None = None) -> dict[str, Any]:

@@ -45,6 +45,9 @@ def build_metadata(
     synthetic_data: np.ndarray,
     scatter_xyz: np.ndarray,
     scatter_weight: np.ndarray,
+    font_info: dict[str, Any] | None = None,
+    wavefield_info: dict[str, Any] | None = None,
+    scan_result: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """构建本次实验 metadata。
 
@@ -55,23 +58,47 @@ def build_metadata(
         当前结果不能作为工程确诊结论。
     """
 
-    return {
+    metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 1 local research prototype",
+        "stage": "Stage 2 Chinese visualization and basic scan localization",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
         },
-        "approximations": {
+        "approximation": {
             "forward": "kinematic approximation",
             "das_like": "DAS-like response approximation",
             "receiver": "point_receiver approximation",
             "velocity_model": "uniform effective Rayleigh velocity",
+            "wavefield_snapshot_type": "kinematic_pseudo_wavefield",
+            "is_true_elastic_wavefield": False,
+        },
+        "visualization": {
+            "language": params.output.figure_language,
+            "save_wavefield_snapshots": params.output.save_wavefield_snapshots,
+            "save_wavefield_animation": params.output.save_wavefield_animation,
+            "font_info": font_info or {},
+            "wavefield_info": wavefield_info or {},
+        },
+        "scan": {
+            "enabled": params.scan.enabled,
+            "score_method": params.scan.score_method,
+            "grid_shape": params.derived.scan_shape,
+            "grid_point_count": params.derived.scan_grid_point_count,
+            "best_location": None,
+            "best_score": None,
+            "truth_error": None,
+        },
+        "output": {
+            "naming_prefix_rule": params.output.prefix_style,
+            "subdirectories": ["arrays", "figures", "snapshots", "animations", "reports", "logs", "metadata"],
         },
         "limitations": [
             "不是完整 DAS 仪器模拟。",
             "不是完整三维弹性波全波场模拟。",
             "gauge length 当前进入参数和 metadata，但 point_receiver 模式下不参与波形计算。",
+            "运动学伪波场快照只是传播示意，不是真实弹性波方程数值模拟。",
+            "基础扫描 best_location 不能作为工程确诊结论。",
             "结果用于科研算法原型验证，不能作为工程确诊结论。",
         ],
         "geometry": {
@@ -91,3 +118,8 @@ def build_metadata(
             "note": "多个散射点是运动学等效散射近似，不是真实边界散射模拟。",
         },
     }
+    if scan_result is not None:
+        metadata["scan"]["best_location"] = scan_result.get("best_location")
+        metadata["scan"]["best_score"] = scan_result.get("best_score")
+        metadata["scan"]["truth_error"] = scan_result.get("truth_error")
+    return metadata

@@ -11,6 +11,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+from src.visualization.plot_style import setup_chinese_matplotlib
+
 
 def plot_shot_gather(params: SimpleNamespace, data: np.ndarray, shot_index: int, output_path: Path) -> None:
     """绘制单炮 DAS-like 合成记录。
@@ -26,6 +28,7 @@ def plot_shot_gather(params: SimpleNamespace, data: np.ndarray, shot_index: int,
         被误解为完整 DAS 仪器或完整三维弹性波模拟结果。
     """
 
+    setup_chinese_matplotlib()
     gather = data[shot_index, :, :]
     clip = np.percentile(np.abs(gather), 99.0)
     if clip == 0:
@@ -39,10 +42,10 @@ def plot_shot_gather(params: SimpleNamespace, data: np.ndarray, shot_index: int,
         float(params.derived.time_axis[0]),
     ]
     image = ax.imshow(gather, aspect="auto", cmap="seismic", vmin=-clip, vmax=clip, extent=extent)
-    ax.set_xlabel("channel x (m)")
-    ax.set_ylabel("time (s)")
-    ax.set_title(f"Shot {shot_index}: DAS-like response approximation, kinematic approximation")
-    fig.colorbar(image, ax=ax, label="relative amplitude")
+    ax.set_xlabel("通道位置 x / m")
+    ax.set_ylabel("时间 / s")
+    ax.set_title(f"第 {shot_index} 炮：DAS-like 响应近似，运动学近似")
+    fig.colorbar(image, ax=ax, label="相对振幅")
     fig.tight_layout()
     fig.savefig(output_path)
     plt.close(fig)
