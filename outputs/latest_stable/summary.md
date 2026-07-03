@@ -2,7 +2,7 @@
 
 ## 本轮信息
 
-- commit id：`a77d036`
+- commit id：`8c1bed3`
 - 任务名称：`Stage 4A Reference 审计接入 + 三维观测几何泛化 + 预处理与定位算法增强`
 - 运行时间：`2026-07-03T15:55:25`
 - 来源目录：`outputs\stage4a_run_20260703_155513`
