@@ -18,6 +18,10 @@
 - `score_volume` 输出和扫描切片图。
 - 等效散射路径剖面图、Rayleigh 深度敏感性图、绕射走时曲线自检图。
 - 基础置信度诊断：peak sharpness、score contrast、multi-shot consistency、y-depth coupling warning 和 high/medium/low 规则型标志。
+- Stage 3B 扫描稳健化：raw score 与 depth-weighted score 分离，显式输出 raw_best、weighted_best 和二者差异。
+- Stage 3B 新增 warning：深度边界、宽 y 高分区、raw/weighted 分歧、浅部偏置。
+- 直达波 mute 默认改为 `taper`，保留 `hard/subtract/none`。
+- 新增 `normalized_energy_stack` 作为可选扫描得分方法。
 - `outputs/latest_stable/` 精选稳定成果导出，便于每轮人工快速检查。
 
 ## 如何运行
@@ -114,12 +118,19 @@ Stage 3 在扫描结果之后增加规则型基础诊断：
 - `multi-shot consistency`：最佳点处各炮贡献是否均衡；
 - `y-depth coupling warning`：检查单侧 DAS-like 几何下 y-depth 高分区是否拉长；
 - `low_confidence_flag`：输出 `high / medium / low` 三档科研诊断标签。
+- `best_depth_at_boundary_warning`：主 best 深度贴近扫描上下边界时触发；
+- `wide_y_high_score_zone_warning`：best_x 附近 y 方向高分区过宽时触发；
+- `raw_weighted_divergence_warning`：raw_best 与 weighted_best 三维位置差异过大时触发；
+- `shallow_bias_warning`：depth weighting 将 weighted_best 明显推向浅部时触发。
 
 输出文件：
 
 ```text
 arrays/arr_confidence_metrics.json
 figures/fig_confidence_diagnostics.png
+figures/fig_raw_vs_weighted_best_location.png
+figures/fig_raw_vs_weighted_x_depth_slice.png
+figures/fig_y_high_score_width_check.png
 reports/report_confidence.md
 ```
 

@@ -19,6 +19,7 @@ def test_argparse_defaults_can_parse():
     assert params.output.wavefield_grid_ny == 80
     assert params.scan.enabled is True
     assert params.scan.score_method == "diffraction_energy_stack"
+    assert params.scan.direct_mute_mode == "taper"
     assert params.scan.use_depth_weight is True
     assert params.scan.rayleigh_penetration_factor == 1.0
     assert params.task.wavelet_dominant_frequency_hz == 30.0
@@ -29,6 +30,8 @@ def test_argparse_defaults_can_parse():
     assert params.confidence.consistency_warning_cv_threshold == 0.8
     assert params.confidence.coupling_warning_span_y_m == 4.0
     assert params.confidence.coupling_warning_span_depth_m == 2.0
+    assert params.confidence.raw_weighted_depth_diff_warning_m == 1.0
+    assert params.confidence.raw_weighted_location_diff_warning_m == 2.0
     assert params.derived.scan_grid_point_count > 0
     assert params.derived.estimated_wavelength_m == params.velocity.rayleigh_velocity_mps / params.task.wavelet_dominant_frequency_hz
     assert params.derived.rayleigh_penetration_depth_m == params.derived.estimated_wavelength_m
@@ -49,6 +52,8 @@ def test_stage2_visualization_parameter_validation():
         ["--coupling-warning-span-y-m", "0"],
         ["--coupling-warning-span-depth-m", "0"],
         ["--latest-stable-dirname", "bad/name"],
+        ["--raw-weighted-depth-diff-warning-m", "0"],
+        ["--raw-weighted-location-diff-warning-m", "0"],
     ):
         try:
             args_to_params(parse_arguments(bad_args))

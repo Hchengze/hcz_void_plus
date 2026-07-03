@@ -16,11 +16,27 @@ def test_direct_times_and_mute_shape():
         params, params.derived.source_xyz, params.derived.receiver_xyz, velocity_model
     )
     data = np.ones((params.source.shot_count, params.derived.nt, params.fiber.channel_count), dtype=float)
-    muted = mute_direct_wave(data, params.derived.time_axis, direct_times, 0.01)
+    muted = mute_direct_wave(data, params.derived.time_axis, direct_times, 0.01, mode="taper")
 
     assert direct_times.shape == (params.source.shot_count, params.fiber.channel_count)
     assert muted.shape == data.shape
     assert np.sum(muted) < np.sum(data)
+
+
+def test_taper_mute_keeps_shape_and_smooth_window_edges():
+    time_axis = np.arange(101, dtype=float) * 0.001
+    data = np.ones((1, len(time_axis), 1), dtype=float)
+    direct_times = np.array([[0.05]], dtype=float)
+    muted = mute_direct_wave(data, time_axis, direct_times, 0.01, mode="taper")
+    hard = mute_direct_wave(data, time_axis, direct_times, 0.01, mode="hard")
+
+    assert muted.shape == data.shape
+    assert hard.shape == data.shape
+    assert muted[0, 50, 0] == 0.0
+    # taper 窗口边界附近应平滑回到 1，而不是像 hard mute 一样从 0 突然跳到 1。
+    assert 0.0 < muted[0, 41, 0] < 1.0
+    assert hard[0, 41, 0] == 0.0
+    assert muted[0, 40, 0] == 1.0
 
 
 def test_extract_window_energy_is_safe_for_out_of_range_times():

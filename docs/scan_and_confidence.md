@@ -46,12 +46,26 @@ n_x × n_y × n_depth
 - `multi-shot consistency`：最佳候选点处每炮贡献均值、标准差和变异系数；
 - `y-depth coupling warning`：在 best_x 附近检查 y-depth 高分区是否同时拉长；
 - `low_confidence_flag`：按规则输出 `high / medium / low`。
+- `best_depth_at_boundary_warning`：主 best 深度位于扫描上下边界时触发；
+- `wide_y_high_score_zone_warning`：best_x 附近高分区 y 跨度过宽时触发；
+- `raw_weighted_divergence_warning`：raw_best 与 weighted_best 三维差异过大时触发；
+- `shallow_bias_warning`：weighted_best 明显比 raw_best 更浅时触发。
 
 输出文件：
 
 - `arrays/arr_confidence_metrics.json`
 - `figures/fig_confidence_diagnostics.png`
 - `reports/report_confidence.md`
+
+Stage 3B 还输出：
+
+- `figures/fig_raw_vs_weighted_best_location.png`
+- `figures/fig_raw_vs_weighted_x_depth_slice.png`
+- `figures/fig_y_high_score_width_check.png`
+
+## raw score 与 weighted score
+
+`score_volume_raw` 表示不加 Rayleigh 深度权重的扫描得分；`score_volume_depth_weighted` 表示乘以 `exp(-h / penetration_depth)` 后的得分。若 weighted_best 比 raw_best 明显更浅，尤其贴近 `scan_depth_min_m`，报告会触发 shallow/boundary warning。这说明深度先验可能影响了最佳深度，不能把 weighted_best 当作稳定深度估计。
 
 这些指标是科研原型阶段的自检工具，不是统计显著性检验、不是完整置信区间，也不能作为工程确诊。
 

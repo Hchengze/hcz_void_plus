@@ -66,6 +66,8 @@ def plot_confidence_diagnostics(
     contrast = confidence_metrics["contrast"]
     consistency = confidence_metrics["multi_shot_consistency"]
     coupling = confidence_metrics["y_depth_coupling"]
+    stage3b = confidence_metrics["stage3b_warnings"]
+    diff = confidence_metrics.get("raw_weighted_difference") or {}
     lines = [
         "基础置信度诊断",
         "",
@@ -76,6 +78,11 @@ def plot_confidence_diagnostics(
         f"高分 y 跨度: {coupling['y_span_m']:.3g} m",
         f"高分 depth 跨度: {coupling['depth_span_m']:.3g} m",
         f"y-depth 耦合警告: {coupling['warning']}",
+        f"深度边界警告: {stage3b['best_depth_at_boundary_warning']}",
+        f"宽 y 高分区警告: {stage3b['wide_y_high_score_zone_warning']}",
+        f"raw/weighted 分歧: {stage3b['raw_weighted_divergence_warning']}",
+        f"浅部偏置警告: {stage3b['shallow_bias_warning']}",
+        f"raw->weighted dh: {diff.get('ddepth_m', 0.0):.3g} m",
         f"confidence flag: {confidence_metrics['low_confidence_flag']}",
         "",
         "说明：规则型科研诊断，非工程确诊。",
@@ -94,4 +101,3 @@ def plot_confidence_diagnostics(
     fig.tight_layout()
     fig.savefig(output_path)
     plt.close(fig)
-

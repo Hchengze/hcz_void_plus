@@ -82,6 +82,7 @@
     "depth_step_m": 0.5,
     "score_method": "diffraction_energy_stack",
     "direct_mute_enabled": true,
+    "direct_mute_mode": "taper",
     "direct_mute_half_width_s": 0.02,
     "time_window_half_width_s": 0.015,
     "use_depth_weight": true,
@@ -96,7 +97,9 @@
     "neighborhood_radius": 1,
     "consistency_warning_cv_threshold": 0.8,
     "coupling_warning_span_y_m": 4.0,
-    "coupling_warning_span_depth_m": 2.0
+    "coupling_warning_span_depth_m": 2.0,
+    "raw_weighted_depth_diff_warning_m": 1.0,
+    "raw_weighted_location_diff_warning_m": 2.0
   },
   "derived": {
     "channel_x": [
@@ -1823,6 +1826,6 @@
     "estimated_wavelength_m": 8.666666666666666,
     "rayleigh_penetration_depth_m": 8.666666666666666,
     "latest_stable_dir": "outputs\\latest_stable",
-    "output_run_dir": "outputs\\stage3_run_20260703_134954"
+    "output_run_dir": "outputs\\stage3_run_20260703_142452"
   }
 }

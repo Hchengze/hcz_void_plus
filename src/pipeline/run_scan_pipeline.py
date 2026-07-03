@@ -20,7 +20,13 @@ from src.visualization.plot_physical_diagnostics import (
     plot_rayleigh_depth_sensitivity,
     plot_source_anomaly_receiver_path_section,
 )
-from src.visualization.plot_scan import plot_best_location_map, plot_scan_x_depth_slice, plot_scan_x_y_slice
+from src.visualization.plot_scan import (
+    plot_best_location_map,
+    plot_raw_vs_weighted_best_location,
+    plot_raw_vs_weighted_x_depth_slice,
+    plot_scan_x_depth_slice,
+    plot_scan_x_y_slice,
+)
 
 
 def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: dict[str, Any]) -> None:
@@ -28,6 +34,9 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 
     best = scan_result["best_location"]
     error = scan_result["truth_error"]
+    raw_best = scan_result["raw_best_location"]
+    weighted_best = scan_result["weighted_best_location"]
+    diff = scan_result["raw_weighted_difference"]
     content = f"""# 扫描定位报告
 
 ## 当前近似
@@ -42,6 +51,7 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 - y：`{params.scan.y_min_m}` 到 `{params.scan.y_max_m}` m，步长 `{params.scan.y_step_m}` m
 - h：`{params.scan.depth_min_m}` 到 `{params.scan.depth_max_m}` m，步长 `{params.scan.depth_step_m}` m
 - score_volume shape：`{tuple(scan_result["score_volume"].shape)}`
+- arr_score_volume.npy 当前展示主结果：`{scan_result["score_volume_kind"]}`
 - depth weighting：`{params.scan.use_depth_weight}`
 - Rayleigh 波长估计：`{params.derived.estimated_wavelength_m:.3f}` m
 - Rayleigh 穿透深度近似：`{scan_result["penetration_depth_m"]:.3f}` m
@@ -51,6 +61,13 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 - best_location：x=`{best["x_m"]}` m，y=`{best["y_m"]}` m，h=`{best["depth_m"]}` m
 - best_score：`{scan_result["best_score"]}`
 - truth_error：dx=`{error["dx_m"]}` m，dy=`{error["dy_m"]}` m，dh=`{error["ddepth_m"]}` m，三维距离=`{error["distance_m"]}` m
+
+## raw 与 weighted best 分离
+
+- raw_best：x=`{raw_best["x_m"]}` m，y=`{raw_best["y_m"]}` m，h=`{raw_best["depth_m"]}` m，score=`{scan_result["raw_best_score"]}`
+- weighted_best：x=`{weighted_best["x_m"]}` m，y=`{weighted_best["y_m"]}` m，h=`{weighted_best["depth_m"]}` m，score=`{scan_result["weighted_best_score"]}`
+- raw -> weighted 差异：dx=`{diff["dx_m"]}` m，dy=`{diff["dy_m"]}` m，dh=`{diff["ddepth_m"]}` m，三维距离=`{diff["distance_m"]}` m
+- depth_prior_bias_warning：`{scan_result["depth_prior_bias_warning"]}`
 
 ## 风险提示
 
@@ -97,7 +114,13 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
     direct_times = predict_direct_arrival_times(params, source_xyz, receiver_xyz, velocity_model)
     scan_data = synthetic_data
     if params.scan.direct_mute_enabled:
-        scan_data = mute_direct_wave(scan_data, params.derived.time_axis, direct_times, params.scan.direct_mute_half_width_s)
+        scan_data = mute_direct_wave(
+            scan_data,
+            params.derived.time_axis,
+            direct_times,
+            params.scan.direct_mute_half_width_s,
+            mode=params.scan.direct_mute_mode,
+        )
 
     scan_grid = build_scan_grid(params)
     scan_result = run_multishot_scan(
@@ -139,6 +162,18 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
             scan_result["best_location"],
             paths["figures"] / "fig_best_location_map.png",
         )
+        plot_raw_vs_weighted_best_location(
+            params,
+            source_xyz,
+            receiver_xyz,
+            scan_result,
+            paths["figures"] / "fig_raw_vs_weighted_best_location.png",
+        )
+        plot_raw_vs_weighted_x_depth_slice(
+            params,
+            scan_result,
+            paths["figures"] / "fig_raw_vs_weighted_x_depth_slice.png",
+        )
         plot_source_anomaly_receiver_path_section(
             params,
             source_xyz,
@@ -174,6 +209,8 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
             "diffraction_travel_time_curve_figure": str(paths["figures"] / "fig_diffraction_travel_time_curves.png"),
             "path_section_figure": str(paths["figures"] / "fig_source_anomaly_receiver_path_section.png"),
             "depth_sensitivity_figure": str(paths["figures"] / "fig_rayleigh_depth_sensitivity.png"),
+            "raw_vs_weighted_best_location_figure": str(paths["figures"] / "fig_raw_vs_weighted_best_location.png"),
+            "raw_vs_weighted_x_depth_slice_figure": str(paths["figures"] / "fig_raw_vs_weighted_x_depth_slice.png"),
         },
     )
     save_json(paths["metadata"] / "meta_run.json", metadata)

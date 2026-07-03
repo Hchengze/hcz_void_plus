@@ -25,6 +25,17 @@
 - `outputs/latest_stable/` 精选成果目录；
 - 时间戳完整输出与 Git 精选输出分离。
 
+## Stage 3B
+
+三维场景约束下的扫描诊断修正与置信度稳健化：
+
+- raw score 与 depth-weighted score 并列输出；
+- raw_best、weighted_best 和二者差异进入报告与 summary；
+- 新增深度边界、宽 y 高分区、raw/weighted 分歧和浅部偏置 warning；
+- 直达波 mute 默认改为 taper；
+- 新增 normalized_energy_stack；
+- 新增三维几何路线文档。
+
 ## 后续阶段
 
 - 更完整的概率置信度体系和不确定性表达；

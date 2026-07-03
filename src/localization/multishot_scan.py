@@ -50,6 +50,85 @@ def _score_candidate_fast(
     return float(np.mean(energy))
 
 
+def _score_candidate_normalized_fast(
+    cumulative_energy: np.ndarray,
+    trace_energy: np.ndarray,
+    time_axis: np.ndarray,
+    candidate_times: np.ndarray,
+    half_width_s: float,
+) -> float:
+    """计算归一化局部能量堆叠得分。
+
+    与 diffraction_energy_stack 直接平均窗口能量不同，本函数先把每个 shot-channel
+    的窗口能量除以该道全记录能量，再对所有炮和通道平均。这样可以降低强能量炮、
+    强能量通道或残余直达波对扫描结果的支配，使得得分更接近“沿候选绕射曲线能量
+    是否相对增强”的属性。
+
+    限制：
+        这仍然是运动学局部能量属性，不是匹配滤波成像，也不是 FWI。
+    """
+
+    n_shot = cumulative_energy.shape[0]
+    n_time = cumulative_energy.shape[1] - 1
+    n_channel = cumulative_energy.shape[2]
+    dt = float(time_axis[1] - time_axis[0]) if len(time_axis) > 1 else 1.0
+    half_samples = int(np.ceil(half_width_s / dt))
+    center_index = np.rint((candidate_times - time_axis[0]) / dt).astype(int)
+    start = np.clip(center_index - half_samples, 0, n_time)
+    stop = np.clip(center_index + half_samples + 1, 0, n_time)
+    valid = stop > start
+    shot_index = np.arange(n_shot)[:, None]
+    channel_index = np.arange(n_channel)[None, :]
+    energy = cumulative_energy[shot_index, stop, channel_index] - cumulative_energy[shot_index, start, channel_index]
+    normalized_energy = energy / np.maximum(trace_energy, 1.0e-12)
+    normalized_energy[~valid] = 0.0
+    return float(np.mean(normalized_energy))
+
+
+def _best_from_volume(
+    score_volume: np.ndarray,
+    x_grid: np.ndarray,
+    y_grid: np.ndarray,
+    depth_grid: np.ndarray,
+    truth: np.ndarray,
+) -> dict[str, Any]:
+    """从任意 score volume 提取最高分位置及真值误差。
+
+    该工具用于同时分析 raw score 和 depth-weighted score，避免把深度权重后的结果
+    误当成唯一定位结果。返回的 location 仍然只是科研级候选位置。
+    """
+
+    best_index = np.unravel_index(int(np.argmax(score_volume)), score_volume.shape)
+    best_location = {
+        "x_m": float(x_grid[best_index[0]]),
+        "y_m": float(y_grid[best_index[1]]),
+        "depth_m": float(depth_grid[best_index[2]]),
+    }
+    best = np.array([best_location["x_m"], best_location["y_m"], best_location["depth_m"]], dtype=float)
+    truth_error = {
+        "dx_m": float(best[0] - truth[0]),
+        "dy_m": float(best[1] - truth[1]),
+        "ddepth_m": float(best[2] - truth[2]),
+        "distance_m": float(np.linalg.norm(best - truth)),
+    }
+    return {
+        "best_index": tuple(int(v) for v in best_index),
+        "best_location": best_location,
+        "best_score": float(score_volume[best_index]),
+        "truth_error": truth_error,
+    }
+
+
+def _normalize_volume(score_volume: np.ndarray) -> np.ndarray:
+    """将得分体归一化到 0-1，用于绘图，不改变实际扫描分数。"""
+
+    max_score = float(np.max(score_volume))
+    min_score = float(np.min(score_volume))
+    if max_score > min_score:
+        return (score_volume - min_score) / (max_score - min_score)
+    return np.zeros_like(score_volume)
+
+
 def run_multishot_scan(
     data: np.ndarray,
     time_axis: np.ndarray,
@@ -79,6 +158,7 @@ def run_multishot_scan(
     depth_grid = scan_grid["depth_grid"]
     score_volume_raw = np.zeros((len(x_grid), len(y_grid), len(depth_grid)), dtype=float)
     cumulative_energy = _build_energy_cumulative(data)
+    trace_energy = cumulative_energy[:, -1, :]
     penetration_depth_m = estimate_penetration_depth(params)
 
     for ix, x_m in enumerate(x_grid):
@@ -88,47 +168,72 @@ def run_multishot_scan(
                 candidate_times = compute_candidate_diffraction_times(
                     candidate_xyz, source_xyz, receiver_xyz, velocity_model, t0_s=params.time.t0_s
                 )
-                score_volume_raw[ix, iy, iz] = _score_candidate_fast(
-                    cumulative_energy, time_axis, candidate_times, params.scan.time_window_half_width_s
-                )
+                if params.scan.score_method == "normalized_energy_stack":
+                    score_volume_raw[ix, iy, iz] = _score_candidate_normalized_fast(
+                        cumulative_energy,
+                        trace_energy,
+                        time_axis,
+                        candidate_times,
+                        params.scan.time_window_half_width_s,
+                    )
+                else:
+                    score_volume_raw[ix, iy, iz] = _score_candidate_fast(
+                        cumulative_energy, time_axis, candidate_times, params.scan.time_window_half_width_s
+                    )
 
     depth_weights = rayleigh_depth_weight(depth_grid, penetration_depth_m)
     score_volume_depth_weighted = score_volume_raw * depth_weights[None, None, :]
     score_volume = score_volume_depth_weighted if params.scan.use_depth_weight else score_volume_raw
+    score_volume_kind = "depth_weighted" if params.scan.use_depth_weight else "raw"
 
-    best_index = np.unravel_index(int(np.argmax(score_volume)), score_volume.shape)
-    best_location = {
-        "x_m": float(x_grid[best_index[0]]),
-        "y_m": float(y_grid[best_index[1]]),
-        "depth_m": float(depth_grid[best_index[2]]),
-    }
     truth = np.array([params.anomaly.x0_m, params.anomaly.y0_m, params.anomaly.depth_m], dtype=float)
-    best = np.array([best_location["x_m"], best_location["y_m"], best_location["depth_m"]], dtype=float)
-    truth_error = {
-        "dx_m": float(best[0] - truth[0]),
-        "dy_m": float(best[1] - truth[1]),
-        "ddepth_m": float(best[2] - truth[2]),
-        "distance_m": float(np.linalg.norm(best - truth)),
+    raw_best = _best_from_volume(score_volume_raw, x_grid, y_grid, depth_grid, truth)
+    weighted_best = _best_from_volume(score_volume_depth_weighted, x_grid, y_grid, depth_grid, truth)
+    active_best = weighted_best if params.scan.use_depth_weight else raw_best
+    raw_location = raw_best["best_location"]
+    weighted_location = weighted_best["best_location"]
+    raw_weighted_vector = np.array(
+        [
+            weighted_location["x_m"] - raw_location["x_m"],
+            weighted_location["y_m"] - raw_location["y_m"],
+            weighted_location["depth_m"] - raw_location["depth_m"],
+        ],
+        dtype=float,
+    )
+    raw_weighted_difference = {
+        "dx_m": float(raw_weighted_vector[0]),
+        "dy_m": float(raw_weighted_vector[1]),
+        "ddepth_m": float(raw_weighted_vector[2]),
+        "distance_m": float(np.linalg.norm(raw_weighted_vector)),
     }
-
-    max_score = float(np.max(score_volume))
-    min_score = float(np.min(score_volume))
-    if max_score > min_score:
-        normalized_score_volume = (score_volume - min_score) / (max_score - min_score)
-    else:
-        normalized_score_volume = np.zeros_like(score_volume)
+    depth_prior_bias_warning = (
+        abs(raw_weighted_difference["ddepth_m"]) > params.confidence.raw_weighted_depth_diff_warning_m
+    )
 
     return {
         "score_volume": score_volume,
+        "score_volume_kind": score_volume_kind,
         "score_volume_raw": score_volume_raw,
         "score_volume_depth_weighted": score_volume_depth_weighted,
         "depth_weights": depth_weights,
         "depth_weight_enabled": params.scan.use_depth_weight,
         "penetration_depth_m": penetration_depth_m,
-        "normalized_score_volume": normalized_score_volume,
-        "best_index": best_index,
-        "best_location": best_location,
-        "best_score": float(score_volume[best_index]),
-        "truth_error": truth_error,
+        "normalized_score_volume": _normalize_volume(score_volume),
+        "normalized_score_volume_raw": _normalize_volume(score_volume_raw),
+        "normalized_score_volume_depth_weighted": _normalize_volume(score_volume_depth_weighted),
+        "raw_best_index": raw_best["best_index"],
+        "raw_best_location": raw_best["best_location"],
+        "raw_best_score": raw_best["best_score"],
+        "raw_truth_error": raw_best["truth_error"],
+        "weighted_best_index": weighted_best["best_index"],
+        "weighted_best_location": weighted_best["best_location"],
+        "weighted_best_score": weighted_best["best_score"],
+        "weighted_truth_error": weighted_best["truth_error"],
+        "raw_weighted_difference": raw_weighted_difference,
+        "depth_prior_bias_warning": bool(depth_prior_bias_warning),
+        "best_index": active_best["best_index"],
+        "best_location": active_best["best_location"],
+        "best_score": active_best["best_score"],
+        "truth_error": active_best["truth_error"],
         "y_depth_coupling_warning": "单侧 DAS-like 几何下，横向 y 与埋深 h 可能存在耦合，best_location 不能作为工程确诊。",
     }

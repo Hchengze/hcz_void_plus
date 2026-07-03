@@ -19,6 +19,11 @@
 - 扫描：基于理论散射走时的局部能量聚焦。
 - 深度敏感性：使用 `exp(-h / penetration_depth)` 作为 Rayleigh 波浅层敏感性的简化近似，其中 `penetration_depth = rayleigh_penetration_factor * wavelength`。
 - 基础置信度：基于 score volume 形态、多炮贡献一致性和 y-depth 高分区跨度的规则型诊断。
+- Stage 3B：raw score 与 depth-weighted score 分离，并显式诊断深度边界、浅部偏置和 raw/weighted 分歧。
+
+## 三维坐标与当前观测系统
+
+当前代码中的 source、receiver 和 candidate 都使用三维坐标计算走时，因此 depth 不是绘图标签，而是路径距离中的 z 坐标。但当前观测系统仍然是单光纤线 + 单震源线，尚未支持任意三维 source/receiver polyline 或多异常体三维形状。
 
 ## 限制
 

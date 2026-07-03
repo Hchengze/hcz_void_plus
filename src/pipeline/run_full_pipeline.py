@@ -13,6 +13,7 @@ from src.pipeline.run_scan_pipeline import run_scan_pipeline
 from src.utils.metadata import build_metadata, save_json
 from src.utils.stable_export import export_latest_stable_outputs, get_git_commit_id
 from src.visualization.plot_confidence import plot_confidence_diagnostics
+from src.visualization.plot_scan import plot_y_high_score_width_check
 
 
 def _write_full_pipeline_report(
@@ -25,17 +26,25 @@ def _write_full_pipeline_report(
 
     best = scan_result["best_location"]
     error = scan_result["truth_error"]
+    raw_best = scan_result["raw_best_location"]
+    weighted_best = scan_result["weighted_best_location"]
+    diff = scan_result["raw_weighted_difference"]
     confidence_text = "本次未执行基础置信度分析。"
     if confidence_metrics is not None:
         peak = confidence_metrics["peak"]
         contrast = confidence_metrics["contrast"]
         consistency = confidence_metrics["multi_shot_consistency"]
         coupling = confidence_metrics["y_depth_coupling"]
+        stage3b = confidence_metrics["stage3b_warnings"]
         confidence_text = f"""- peak sharpness：`{peak["peak_sharpness"]:.4g}`
 - score contrast：`{contrast["score_contrast"]:.4g}`
 - score percentile：`{contrast["score_percentile"]:.2f}%`
 - multi-shot consistency CV：`{consistency["coefficient_of_variation"]:.4g}`
 - y-depth coupling warning：`{coupling["warning"]}`
+- best_depth_at_boundary_warning：`{stage3b["best_depth_at_boundary_warning"]}`
+- wide_y_high_score_zone_warning：`{stage3b["wide_y_high_score_zone_warning"]}`
+- raw_weighted_divergence_warning：`{stage3b["raw_weighted_divergence_warning"]}`
+- shallow_bias_warning：`{stage3b["shallow_bias_warning"]}`
 - confidence flag：`{confidence_metrics["low_confidence_flag"]}`
 
 这些指标只是规则型科研诊断，用于帮助人工判断结果是否稳定，不能作为工程确诊。"""
@@ -55,9 +64,17 @@ def _write_full_pipeline_report(
 
 - score method：`{params.scan.score_method}`
 - score volume shape：`{tuple(scan_result["score_volume"].shape)}`
+- arr_score_volume.npy 当前主结果：`{scan_result["score_volume_kind"]}`
 - scan depth weighting：`{params.scan.use_depth_weight}`
 - best_location：x=`{best["x_m"]}` m，y=`{best["y_m"]}` m，h=`{best["depth_m"]}` m
 - truth_error distance：`{error["distance_m"]}` m
+
+## raw 与 weighted best 对比
+
+- raw_best：x=`{raw_best["x_m"]}` m，y=`{raw_best["y_m"]}` m，h=`{raw_best["depth_m"]}` m
+- weighted_best：x=`{weighted_best["x_m"]}` m，y=`{weighted_best["y_m"]}` m，h=`{weighted_best["depth_m"]}` m
+- raw -> weighted 差异：dx=`{diff["dx_m"]}` m，dy=`{diff["dy_m"]}` m，dh=`{diff["ddepth_m"]}` m，三维距离=`{diff["distance_m"]}` m
+- depth_prior_bias_warning：`{scan_result["depth_prior_bias_warning"]}`
 
 ## 基础置信度分析
 
@@ -103,6 +120,9 @@ def _build_final_metadata(
             "diffraction_travel_time_curve_figure": str(paths["figures"] / "fig_diffraction_travel_time_curves.png"),
             "path_section_figure": str(paths["figures"] / "fig_source_anomaly_receiver_path_section.png"),
             "depth_sensitivity_figure": str(paths["figures"] / "fig_rayleigh_depth_sensitivity.png"),
+            "raw_vs_weighted_best_location_figure": str(paths["figures"] / "fig_raw_vs_weighted_best_location.png"),
+            "raw_vs_weighted_x_depth_slice_figure": str(paths["figures"] / "fig_raw_vs_weighted_x_depth_slice.png"),
+            "y_high_score_width_check_figure": str(paths["figures"] / "fig_y_high_score_width_check.png"),
         },
         confidence_info=confidence_metrics,
         output_info=output_info,
@@ -148,6 +168,12 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 confidence_metrics,
                 paths["figures"] / "fig_confidence_diagnostics.png",
             )
+            plot_y_high_score_width_check(
+                params,
+                scan_result,
+                confidence_metrics,
+                paths["figures"] / "fig_y_high_score_width_check.png",
+            )
         if params.output.save_report:
             write_confidence_report(params, paths["reports"] / "report_confidence.md", confidence_metrics)
         _write_full_pipeline_report(
@@ -168,10 +194,13 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 3 基础置信度指标 + 稳定成果输出管理",
+                "task_name": "Stage 3B 三维场景约束下的扫描诊断修正与置信度稳健化",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
                 "best_location": scan_result["best_location"],
+                "raw_best_location": scan_result["raw_best_location"],
+                "weighted_best_location": scan_result["weighted_best_location"],
+                "raw_weighted_difference": scan_result["raw_weighted_difference"],
                 "truth_error": scan_result["truth_error"],
                 "confidence": confidence_metrics,
             }

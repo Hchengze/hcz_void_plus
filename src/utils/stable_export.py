@@ -18,6 +18,9 @@ SELECTED_FIGURES = [
     "fig_scan_x_depth_slice.png",
     "fig_scan_x_y_slice.png",
     "fig_best_location_map.png",
+    "fig_raw_vs_weighted_best_location.png",
+    "fig_raw_vs_weighted_x_depth_slice.png",
+    "fig_y_high_score_width_check.png",
     "fig_confidence_diagnostics.png",
 ]
 
@@ -83,12 +86,16 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     """生成 latest_stable/summary.md 中文摘要。"""
 
     best = summary_info.get("best_location") or {}
+    raw_best = summary_info.get("raw_best_location") or {}
+    weighted_best = summary_info.get("weighted_best_location") or {}
+    raw_weighted_difference = summary_info.get("raw_weighted_difference") or {}
     truth_error = summary_info.get("truth_error") or {}
     confidence = summary_info.get("confidence") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
     coupling = confidence.get("y_depth_coupling", {})
+    stage3b = confidence.get("stage3b_warnings", {})
     recommended = "\n".join(
         [
             "- figures/fig_geometry_layout_check.png",
@@ -99,6 +106,9 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- figures/fig_scan_x_depth_slice.png",
             "- figures/fig_scan_x_y_slice.png",
             "- figures/fig_best_location_map.png",
+            "- figures/fig_raw_vs_weighted_best_location.png",
+            "- figures/fig_raw_vs_weighted_x_depth_slice.png",
+            "- figures/fig_y_high_score_width_check.png",
             "- figures/fig_confidence_diagnostics.png",
             "- animations/anim_pseudo_wavefield.gif",
             "- reports/report_full_pipeline.md",
@@ -126,6 +136,12 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - best_location：x=`{_format_optional(best.get("x_m"))}` m，y=`{_format_optional(best.get("y_m"))}` m，h=`{_format_optional(best.get("depth_m"))}` m
 - truth_error：`{_format_optional(truth_error.get("distance_m"))}` m
 
+## raw 与 weighted best 对比
+
+- raw_best：x=`{_format_optional(raw_best.get("x_m"))}` m，y=`{_format_optional(raw_best.get("y_m"))}` m，h=`{_format_optional(raw_best.get("depth_m"))}` m
+- weighted_best：x=`{_format_optional(weighted_best.get("x_m"))}` m，y=`{_format_optional(weighted_best.get("y_m"))}` m，h=`{_format_optional(weighted_best.get("depth_m"))}` m
+- raw -> weighted 差异：dx=`{_format_optional(raw_weighted_difference.get("dx_m"))}` m，dy=`{_format_optional(raw_weighted_difference.get("dy_m"))}` m，dh=`{_format_optional(raw_weighted_difference.get("ddepth_m"))}` m，三维距离=`{_format_optional(raw_weighted_difference.get("distance_m"))}` m
+
 ## 基础置信度指标
 
 - peak sharpness：`{_format_optional(peak.get("peak_sharpness"))}`
@@ -133,6 +149,10 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - score percentile：`{_format_optional(contrast.get("score_percentile"))}`
 - multi-shot consistency CV：`{_format_optional(consistency.get("coefficient_of_variation"))}`
 - y-depth coupling warning：`{_format_optional(coupling.get("warning"))}`
+- best depth boundary warning：`{_format_optional(stage3b.get("best_depth_at_boundary_warning"))}`
+- wide y high-score zone warning：`{_format_optional(stage3b.get("wide_y_high_score_zone_warning"))}`
+- raw/weighted divergence warning：`{_format_optional(stage3b.get("raw_weighted_divergence_warning"))}`
+- shallow bias warning：`{_format_optional(stage3b.get("shallow_bias_warning"))}`
 - low confidence flag：`{confidence.get("low_confidence_flag", "unknown")}`
 
 ## 推荐人工重点查看
@@ -217,4 +237,3 @@ def export_latest_stable_outputs(
         "missing": missing,
         "summary_path": str(latest_stable_dir / "summary.md"),
     }
-

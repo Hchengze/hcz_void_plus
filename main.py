@@ -172,10 +172,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
     scan.add_argument(
         "--score-method",
         default="diffraction_energy_stack",
-        choices=["diffraction_energy_stack"],
-        help="扫描得分方法；Stage 2 采用绕射能量叠加。",
+        choices=["diffraction_energy_stack", "normalized_energy_stack"],
+        help="扫描得分方法；normalized_energy_stack 会先按每道总能量归一化再叠加。",
     )
     scan.add_argument("--direct-mute-enabled", type=str_to_bool, default=True, help="扫描前是否按预测直达波时间窗 mute。")
+    scan.add_argument(
+        "--direct-mute-mode",
+        default="taper",
+        choices=["hard", "taper", "subtract", "none"],
+        help="直达波压制模式：taper 为余弦平滑衰减，hard 为硬置零，none 不处理。",
+    )
     scan.add_argument("--direct-mute-half-width-s", type=float, default=0.02, help="直达波 mute 半窗长，单位 s。")
     scan.add_argument("--scan-time-window-half-width-s", type=float, default=0.015, help="扫描能量拾取半窗长，单位 s。")
     scan.add_argument("--scan-use-depth-weight", type=str_to_bool, default=True, help="是否在扫描得分中加入 Rayleigh 波简化深度敏感性权重。")
@@ -215,6 +221,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=float,
         default=2.0,
         help="高分区 depth 方向跨度超过该阈值时，参与 y-depth 耦合风险判断，单位 m。",
+    )
+    confidence.add_argument(
+        "--raw-weighted-depth-diff-warning-m",
+        type=float,
+        default=1.0,
+        help="raw_best_depth 与 weighted_best_depth 差异超过该阈值时触发深度先验偏置警告，单位 m。",
+    )
+    confidence.add_argument(
+        "--raw-weighted-location-diff-warning-m",
+        type=float,
+        default=2.0,
+        help="raw_best 与 weighted_best 三维距离差异超过该阈值时触发 raw/weighted 分歧警告，单位 m。",
     )
 
     return parser
@@ -302,6 +320,7 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             depth_step_m=args.scan_depth_step_m,
             score_method=args.score_method,
             direct_mute_enabled=args.direct_mute_enabled,
+            direct_mute_mode=args.direct_mute_mode,
             direct_mute_half_width_s=args.direct_mute_half_width_s,
             time_window_half_width_s=args.scan_time_window_half_width_s,
             use_depth_weight=args.scan_use_depth_weight,
@@ -317,6 +336,8 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             consistency_warning_cv_threshold=args.consistency_warning_cv_threshold,
             coupling_warning_span_y_m=args.coupling_warning_span_y_m,
             coupling_warning_span_depth_m=args.coupling_warning_span_depth_m,
+            raw_weighted_depth_diff_warning_m=args.raw_weighted_depth_diff_warning_m,
+            raw_weighted_location_diff_warning_m=args.raw_weighted_location_diff_warning_m,
         ),
         derived=_namespace(),
     )
@@ -444,6 +465,16 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         raise ValueError(
             "coupling_warning_span_depth_m 错误："
             f"当前值为 {params.confidence.coupling_warning_span_depth_m}，合理条件是 > 0。"
+        )
+    if params.confidence.raw_weighted_depth_diff_warning_m <= 0:
+        raise ValueError(
+            "raw_weighted_depth_diff_warning_m 错误："
+            f"当前值为 {params.confidence.raw_weighted_depth_diff_warning_m}，合理条件是 > 0。"
+        )
+    if params.confidence.raw_weighted_location_diff_warning_m <= 0:
+        raise ValueError(
+            "raw_weighted_location_diff_warning_m 错误："
+            f"当前值为 {params.confidence.raw_weighted_location_diff_warning_m}，合理条件是 > 0。"
         )
 
 

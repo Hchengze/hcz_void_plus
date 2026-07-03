@@ -141,6 +141,11 @@ def build_metadata(
             "best_location": None,
             "best_score": None,
             "truth_error": None,
+            "score_volume_kind": None,
+            "raw_best_location": None,
+            "weighted_best_location": None,
+            "raw_weighted_difference": None,
+            "depth_prior_bias_warning": None,
             "score_volume_raw_saved": False,
             "score_volume_depth_weighted_saved": False,
         },
@@ -148,6 +153,9 @@ def build_metadata(
             "diffraction_travel_time_curve_figure": None,
             "path_section_figure": None,
             "depth_sensitivity_figure": None,
+            "raw_vs_weighted_best_location_figure": None,
+            "raw_vs_weighted_x_depth_slice_figure": None,
+            "y_high_score_width_check_figure": None,
         },
         "confidence": {
             "peak_sharpness": None,
@@ -157,6 +165,10 @@ def build_metadata(
             "multi_shot_consistency_std": None,
             "multi_shot_consistency_cv": None,
             "y_depth_coupling_warning": None,
+            "best_depth_at_boundary_warning": None,
+            "wide_y_high_score_zone_warning": None,
+            "raw_weighted_divergence_warning": None,
+            "shallow_bias_warning": None,
             "low_confidence_flag": None,
         },
         "output": {
@@ -202,6 +214,11 @@ def build_metadata(
         metadata["scan"]["best_location"] = scan_result.get("best_location")
         metadata["scan"]["best_score"] = scan_result.get("best_score")
         metadata["scan"]["truth_error"] = scan_result.get("truth_error")
+        metadata["scan"]["score_volume_kind"] = scan_result.get("score_volume_kind")
+        metadata["scan"]["raw_best_location"] = scan_result.get("raw_best_location")
+        metadata["scan"]["weighted_best_location"] = scan_result.get("weighted_best_location")
+        metadata["scan"]["raw_weighted_difference"] = scan_result.get("raw_weighted_difference")
+        metadata["scan"]["depth_prior_bias_warning"] = scan_result.get("depth_prior_bias_warning")
         metadata["scan"]["score_volume_raw_saved"] = True
         metadata["scan"]["score_volume_depth_weighted_saved"] = True
     if diagnostics_info is not None:
@@ -216,6 +233,10 @@ def build_metadata(
                 "multi_shot_consistency_std": confidence_info["multi_shot_consistency"]["std"],
                 "multi_shot_consistency_cv": confidence_info["multi_shot_consistency"]["coefficient_of_variation"],
                 "y_depth_coupling_warning": confidence_info["y_depth_coupling"]["warning"],
+                "best_depth_at_boundary_warning": confidence_info["stage3b_warnings"]["best_depth_at_boundary_warning"],
+                "wide_y_high_score_zone_warning": confidence_info["stage3b_warnings"]["wide_y_high_score_zone_warning"],
+                "raw_weighted_divergence_warning": confidence_info["stage3b_warnings"]["raw_weighted_divergence_warning"],
+                "shallow_bias_warning": confidence_info["stage3b_warnings"]["shallow_bias_warning"],
                 "low_confidence_flag": confidence_info["low_confidence_flag"],
             }
         )
