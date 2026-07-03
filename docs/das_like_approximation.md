@@ -18,3 +18,7 @@ shot × time × channel
 - 严格应变或应变率转换。
 
 `gauge_length_m` 已进入统一参数对象和 metadata，但在 point receiver 模式下不参与波形计算。
+
+## 与 Rayleigh 地表响应图的关系
+
+运动学地表响应示意图只显示 x-y 表面的相对响应趋势，不是 DAS 仪器响应，也不是光纤应变率的严格模拟。真实 DAS 响应还需要考虑 gauge length、轴向应变、耦合条件和解调过程。

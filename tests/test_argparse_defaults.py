@@ -19,7 +19,12 @@ def test_argparse_defaults_can_parse():
     assert params.output.wavefield_grid_ny == 80
     assert params.scan.enabled is True
     assert params.scan.score_method == "diffraction_energy_stack"
+    assert params.scan.use_depth_weight is True
+    assert params.scan.rayleigh_penetration_factor == 1.0
+    assert params.task.wavelet_dominant_frequency_hz == 30.0
     assert params.derived.scan_grid_point_count > 0
+    assert params.derived.estimated_wavelength_m == params.velocity.rayleigh_velocity_mps / params.task.wavelet_dominant_frequency_hz
+    assert params.derived.rayleigh_penetration_depth_m == params.derived.estimated_wavelength_m
 
 
 def test_stage2_visualization_parameter_validation():
@@ -27,6 +32,8 @@ def test_stage2_visualization_parameter_validation():
         ["--wavefield-snapshot-count", "0"],
         ["--wavefield-grid-nx", "9"],
         ["--wavefield-grid-ny", "9"],
+        ["--wavelet-dominant-frequency-hz", "0"],
+        ["--rayleigh-penetration-factor", "0"],
     ):
         try:
             args_to_params(parse_arguments(bad_args))

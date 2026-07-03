@@ -15,6 +15,11 @@ from src.localization.scan_grid import build_scan_grid
 from src.model.velocity_model import build_velocity_model
 from src.utils.metadata import build_metadata, save_json
 from src.utils.path_manager import ensure_output_subdirs
+from src.visualization.plot_physical_diagnostics import (
+    plot_diffraction_travel_time_curves,
+    plot_rayleigh_depth_sensitivity,
+    plot_source_anomaly_receiver_path_section,
+)
 from src.visualization.plot_scan import plot_best_location_map, plot_scan_x_depth_slice, plot_scan_x_y_slice
 
 
@@ -37,6 +42,9 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 - y：`{params.scan.y_min_m}` 到 `{params.scan.y_max_m}` m，步长 `{params.scan.y_step_m}` m
 - h：`{params.scan.depth_min_m}` 到 `{params.scan.depth_max_m}` m，步长 `{params.scan.depth_step_m}` m
 - score_volume shape：`{tuple(scan_result["score_volume"].shape)}`
+- depth weighting：`{params.scan.use_depth_weight}`
+- Rayleigh 波长估计：`{params.derived.estimated_wavelength_m:.3f}` m
+- Rayleigh 穿透深度近似：`{scan_result["penetration_depth_m"]:.3f}` m
 
 ## 结果
 
@@ -47,6 +55,14 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 ## 风险提示
 
 {scan_result["y_depth_coupling_warning"]}
+
+## 物理自检
+
+- 当前地表响应图是 Rayleigh 波走时控制的运动学地表响应示意，不是真实弹性波场快照。
+- Rayleigh 波能量主要集中在地表附近，本轮用 `exp(-h / penetration_depth)` 作为简化深度敏感性权重。
+- 该权重不是严格 Rayleigh 模态深度核，只用于避免深部候选点在运动学扫描中被不合理高估。
+- 绕射走时曲线图用于检查理论散射走时是否与炮集上的能量事件大致对应。
+- 单侧 DAS-like 几何下 y-depth 耦合仍然存在，best_location 只是科研级候选位置。
 """
     output_path.write_text(content, encoding="utf-8")
 
@@ -96,6 +112,8 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
 
     if params.output.save_arrays:
         np.save(paths["arrays"] / "arr_score_volume.npy", scan_result["score_volume"])
+        np.save(paths["arrays"] / "arr_score_volume_raw.npy", scan_result["score_volume_raw"])
+        np.save(paths["arrays"] / "arr_score_volume_depth_weighted.npy", scan_result["score_volume_depth_weighted"])
         np.save(paths["arrays"] / "arr_scan_x_grid.npy", params.derived.scan_x_grid)
         np.save(paths["arrays"] / "arr_scan_y_grid.npy", params.derived.scan_y_grid)
         np.save(paths["arrays"] / "arr_scan_depth_grid.npy", params.derived.scan_depth_grid)
@@ -121,6 +139,25 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
             scan_result["best_location"],
             paths["figures"] / "fig_best_location_map.png",
         )
+        plot_source_anomaly_receiver_path_section(
+            params,
+            source_xyz,
+            receiver_xyz,
+            paths["figures"] / "fig_source_anomaly_receiver_path_section.png",
+        )
+        plot_rayleigh_depth_sensitivity(
+            params,
+            paths["figures"] / "fig_rayleigh_depth_sensitivity.png",
+        )
+        plot_diffraction_travel_time_curves(
+            params,
+            scan_data,
+            source_xyz,
+            receiver_xyz,
+            velocity_model,
+            scan_result["best_location"],
+            paths["figures"] / "fig_diffraction_travel_time_curves.png",
+        )
 
     if params.output.save_report:
         _write_scan_report(params, paths["reports"] / "report_scan.md", scan_result)
@@ -133,6 +170,11 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
         font_info=font_info,
         wavefield_info=wavefield_info,
         scan_result=scan_result,
+        diagnostics_info={
+            "diffraction_travel_time_curve_figure": str(paths["figures"] / "fig_diffraction_travel_time_curves.png"),
+            "path_section_figure": str(paths["figures"] / "fig_source_anomaly_receiver_path_section.png"),
+            "depth_sensitivity_figure": str(paths["figures"] / "fig_rayleigh_depth_sensitivity.png"),
+        },
     )
     save_json(paths["metadata"] / "meta_run.json", metadata)
 

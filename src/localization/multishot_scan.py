@@ -9,6 +9,7 @@ import numpy as np
 
 from src.localization.travel_time import compute_candidate_diffraction_times
 from src.model.velocity_model import UniformVelocityModel
+from src.physics.rayleigh import estimate_penetration_depth, rayleigh_depth_weight
 
 
 def _build_energy_cumulative(data: np.ndarray) -> np.ndarray:
@@ -76,8 +77,9 @@ def run_multishot_scan(
     x_grid = scan_grid["x_grid"]
     y_grid = scan_grid["y_grid"]
     depth_grid = scan_grid["depth_grid"]
-    score_volume = np.zeros((len(x_grid), len(y_grid), len(depth_grid)), dtype=float)
+    score_volume_raw = np.zeros((len(x_grid), len(y_grid), len(depth_grid)), dtype=float)
     cumulative_energy = _build_energy_cumulative(data)
+    penetration_depth_m = estimate_penetration_depth(params)
 
     for ix, x_m in enumerate(x_grid):
         for iy, y_m in enumerate(y_grid):
@@ -86,9 +88,13 @@ def run_multishot_scan(
                 candidate_times = compute_candidate_diffraction_times(
                     candidate_xyz, source_xyz, receiver_xyz, velocity_model, t0_s=params.time.t0_s
                 )
-                score_volume[ix, iy, iz] = _score_candidate_fast(
+                score_volume_raw[ix, iy, iz] = _score_candidate_fast(
                     cumulative_energy, time_axis, candidate_times, params.scan.time_window_half_width_s
                 )
+
+    depth_weights = rayleigh_depth_weight(depth_grid, penetration_depth_m)
+    score_volume_depth_weighted = score_volume_raw * depth_weights[None, None, :]
+    score_volume = score_volume_depth_weighted if params.scan.use_depth_weight else score_volume_raw
 
     best_index = np.unravel_index(int(np.argmax(score_volume)), score_volume.shape)
     best_location = {
@@ -114,6 +120,11 @@ def run_multishot_scan(
 
     return {
         "score_volume": score_volume,
+        "score_volume_raw": score_volume_raw,
+        "score_volume_depth_weighted": score_volume_depth_weighted,
+        "depth_weights": depth_weights,
+        "depth_weight_enabled": params.scan.use_depth_weight,
+        "penetration_depth_m": penetration_depth_m,
         "normalized_score_volume": normalized_score_volume,
         "best_index": best_index,
         "best_location": best_location,

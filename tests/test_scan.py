@@ -87,5 +87,8 @@ def test_multishot_scan_finds_simple_anomaly_near_truth():
     )
 
     assert result["score_volume"].shape == params.derived.scan_shape
+    assert result["score_volume_raw"].shape == params.derived.scan_shape
+    assert result["score_volume_depth_weighted"].shape == params.derived.scan_shape
     assert np.isfinite(result["score_volume"]).all()
+    assert np.all(result["score_volume_depth_weighted"] <= result["score_volume_raw"] + 1.0e-12)
     assert result["truth_error"]["distance_m"] <= 4.0

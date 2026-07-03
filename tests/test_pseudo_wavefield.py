@@ -74,3 +74,39 @@ def test_pseudo_wavefield_uses_xy_surface_grid_and_depth_only_as_z():
     assert scatter_xyz[0, 1] == params.anomaly.y0_m
     assert scatter_xyz[0, 2] == params.anomaly.depth_m
     assert scatter_xyz[0, 1] != params.anomaly.depth_m
+
+
+def test_surface_response_scatter_term_is_reduced_for_deeper_scatterer():
+    params = args_to_params(
+        parse_arguments(
+            [
+                "--wavefield-grid-nx",
+                "30",
+                "--wavefield-grid-ny",
+                "20",
+                "--fiber-channel-count",
+                "40",
+                "--gauge-length-m",
+                "4",
+                "--scatter-point-mode",
+                "center",
+            ]
+        )
+    )
+    shallow_scatter = np.array([[params.anomaly.x0_m, params.anomaly.y0_m, 1.0]], dtype=float)
+    deep_scatter = np.array([[params.anomaly.x0_m, params.anomaly.y0_m, 8.0]], dtype=float)
+    weight = np.array([1.0], dtype=float)
+    zero_weight = np.array([0.0], dtype=float)
+    _, _, direct_only = compute_kinematic_pseudo_wavefield_frame(
+        params, params.derived.source_xyz, shallow_scatter, zero_weight, params.velocity.rayleigh_velocity_mps, 0.24
+    )
+    _, _, shallow = compute_kinematic_pseudo_wavefield_frame(
+        params, params.derived.source_xyz, shallow_scatter, weight, params.velocity.rayleigh_velocity_mps, 0.24
+    )
+    _, _, deep = compute_kinematic_pseudo_wavefield_frame(
+        params, params.derived.source_xyz, deep_scatter, weight, params.velocity.rayleigh_velocity_mps, 0.24
+    )
+
+    shallow_scatter_amplitude = np.max(np.abs(shallow - direct_only))
+    deep_scatter_amplitude = np.max(np.abs(deep - direct_only))
+    assert deep_scatter_amplitude < shallow_scatter_amplitude

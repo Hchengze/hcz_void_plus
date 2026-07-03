@@ -3,6 +3,7 @@ import json
 
 from main import args_to_params, create_output_dir, parse_arguments
 from src.pipeline.run_forward_pipeline import run_forward_pipeline
+from src.pipeline.run_full_pipeline import run_full_pipeline
 
 
 def test_pipeline_smoke_generates_output_and_metadata(tmp_path):
@@ -86,3 +87,63 @@ def test_pipeline_can_disable_wavefield_snapshots(tmp_path):
     result = run_forward_pipeline(params)
     output_dir = Path(result["output_run_dir"])
     assert len(list((output_dir / "snapshots").glob("snap_*.png"))) == 0
+
+
+def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
+    params = args_to_params(
+        parse_arguments(
+            [
+                "--task",
+                "full_pipeline",
+                "--output-root-dir",
+                str(tmp_path),
+                "--fiber-channel-count",
+                "18",
+                "--source-shot-count",
+                "2",
+                "--time-record-length-s",
+                "0.22",
+                "--gauge-length-m",
+                "4",
+                "--save-wavefield-snapshots",
+                "false",
+                "--save-wavefield-animation",
+                "false",
+                "--max-shot-gather-figures",
+                "1",
+                "--scan-x-min-m",
+                "56",
+                "--scan-x-max-m",
+                "64",
+                "--scan-x-step-m",
+                "4",
+                "--scan-y-min-m",
+                "8",
+                "--scan-y-max-m",
+                "10",
+                "--scan-y-step-m",
+                "1",
+                "--scan-depth-min-m",
+                "2",
+                "--scan-depth-max-m",
+                "4",
+                "--scan-depth-step-m",
+                "1",
+            ]
+        )
+    )
+    create_output_dir(params)
+    result = run_full_pipeline(params)
+    output_dir = Path(result["output_run_dir"])
+
+    assert (output_dir / "arrays" / "arr_score_volume_raw.npy").exists()
+    assert (output_dir / "arrays" / "arr_score_volume_depth_weighted.npy").exists()
+    assert (output_dir / "figures" / "fig_source_anomaly_receiver_path_section.png").exists()
+    assert (output_dir / "figures" / "fig_rayleigh_depth_sensitivity.png").exists()
+    assert (output_dir / "figures" / "fig_diffraction_travel_time_curves.png").exists()
+    metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
+    assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
+    assert metadata["scan"]["use_depth_weight"] is True
+    assert metadata["scan"]["score_volume_raw_saved"] is True
+    assert metadata["scan"]["score_volume_depth_weighted_saved"] is True
+    assert metadata["diagnostics"]["diffraction_travel_time_curve_figure"]

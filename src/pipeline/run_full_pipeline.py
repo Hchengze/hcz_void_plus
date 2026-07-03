@@ -24,12 +24,14 @@ def _write_full_pipeline_report(params: SimpleNamespace, output_path: Path, scan
 - forward：`kinematic approximation`
 - DAS-like：`DAS-like response approximation`
 - velocity：`uniform effective Rayleigh velocity`
-- wavefield：`kinematic pseudo-wavefield`，不是真实弹性波模拟
+- surface response：`kinematic_surface_response_snapshot`，只是 Rayleigh 波走时控制的地表响应示意，不是真实弹性波模拟
+- Rayleigh depth sensitivity：`exp(-h / penetration_depth)` 简化权重，不是严格模态深度核
 
 ## 扫描结果
 
 - score method：`{params.scan.score_method}`
 - score volume shape：`{tuple(scan_result["score_volume"].shape)}`
+- scan depth weighting：`{params.scan.use_depth_weight}`
 - best_location：x=`{best["x_m"]}` m，y=`{best["y_m"]}` m，h=`{best["depth_m"]}` m
 - truth_error distance：`{error["distance_m"]}` m
 

@@ -1,13 +1,13 @@
-"""运动学伪波场快照与动图。
+"""运动学地表响应示意图与动图。
 
 本模块只绘制道路表面 x-y 平面上的传播示意：
     x：沿道路方向，也是光纤延伸方向；
     y：横穿道路方向；
     z/depth：深度方向，向下为正。
 
-注意：异常体深度 h 只进入三维路径距离计算中的 scatter_xyz[:, 2]，不会被画到
-y 轴上。这里的快照是 kinematic pseudo-wavefield snapshot，不是真实弹性波
-方程数值模拟结果。
+注意：异常体深度 h 进入三维路径距离和 Rayleigh 波简化深度敏感性衰减，不会
+被画到 y 轴上。这里的快照更准确地说是 kinematic surface response snapshot，
+不是真实弹性波方程数值模拟结果。
 """
 
 from __future__ import annotations
@@ -24,6 +24,7 @@ from matplotlib.patches import Rectangle
 import numpy as np
 
 from src.forward.wavelet import ricker
+from src.physics.rayleigh import estimate_penetration_depth, rayleigh_depth_weight
 from src.visualization.plot_style import setup_chinese_matplotlib
 
 
@@ -74,8 +75,9 @@ def compute_kinematic_pseudo_wavefield_frame(
         grid_x、grid_y、amplitude 均为 shape = (ny, nx)。
 
     近似条件和限制：
-        这是 kinematic pseudo-wavefield snapshot。grid_z 固定为 0；异常体深度只
-        参与三维路径距离，不作为 y 坐标显示；结果不是真实弹性波模拟。
+        这是 Rayleigh 波走时控制的运动学地表响应示意。grid_z 固定为 0；
+        异常体深度只参与三维路径距离和简化深度敏感性衰减，不作为 y 坐标显示；
+        结果不是真实弹性波模拟。
     """
 
     grid_x, grid_y, grid_z = build_pseudo_wavefield_surface_grid(params)
@@ -85,13 +87,21 @@ def compute_kinematic_pseudo_wavefield_frame(
     direct_arrival = params.time.t0_s + direct_distance / velocity_mps
     amplitude = ricker(frame_time_s - direct_arrival, params.task.wavelet_frequency_hz) / np.sqrt(direct_distance + 1.0)
 
+    penetration_depth_m = estimate_penetration_depth(params)
     for scatter, weight in zip(scatter_xyz, scatter_weight):
-        # scatter[2] 是异常体深度 h，只用于 source-scatter-grid 三维路径距离。
+        # scatter[2] 是异常体深度 h：它影响三维路径距离，也通过 Rayleigh 波
+        # 简化深度敏感性 exp(-h / penetration_depth) 衰减散射响应。
+        depth_decay = rayleigh_depth_weight(scatter[2], penetration_depth_m)
         source_to_scatter = np.linalg.norm(shot - scatter)
         scatter_to_grid = np.sqrt((grid_x - scatter[0]) ** 2 + (grid_y - scatter[1]) ** 2 + (grid_z - scatter[2]) ** 2)
         path = source_to_scatter + scatter_to_grid
         scatter_arrival = params.time.t0_s + path / velocity_mps
-        amplitude += weight * ricker(frame_time_s - scatter_arrival, params.task.wavelet_frequency_hz) / np.sqrt(path + 1.0)
+        amplitude += (
+            weight
+            * depth_decay
+            * ricker(frame_time_s - scatter_arrival, params.task.wavelet_frequency_hz)
+            / np.sqrt(path + 1.0)
+        )
 
     return grid_x, grid_y, amplitude
 
@@ -115,7 +125,15 @@ def _add_geometry_overlays(ax, params: SimpleNamespace, source_xyz: np.ndarray, 
     ax.scatter(source_xyz[:, 0], source_xyz[:, 1], marker="^", s=24, color="#d62728", alpha=0.65, label="全部炮点")
     shot = source_xyz[params.output.wavefield_shot_index]
     ax.scatter([shot[0]], [shot[1]], marker="*", s=110, color="#ff7f0e", edgecolors="black", linewidths=0.4, label="当前选中炮点")
-    ax.scatter([params.anomaly.x0_m], [params.anomaly.y0_m], marker="x", s=80, color="#2ca02c", linewidths=2.0, label="异常体平面投影")
+    ax.scatter(
+        [params.anomaly.x0_m],
+        [params.anomaly.y0_m],
+        marker="x",
+        s=80,
+        color="#2ca02c",
+        linewidths=2.0,
+        label="异常体平面投影，仅用于显示位置",
+    )
     ax.text(
         params.anomaly.x0_m,
         params.anomaly.y0_m,
@@ -166,7 +184,7 @@ def plot_pseudo_wavefield_snapshot(
     _add_geometry_overlays(ax, params, source_xyz, scatter_xyz)
     ax.set_xlabel("沿道路方向 x / m")
     ax.set_ylabel("横穿道路方向 y / m")
-    ax.set_title(f"运动学伪波场快照 t={frame_time_s:.3f}s（不是真实弹性波模拟）")
+    ax.set_title(f"运动学地表响应示意 t={frame_time_s:.3f}s（不是真实弹性波场模拟）")
     fig.colorbar(image, ax=ax, label="相对振幅")
     ax.legend(loc="upper right", fontsize=7, ncol=2)
     fig.tight_layout()
@@ -245,7 +263,7 @@ def save_pseudo_wavefield_animation(
         _add_geometry_overlays(ax, params, source_xyz, scatter_xyz)
         ax.set_xlabel("沿道路方向 x / m")
         ax.set_ylabel("横穿道路方向 y / m")
-        ax.set_title(f"运动学伪波场示意 t={frame_time_s:.3f}s（不是真实弹性波模拟）")
+        ax.set_title(f"运动学地表响应示意 t={frame_time_s:.3f}s（不是真实弹性波场模拟）")
         ax.legend(loc="upper right", fontsize=7, ncol=2)
         return [image]
 

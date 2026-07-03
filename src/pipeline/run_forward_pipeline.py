@@ -51,8 +51,9 @@ def _write_forward_report(
 
 - 正演：`kinematic approximation`
 - 接收：`DAS-like response approximation`
-- 伪波场：`kinematic pseudo-wavefield snapshot`
-- 伪波场和 GIF 只是传播示意，不是真实弹性波方程数值模拟。
+- 地表响应图：`kinematic_surface_response_snapshot`
+- 运动学地表响应示意图和 GIF 只是 Rayleigh 波走时控制的地表响应示意，不是真实弹性波方程数值模拟。
+- Rayleigh 深度敏感性：用 `exp(-h / penetration_depth)` 做简化衰减；这不是严格模态深度核。
 
 ## 异常体真值
 
@@ -73,7 +74,7 @@ def _write_forward_report(
 ## 输出
 
 - 炮集图最大数量：`{params.output.max_shot_gather_figures}`
-- 运动学伪波场快照：`{len(snapshot_paths)}` 张
+- 运动学地表响应示意图：`{len(snapshot_paths)}` 张
 - 动图：{animation_text}
 
 ## 限制
@@ -168,7 +169,7 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     log_text = (
         "Stage 2 forward pipeline completed.\n"
         "Approximation: kinematic approximation + DAS-like response approximation.\n"
-        "Pseudo wavefield: kinematic pseudo-wavefield snapshot, not true elastic wavefield.\n"
+        "Surface response: kinematic_surface_response_snapshot, not true elastic wave equation snapshot.\n"
         f"Output directory: {paths['root']}\n"
         f"Data shape: {synthetic_data.shape} (shot × time × channel)\n"
     )

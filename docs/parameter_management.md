@@ -40,6 +40,9 @@
 - `--direct-mute-enabled`
 - `--direct-mute-half-width-s`
 - `--scan-time-window-half-width-s`
+- `--scan-use-depth-weight`
+- `--rayleigh-penetration-factor`
+- `--wavelet-dominant-frequency-hz`
 
 ## 派生参数
 
@@ -50,5 +53,7 @@
 - `scan_depth_grid`
 - `scan_shape`
 - `scan_grid_point_count`
+- `estimated_wavelength_m`
+- `rayleigh_penetration_depth_m`
 
 扫描网格总点数在 `main.py` 中校验，避免本地运行失控。

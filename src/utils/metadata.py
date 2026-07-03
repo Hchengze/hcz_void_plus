@@ -87,6 +87,7 @@ def build_metadata(
     font_info: dict[str, Any] | None = None,
     wavefield_info: dict[str, Any] | None = None,
     scan_result: dict[str, Any] | None = None,
+    diagnostics_info: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """构建本次实验 metadata。
 
@@ -107,8 +108,19 @@ def build_metadata(
             "das_like": "DAS-like response approximation",
             "receiver": "point_receiver approximation",
             "velocity_model": "uniform effective Rayleigh velocity",
-            "wavefield_snapshot_type": "kinematic_pseudo_wavefield",
+            "wavefield_snapshot_type": "kinematic_surface_response_snapshot",
+            "surface_response_type": "kinematic_surface_response",
             "is_true_elastic_wavefield": False,
+            "is_true_wave_equation_snapshot": False,
+            "rayleigh_depth_sensitivity_included": True,
+        },
+        "physics": {
+            "rayleigh_depth_sensitivity_enabled": True,
+            "wavelet_dominant_frequency_hz": params.task.wavelet_dominant_frequency_hz,
+            "estimated_wavelength_m": params.derived.estimated_wavelength_m,
+            "penetration_depth_m": params.derived.rayleigh_penetration_depth_m,
+            "depth_weight_formula": "exp(-depth / penetration_depth)",
+            "note": "这是 Rayleigh 波深度敏感性的简化权重，不是严格 Rayleigh 模态深度核。",
         },
         "visualization": {
             "language": params.output.figure_language,
@@ -120,11 +132,19 @@ def build_metadata(
         "scan": {
             "enabled": params.scan.enabled,
             "score_method": params.scan.score_method,
+            "use_depth_weight": params.scan.use_depth_weight,
             "grid_shape": params.derived.scan_shape,
             "grid_point_count": params.derived.scan_grid_point_count,
             "best_location": None,
             "best_score": None,
             "truth_error": None,
+            "score_volume_raw_saved": False,
+            "score_volume_depth_weighted_saved": False,
+        },
+        "diagnostics": {
+            "diffraction_travel_time_curve_figure": None,
+            "path_section_figure": None,
+            "depth_sensitivity_figure": None,
         },
         "output": {
             "naming_prefix_rule": params.output.prefix_style,
@@ -135,6 +155,8 @@ def build_metadata(
             "不是完整三维弹性波全波场模拟。",
             "gauge length 当前进入参数和 metadata，但 point_receiver 模式下不参与波形计算。",
             "运动学伪波场快照只是传播示意，不是真实弹性波方程数值模拟。",
+            "运动学地表响应图不是地下点源真实波场，只是 Rayleigh 波走时控制的地表响应示意。",
+            "Rayleigh 深度敏感性权重不是严格模态深度核。",
             "基础扫描 best_location 不能作为工程确诊结论。",
             "结果用于科研算法原型验证，不能作为工程确诊结论。",
         ],
@@ -160,4 +182,8 @@ def build_metadata(
         metadata["scan"]["best_location"] = scan_result.get("best_location")
         metadata["scan"]["best_score"] = scan_result.get("best_score")
         metadata["scan"]["truth_error"] = scan_result.get("truth_error")
+        metadata["scan"]["score_volume_raw_saved"] = True
+        metadata["scan"]["score_volume_depth_weighted_saved"] = True
+    if diagnostics_info is not None:
+        metadata["diagnostics"].update(diagnostics_info)
     return metadata

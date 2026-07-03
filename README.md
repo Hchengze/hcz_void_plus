@@ -11,10 +11,12 @@
 - uniform effective Rayleigh velocity。
 - 运动学直达波 + 等效散射/绕射波多炮正演。
 - 中文几何图、中文炮集图、中文报告。
-- 运动学伪波场快照和传播示意 GIF。
+- 运动学地表响应示意图和传播示意 GIF。
+- Rayleigh 波简化深度敏感性权重。
 - 直达波到时预测、直达波 mute、局部能量属性。
 - 基础 x-y-h 多炮扫描定位。
 - `score_volume` 输出和扫描切片图。
+- 等效散射路径剖面图、Rayleigh 深度敏感性图、绕射走时曲线自检图。
 
 ## 如何运行
 
@@ -73,25 +75,37 @@ Stage 2 的扫描方法是 `diffraction_energy_stack`：
 1. 构建候选异常体位置 `x-y-h` 网格；
 2. 计算 `source -> candidate -> receiver` 理论散射走时；
 3. 在 DAS-like 数据中沿对应走时时间窗提取局部能量；
-4. 对所有 shot 和 channel 求平均形成 `score_volume`；
-5. 最高得分位置作为 `best_location`。
+4. 对所有 shot 和 channel 求平均形成 raw score volume；
+5. 可选乘以 Rayleigh 简化深度权重 `exp(-h / penetration_depth)`；
+6. 最高得分位置作为科研级候选 `best_location`。
 
 `score_volume` 保存于：
 
 ```text
 arrays/arr_score_volume.npy
+arrays/arr_score_volume_raw.npy
+arrays/arr_score_volume_depth_weighted.npy
 arrays/arr_scan_x_grid.npy
 arrays/arr_scan_y_grid.npy
 arrays/arr_scan_depth_grid.npy
 ```
 
+## 物理自检图
+
+- `fig_source_anomaly_receiver_path_section.png`：等效散射路径剖面示意，不是真实射线路径。
+- `fig_rayleigh_depth_sensitivity.png`：Rayleigh 波深度敏感性近似示意。
+- `fig_diffraction_travel_time_curves.png`：炮集上叠加直达波、真值绕射曲线和最佳点绕射曲线。
+
+Rayleigh-wave diffraction 类思路的重点是绕射走时曲线和直达面波压制后的残余绕射能量，x-y 地表响应图只用于解释几何和传播趋势。
+
 ## 当前近似和限制
 
 - 当前结果必须称为 `DAS-like response approximation`。
 - 当前正演、伪波场和扫描都属于 `kinematic approximation`。
-- 伪波场快照是 `kinematic pseudo-wavefield snapshot`，不是弹性波方程数值模拟。
-- GIF 是传播示意动图，不是真实全波场模拟。
+- 当前快照应称为 `kinematic_surface_response_snapshot` 或运动学地表响应示意图，不是弹性波方程数值模拟。
+- GIF 是地表响应传播示意动图，不是真实全波场模拟。
 - 当前速度模型为 `uniform effective Rayleigh velocity`。
+- Rayleigh 深度敏感性权重不是严格模态深度核，只是波长量级的经验衰减。
 - 当前 DAS-like 响应是点式接收近似，尚未实现真实 gauge length 响应。
 - `best_location` 是运动学局部能量聚焦结果，不能作为工程确诊结论。
 - 单侧 DAS-like 几何下，横向 y 和埋深 h 可能耦合。
