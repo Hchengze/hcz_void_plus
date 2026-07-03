@@ -103,7 +103,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 4A reference-backed preprocessing and 3D multi-attribute localization",
+        "stage": "Stage 4B reference-backed validation and 3D geometry diagnostics",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),

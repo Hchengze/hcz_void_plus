@@ -23,7 +23,10 @@ def test_argparse_defaults_can_parse():
     assert params.scan.use_depth_weight is True
     assert params.scan.compare_score_methods is True
     assert params.scan.score_method_list == ["diffraction_energy_stack", "normalized_energy_stack"]
+    assert params.scan.multi_attribute_ablation_enabled is True
+    assert params.scan.geometry_ablation_enabled is True
     assert params.scan.rayleigh_penetration_factor == 1.0
+    assert params.preprocessing.ablation_enabled is True
     assert params.task.wavelet_dominant_frequency_hz == 30.0
     assert params.output.export_latest_stable is True
     assert params.output.latest_stable_dirname == "latest_stable"

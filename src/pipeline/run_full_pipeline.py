@@ -11,6 +11,7 @@ import numpy as np
 
 from src.confidence.confidence_report import build_confidence_metrics, write_confidence_report
 from src.localization.scan_grid import build_scan_grid
+from src.localization.travel_time import compute_candidate_diffraction_times
 from src.localization.depth_prior_sensitivity import run_depth_prior_sensitivity
 from src.localization.score_method_comparison import run_score_method_comparison
 from src.pipeline.run_forward_pipeline import run_forward_pipeline
@@ -25,6 +26,31 @@ from src.visualization.plot_uncertainty import (
     plot_multi_attribute_score_comparison,
     plot_score_method_depth_comparison,
     plot_x_y_depth_uncertainty_slices,
+)
+from src.validation.common import summarize_volume
+from src.validation.fk_filter_validation import run_fk_filter_validation
+from src.validation.geometry_ablation import run_geometry_ablation
+from src.validation.multi_attribute_ablation import run_multi_attribute_ablation
+from src.validation.preprocessing_ablation import run_preprocessing_ablation
+from src.validation.reports import (
+    write_attribute_validation_report,
+    write_fk_filter_validation_report,
+    write_geometry_ablation_report,
+    write_multi_attribute_ablation_report,
+    write_preprocessing_ablation_report,
+)
+from src.visualization.plot_stage4b import (
+    plot_3d_high_score_components,
+    plot_fk_filter_effect_on_gather,
+    plot_fk_spectrum_before_after,
+    plot_frequency_shift_attribute,
+    plot_geometry_ablation_best_locations,
+    plot_geometry_ablation_uncertainty_spans,
+    plot_matched_wavelet_score_comparison,
+    plot_multi_attribute_ablation,
+    plot_preprocessing_ablation_summary,
+    plot_recommendation_decision_flow,
+    plot_semblance_score_volume_slice,
 )
 
 
@@ -106,6 +132,10 @@ def _write_full_pipeline_report(
 
 {confidence_text}
 
+## Stage 4B 有效性验证
+
+本轮额外输出预处理消融、FK 滤波验证、matched wavelet、semblance、frequency shift、多属性消融、三维几何消融、三维高分区连通域和推荐决策流程图。若这些验证没有改善 y/depth 不确定性，报告必须解释为“接口已建立，效果待验证”，不能把候选点写成工程确诊。
+
 ## 风险提示
 
 单侧 DAS-like 几何下 y-depth 可能耦合。best_location 是运动学局部能量聚焦结果，不能作为工程确诊结论。
@@ -182,6 +212,7 @@ def _build_final_metadata(
     confidence_metrics: dict[str, Any],
     score_method_comparison: dict[str, Any] | None,
     depth_prior_sensitivity: dict[str, Any] | None,
+    stage4b_validation: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -219,6 +250,17 @@ def _build_final_metadata(
             "multi_attribute_score_comparison_figure": str(paths["figures"] / "fig_multi_attribute_score_comparison.png"),
             "depth_prior_sensitivity_figure": str(paths["figures"] / "fig_depth_prior_sensitivity.png"),
             "preprocessing_comparison_figure": str(paths["figures"] / "fig_preprocessing_comparison.png"),
+            "preprocessing_ablation_summary_figure": str(paths["figures"] / "fig_preprocessing_ablation_summary.png"),
+            "fk_spectrum_before_after_figure": str(paths["figures"] / "fig_fk_spectrum_before_after.png"),
+            "fk_filter_effect_on_gather_figure": str(paths["figures"] / "fig_fk_filter_effect_on_gather.png"),
+            "matched_wavelet_score_comparison_figure": str(paths["figures"] / "fig_matched_wavelet_score_comparison.png"),
+            "semblance_score_volume_slice_figure": str(paths["figures"] / "fig_semblance_score_volume_slice.png"),
+            "frequency_shift_attribute_figure": str(paths["figures"] / "fig_frequency_shift_attribute.png"),
+            "geometry_ablation_best_locations_figure": str(paths["figures"] / "fig_geometry_ablation_best_locations.png"),
+            "geometry_ablation_uncertainty_spans_figure": str(paths["figures"] / "fig_geometry_ablation_uncertainty_spans.png"),
+            "multi_attribute_ablation_figure": str(paths["figures"] / "fig_multi_attribute_ablation.png"),
+            "3d_high_score_components_figure": str(paths["figures"] / "fig_3d_high_score_components.png"),
+            "recommendation_decision_flow_figure": str(paths["figures"] / "fig_recommendation_decision_flow.png"),
         },
         confidence_info=confidence_metrics,
         score_method_comparison=score_method_comparison,
@@ -226,6 +268,7 @@ def _build_final_metadata(
         output_info=output_info,
         git_info=git_info,
     )
+    metadata["stage4b_validation"] = stage4b_validation or {}
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -248,6 +291,10 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     stable_export_info: dict[str, Any] | None = None
     score_method_comparison: dict[str, Any] | None = None
     depth_prior_sensitivity: dict[str, Any] | None = None
+    preprocessing_ablation: dict[str, Any] | None = None
+    fk_validation: dict[str, Any] | None = None
+    multi_attribute_ablation: dict[str, Any] | None = None
+    geometry_ablation: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -338,6 +385,146 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                     depth_prior_sensitivity,
                 )
 
+        truth_xyz = np.array([params.anomaly.x0_m, params.anomaly.y0_m, params.anomaly.depth_m], dtype=float)
+        truth_diffraction_times = compute_candidate_diffraction_times(
+            truth_xyz,
+            forward_result["source_xyz"],
+            forward_result["receiver_xyz"],
+            forward_result["velocity_model"],
+            t0_s=params.time.t0_s,
+        )
+
+        if params.preprocessing.ablation_enabled:
+            preprocessing_ablation = run_preprocessing_ablation(
+                params,
+                forward_result["synthetic_data"],
+                scan_result["direct_times"],
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["velocity_model"],
+            )
+            if params.output.save_figures:
+                plot_preprocessing_ablation_summary(
+                    preprocessing_ablation,
+                    paths["figures"] / "fig_preprocessing_ablation_summary.png",
+                )
+            if params.output.save_report:
+                write_preprocessing_ablation_report(
+                    paths["reports"] / "report_preprocessing_ablation.md",
+                    preprocessing_ablation,
+                )
+
+        fk_validation = run_fk_filter_validation(
+            params,
+            scan_result["scan_data"],
+            scan_result["direct_times"],
+            truth_diffraction_times,
+        )
+        if params.output.save_figures:
+            plot_fk_spectrum_before_after(
+                params,
+                scan_result["scan_data"],
+                fk_validation["filtered_data"],
+                paths["figures"] / "fig_fk_spectrum_before_after.png",
+            )
+            plot_fk_filter_effect_on_gather(
+                params,
+                scan_result["scan_data"],
+                fk_validation["filtered_data"],
+                paths["figures"] / "fig_fk_filter_effect_on_gather.png",
+            )
+        if params.output.save_report:
+            write_fk_filter_validation_report(paths["reports"] / "report_fk_filter_validation.md", fk_validation)
+
+        attribute_volumes = scan_result.get("attribute_score_volumes", {})
+        if params.output.save_figures:
+            if "matched_wavelet_score" in attribute_volumes:
+                plot_matched_wavelet_score_comparison(
+                    params,
+                    attribute_volumes["matched_wavelet_score"],
+                    paths["figures"] / "fig_matched_wavelet_score_comparison.png",
+                )
+            if "semblance_score" in attribute_volumes:
+                plot_semblance_score_volume_slice(
+                    params,
+                    attribute_volumes["semblance_score"],
+                    paths["figures"] / "fig_semblance_score_volume_slice.png",
+                )
+            if "frequency_shift_score" in attribute_volumes:
+                plot_frequency_shift_attribute(
+                    params,
+                    attribute_volumes["frequency_shift_score"],
+                    paths["figures"] / "fig_frequency_shift_attribute.png",
+                )
+            plot_3d_high_score_components(
+                confidence_metrics["high_score_region"],
+                paths["figures"] / "fig_3d_high_score_components.png",
+            )
+            plot_recommendation_decision_flow(
+                confidence_metrics,
+                paths["figures"] / "fig_recommendation_decision_flow.png",
+            )
+        if params.output.save_report:
+            if "matched_wavelet_score" in attribute_volumes:
+                write_attribute_validation_report(
+                    paths["reports"] / "report_matched_wavelet_validation.md",
+                    "matched wavelet score 验证报告",
+                    summarize_volume(params, attribute_volumes["matched_wavelet_score"]),
+                    "matched wavelet 使用 Ricker 模板归一化相关。若它未优于 energy，应说明当前模板匹配仍需调参或更真实子波。",
+                )
+            if "semblance_score" in attribute_volumes:
+                write_attribute_validation_report(
+                    paths["reports"] / "report_semblance_validation.md",
+                    "semblance score 验证报告",
+                    summarize_volume(params, attribute_volumes["semblance_score"]),
+                    "semblance 衡量沿理论绕射曲线对齐后的多炮多道波形一致性。",
+                )
+            if "frequency_shift_score" in attribute_volumes:
+                write_attribute_validation_report(
+                    paths["reports"] / "report_frequency_shift_attribute.md",
+                    "frequency shift attribute 验证报告",
+                    summarize_volume(params, attribute_volumes["frequency_shift_score"]),
+                    "frequency shift 仅是谱质心下降诊断，默认权重为 0，不支配主定位。",
+                )
+
+        if params.scan.multi_attribute_ablation_enabled:
+            multi_attribute_ablation = run_multi_attribute_ablation(params, scan_result)
+            if params.output.save_arrays:
+                for group_name, volume in multi_attribute_ablation["volumes"].items():
+                    np.save(paths["arrays"] / f"arr_score_volume_multi_attribute_ablation_{group_name}.npy", volume)
+            if params.output.save_figures:
+                plot_multi_attribute_ablation(
+                    multi_attribute_ablation,
+                    paths["figures"] / "fig_multi_attribute_ablation.png",
+                )
+            if params.output.save_report:
+                write_multi_attribute_ablation_report(
+                    paths["reports"] / "report_multi_attribute_ablation.md",
+                    multi_attribute_ablation,
+                )
+
+        if params.scan.geometry_ablation_enabled:
+            geometry_ablation = run_geometry_ablation(
+                params,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["scatter_xyz"],
+                forward_result["scatter_weight"],
+                forward_result["velocity_model"],
+            )
+            if params.output.save_figures:
+                plot_geometry_ablation_best_locations(
+                    params,
+                    geometry_ablation,
+                    paths["figures"] / "fig_geometry_ablation_best_locations.png",
+                )
+                plot_geometry_ablation_uncertainty_spans(
+                    geometry_ablation,
+                    paths["figures"] / "fig_geometry_ablation_uncertainty_spans.png",
+                )
+            if params.output.save_report:
+                write_geometry_ablation_report(paths["reports"] / "report_geometry_ablation.md", geometry_ablation)
+
         _write_full_pipeline_report(
             params,
             forward_result["paths"]["reports"] / "report_full_pipeline.md",
@@ -345,6 +532,20 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             confidence_metrics,
         )
         latest_stable_path = Path(params.derived.latest_stable_dir)
+        stage4b_validation = {
+            "preprocessing_ablation": preprocessing_ablation,
+            "fk_filter_validation": {
+                key: value
+                for key, value in (fk_validation or {}).items()
+                if key != "filtered_data"
+            },
+            "multi_attribute_ablation": {
+                key: value
+                for key, value in (multi_attribute_ablation or {}).items()
+                if key != "volumes"
+            },
+            "geometry_ablation": geometry_ablation,
+        }
         _build_final_metadata(
             params,
             forward_result,
@@ -352,13 +553,14 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             confidence_metrics,
             score_method_comparison,
             depth_prior_sensitivity,
+            stage4b_validation,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 4A Reference 审计接入 + 三维观测几何泛化 + 预处理与定位算法增强",
+                "task_name": "Stage 4B Reference-backed 算法有效性验证 + 三维几何破局 + 代码可审计性修复",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
                 "best_location": scan_result["best_location"],
@@ -370,6 +572,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "confidence": confidence_metrics,
                 "score_method_comparison": score_method_comparison,
                 "depth_prior_sensitivity": depth_prior_sensitivity,
+                "stage4b_validation": stage4b_validation,
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],
@@ -387,5 +590,9 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["confidence_metrics"] = confidence_metrics
     result["score_method_comparison"] = score_method_comparison
     result["depth_prior_sensitivity"] = depth_prior_sensitivity
+    result["preprocessing_ablation"] = preprocessing_ablation
+    result["fk_validation"] = fk_validation
+    result["multi_attribute_ablation"] = multi_attribute_ablation
+    result["geometry_ablation"] = geometry_ablation
     result["stable_export_info"] = stable_export_info
     return result

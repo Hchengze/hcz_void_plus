@@ -181,6 +181,7 @@ def assign_confidence_flag(
             moderate_warning
             or high_score_region["y_span_m"] >= params.confidence.coupling_warning_span_y_m
             or high_score_region["depth_span_m"] >= params.confidence.coupling_warning_span_depth_m
+            or bool(high_score_region.get("multi_region_warning", False))
         )
     if severe_warning or coupling_warning or consistency_warning or peak_sharpness < 1.2 or score_contrast < 1.5:
         return "low"

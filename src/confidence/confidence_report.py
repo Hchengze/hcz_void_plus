@@ -150,6 +150,8 @@ def write_confidence_report(params: SimpleNamespace, output_path: Path, metrics:
 
 - high score threshold：`{high_region["threshold_ratio"]}` × best_score
 - high score point count：`{high_region["high_score_region_point_count"]}`
+- high score component count：`{high_region.get("high_score_component_count")}`
+- multi region warning：`{high_region.get("multi_region_warning")}`
 - x span：`{high_region["x_span_m"]}` m
 - y span：`{high_region["y_span_m"]}` m
 - depth span：`{high_region["depth_span_m"]}` m

@@ -186,6 +186,8 @@ def run_multishot_scan(
                         time_axis,
                         candidate_times,
                         params.scan.time_window_half_width_s,
+                        params.task.wavelet_frequency_hz,
+                        params.scan.weight_frequency_shift > 0,
                     )
                     for name, value in attrs.items():
                         attribute_volumes[name][ix, iy, iz] = value

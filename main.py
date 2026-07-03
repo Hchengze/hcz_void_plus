@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage4a_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage4b_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -174,13 +174,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     scan.add_argument("--scan-enabled", type=str_to_bool, default=True, help="是否启用基础 x-y-h 多炮扫描定位。")
     scan.add_argument("--scan-x-min-m", type=float, default=20.0, help="扫描 x 最小值，单位 m。")
     scan.add_argument("--scan-x-max-m", type=float, default=180.0, help="扫描 x 最大值，单位 m。")
-    scan.add_argument("--scan-x-step-m", type=float, default=2.0, help="扫描 x 步长，单位 m。")
+    scan.add_argument("--scan-x-step-m", type=float, default=4.0, help="扫描 x 步长，单位 m；默认使用 Stage 4B 轻量三维 QC 网格。")
     scan.add_argument("--scan-y-min-m", type=float, default=2.0, help="扫描 y 最小值，单位 m。")
     scan.add_argument("--scan-y-max-m", type=float, default=18.0, help="扫描 y 最大值，单位 m。")
-    scan.add_argument("--scan-y-step-m", type=float, default=1.0, help="扫描 y 步长，单位 m。")
+    scan.add_argument("--scan-y-step-m", type=float, default=2.0, help="扫描 y 步长，单位 m；需要更细定位时可通过命令行调小。")
     scan.add_argument("--scan-depth-min-m", type=float, default=0.5, help="扫描深度最小值，单位 m。")
     scan.add_argument("--scan-depth-max-m", type=float, default=8.0, help="扫描深度最大值，单位 m。")
-    scan.add_argument("--scan-depth-step-m", type=float, default=0.5, help="扫描深度步长，单位 m。")
+    scan.add_argument("--scan-depth-step-m", type=float, default=1.0, help="扫描深度步长，单位 m；默认优先保证 full_pipeline 快速可跑。")
     scan.add_argument(
         "--score-method",
         default="diffraction_energy_stack",
@@ -218,6 +218,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
     scan.add_argument("--score-weight-frequency-shift", type=float, default=0.0, help="频移属性预留权重，本轮默认不参与。")
     scan.add_argument("--depth-prior-sensitivity-enabled", type=str_to_bool, default=True, help="是否输出 depth prior 强度轻量敏感性诊断。")
     scan.add_argument("--depth-prior-factor-list", default="0.5,1.0,2.0,off", help="depth prior 敏感性因子列表，逗号分隔，off 表示不加深度权重。")
+    scan.add_argument(
+        "--multi-attribute-ablation-enabled",
+        type=str_to_bool,
+        default=True,
+        help="full_pipeline 中是否运行多属性评分消融实验。",
+    )
+    scan.add_argument(
+        "--geometry-ablation-enabled",
+        type=str_to_bool,
+        default=True,
+        help="full_pipeline 中是否运行三维观测几何消融实验。",
+    )
 
     preprocess = parser.add_argument_group("preprocessing 预处理参数组")
     preprocess.add_argument("--preprocess-enabled", type=str_to_bool, default=True, help="扫描前是否执行预处理流水线。")
@@ -231,6 +243,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     preprocess.add_argument("--fk-filter-enabled", type=str_to_bool, default=False, help="是否执行简化 f-k 速度扇区滤波。")
     preprocess.add_argument("--fk-velocity-min-mps", type=float, default=80.0, help="f-k 速度扇区最小表观速度 m/s。")
     preprocess.add_argument("--fk-velocity-max-mps", type=float, default=500.0, help="f-k 速度扇区最大表观速度 m/s。")
+    preprocess.add_argument(
+        "--preprocessing-ablation-enabled",
+        type=str_to_bool,
+        default=True,
+        help="full_pipeline 中是否运行预处理组合消融实验。",
+    )
 
     task = parser.add_argument_group("task 任务控制参数组")
     task.add_argument("--wavelet-frequency-hz", type=float, default=35.0, help="Ricker 子波主频，单位 Hz。")
@@ -393,6 +411,8 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             weight_frequency_shift=args.score_weight_frequency_shift,
             depth_prior_sensitivity_enabled=args.depth_prior_sensitivity_enabled,
             depth_prior_factor_list=[item.strip() for item in args.depth_prior_factor_list.split(",") if item.strip()],
+            multi_attribute_ablation_enabled=args.multi_attribute_ablation_enabled,
+            geometry_ablation_enabled=args.geometry_ablation_enabled,
         ),
         preprocessing=_namespace(
             enabled=args.preprocess_enabled,
@@ -406,6 +426,7 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             fk_filter_enabled=args.fk_filter_enabled,
             fk_velocity_min_mps=args.fk_velocity_min_mps,
             fk_velocity_max_mps=args.fk_velocity_max_mps,
+            ablation_enabled=args.preprocessing_ablation_enabled,
         ),
         task=_namespace(
             wavelet_frequency_hz=args.wavelet_frequency_hz,
@@ -704,7 +725,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 4A 参数摘要 ===")
+    print("=== hcz_void_plus Stage 4B 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")

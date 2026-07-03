@@ -153,6 +153,14 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
         np.save(paths["arrays"] / "arr_score_volume_depth_weighted.npy", scan_result["score_volume_depth_weighted"])
         for name, volume in scan_result.get("attribute_score_volumes", {}).items():
             np.save(paths["arrays"] / f"arr_{name}.npy", volume)
+        attribute_aliases = {
+            "matched_wavelet_score": "arr_score_volume_matched_wavelet.npy",
+            "semblance_score": "arr_score_volume_semblance.npy",
+            "frequency_shift_score": "arr_score_volume_frequency_shift.npy",
+        }
+        for name, filename in attribute_aliases.items():
+            if name in scan_result.get("attribute_score_volumes", {}):
+                np.save(paths["arrays"] / filename, scan_result["attribute_score_volumes"][name])
         np.save(paths["arrays"] / "arr_scan_x_grid.npy", params.derived.scan_x_grid)
         np.save(paths["arrays"] / "arr_scan_y_grid.npy", params.derived.scan_y_grid)
         np.save(paths["arrays"] / "arr_scan_depth_grid.npy", params.derived.scan_depth_grid)

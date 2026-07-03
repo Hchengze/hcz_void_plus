@@ -31,6 +31,17 @@ SELECTED_FIGURES = [
     "fig_multi_attribute_score_comparison.png",
     "fig_depth_prior_sensitivity.png",
     "fig_preprocessing_comparison.png",
+    "fig_preprocessing_ablation_summary.png",
+    "fig_fk_spectrum_before_after.png",
+    "fig_fk_filter_effect_on_gather.png",
+    "fig_matched_wavelet_score_comparison.png",
+    "fig_semblance_score_volume_slice.png",
+    "fig_frequency_shift_attribute.png",
+    "fig_geometry_ablation_best_locations.png",
+    "fig_geometry_ablation_uncertainty_spans.png",
+    "fig_multi_attribute_ablation.png",
+    "fig_3d_high_score_components.png",
+    "fig_recommendation_decision_flow.png",
 ]
 
 SELECTED_REPORTS = [
@@ -38,6 +49,13 @@ SELECTED_REPORTS = [
     "report_confidence.md",
     "report_score_method_comparison.md",
     "report_depth_prior_sensitivity.md",
+    "report_preprocessing_ablation.md",
+    "report_fk_filter_validation.md",
+    "report_matched_wavelet_validation.md",
+    "report_semblance_validation.md",
+    "report_frequency_shift_attribute.md",
+    "report_geometry_ablation.md",
+    "report_multi_attribute_ablation.md",
 ]
 
 
@@ -106,6 +124,11 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     high_region = confidence.get("high_score_region", {})
     score_method_comparison = summary_info.get("score_method_comparison") or {}
     depth_prior_sensitivity = summary_info.get("depth_prior_sensitivity") or {}
+    stage4b_validation = summary_info.get("stage4b_validation") or {}
+    preprocessing_ablation = stage4b_validation.get("preprocessing_ablation") or {}
+    fk_validation = stage4b_validation.get("fk_filter_validation") or {}
+    multi_attribute_ablation = stage4b_validation.get("multi_attribute_ablation") or {}
+    geometry_ablation = stage4b_validation.get("geometry_ablation") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
@@ -134,11 +157,29 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- figures/fig_multi_attribute_score_comparison.png",
             "- figures/fig_depth_prior_sensitivity.png",
             "- figures/fig_preprocessing_comparison.png",
+            "- figures/fig_preprocessing_ablation_summary.png",
+            "- figures/fig_fk_spectrum_before_after.png",
+            "- figures/fig_fk_filter_effect_on_gather.png",
+            "- figures/fig_matched_wavelet_score_comparison.png",
+            "- figures/fig_semblance_score_volume_slice.png",
+            "- figures/fig_frequency_shift_attribute.png",
+            "- figures/fig_geometry_ablation_best_locations.png",
+            "- figures/fig_geometry_ablation_uncertainty_spans.png",
+            "- figures/fig_multi_attribute_ablation.png",
+            "- figures/fig_3d_high_score_components.png",
+            "- figures/fig_recommendation_decision_flow.png",
             "- animations/anim_pseudo_wavefield.gif",
             "- reports/report_full_pipeline.md",
             "- reports/report_confidence.md",
             "- reports/report_score_method_comparison.md",
             "- reports/report_depth_prior_sensitivity.md",
+            "- reports/report_preprocessing_ablation.md",
+            "- reports/report_fk_filter_validation.md",
+            "- reports/report_matched_wavelet_validation.md",
+            "- reports/report_semblance_validation.md",
+            "- reports/report_frequency_shift_attribute.md",
+            "- reports/report_geometry_ablation.md",
+            "- reports/report_multi_attribute_ablation.md",
         ]
     )
     content = f"""# latest_stable 稳定成果摘要
@@ -185,6 +226,20 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 ## depth prior sensitivity
 
 - factors：`{list((depth_prior_sensitivity.get("factors") or {}).keys())}`
+
+## Stage 4B 算法有效性验证
+
+- preprocessing best truth-error case：`{_format_optional(preprocessing_ablation.get("best_truth_error_case"))}`
+- preprocessing narrowest y-depth case：`{_format_optional(preprocessing_ablation.get("narrowest_y_depth_case"))}`
+- FK direct wave reduction ratio：`{_format_optional(fk_validation.get("direct_wave_reduction_ratio"))}`
+- FK diffraction preservation ratio：`{_format_optional(fk_validation.get("diffraction_preservation_ratio"))}`
+- multi_attribute improved over energy：`{_format_optional(multi_attribute_ablation.get("multi_attribute_improved_over_energy"))}`
+- multi_attribute best group：`{_format_optional(multi_attribute_ablation.get("best_group_by_truth_error"))}`
+- geometry best y-resolution case：`{_format_optional(geometry_ablation.get("best_y_resolution_case"))}`
+- geometry best depth-stability case：`{_format_optional(geometry_ablation.get("best_depth_stability_case"))}`
+- geometry best truth-error case：`{_format_optional(geometry_ablation.get("best_truth_error_case"))}`
+- high-score component count：`{_format_optional(high_region.get("high_score_component_count"))}`
+- multi-region warning：`{_format_optional(high_region.get("multi_region_warning"))}`
 
 ## 基础置信度指标
 

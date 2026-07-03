@@ -148,7 +148,25 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_score_method_depth_comparison.png").exists()
     assert (output_dir / "figures" / "fig_3d_high_score_uncertainty_summary.png").exists()
     assert (output_dir / "figures" / "fig_x_y_depth_uncertainty_slices.png").exists()
+    assert (output_dir / "figures" / "fig_preprocessing_ablation_summary.png").exists()
+    assert (output_dir / "figures" / "fig_fk_spectrum_before_after.png").exists()
+    assert (output_dir / "figures" / "fig_fk_filter_effect_on_gather.png").exists()
+    assert (output_dir / "figures" / "fig_matched_wavelet_score_comparison.png").exists()
+    assert (output_dir / "figures" / "fig_semblance_score_volume_slice.png").exists()
+    assert (output_dir / "figures" / "fig_frequency_shift_attribute.png").exists()
+    assert (output_dir / "figures" / "fig_geometry_ablation_best_locations.png").exists()
+    assert (output_dir / "figures" / "fig_geometry_ablation_uncertainty_spans.png").exists()
+    assert (output_dir / "figures" / "fig_multi_attribute_ablation.png").exists()
+    assert (output_dir / "figures" / "fig_3d_high_score_components.png").exists()
+    assert (output_dir / "figures" / "fig_recommendation_decision_flow.png").exists()
     assert (output_dir / "reports" / "report_confidence.md").exists()
+    assert (output_dir / "reports" / "report_preprocessing_ablation.md").exists()
+    assert (output_dir / "reports" / "report_fk_filter_validation.md").exists()
+    assert (output_dir / "reports" / "report_matched_wavelet_validation.md").exists()
+    assert (output_dir / "reports" / "report_semblance_validation.md").exists()
+    assert (output_dir / "reports" / "report_frequency_shift_attribute.md").exists()
+    assert (output_dir / "reports" / "report_geometry_ablation.md").exists()
+    assert (output_dir / "reports" / "report_multi_attribute_ablation.md").exists()
     assert (output_dir / "arrays" / "arr_confidence_metrics.json").exists()
     latest_stable = tmp_path / "latest_stable"
     assert latest_stable.exists()
@@ -161,9 +179,27 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "figures" / "fig_score_method_depth_comparison.png").exists()
     assert (latest_stable / "figures" / "fig_3d_high_score_uncertainty_summary.png").exists()
     assert (latest_stable / "figures" / "fig_x_y_depth_uncertainty_slices.png").exists()
+    assert (latest_stable / "figures" / "fig_preprocessing_ablation_summary.png").exists()
+    assert (latest_stable / "figures" / "fig_fk_spectrum_before_after.png").exists()
+    assert (latest_stable / "figures" / "fig_fk_filter_effect_on_gather.png").exists()
+    assert (latest_stable / "figures" / "fig_matched_wavelet_score_comparison.png").exists()
+    assert (latest_stable / "figures" / "fig_semblance_score_volume_slice.png").exists()
+    assert (latest_stable / "figures" / "fig_frequency_shift_attribute.png").exists()
+    assert (latest_stable / "figures" / "fig_geometry_ablation_best_locations.png").exists()
+    assert (latest_stable / "figures" / "fig_geometry_ablation_uncertainty_spans.png").exists()
+    assert (latest_stable / "figures" / "fig_multi_attribute_ablation.png").exists()
+    assert (latest_stable / "figures" / "fig_3d_high_score_components.png").exists()
+    assert (latest_stable / "figures" / "fig_recommendation_decision_flow.png").exists()
     assert (latest_stable / "reports" / "report_full_pipeline.md").exists()
     assert (latest_stable / "reports" / "report_confidence.md").exists()
     assert (latest_stable / "reports" / "report_score_method_comparison.md").exists()
+    assert (latest_stable / "reports" / "report_preprocessing_ablation.md").exists()
+    assert (latest_stable / "reports" / "report_fk_filter_validation.md").exists()
+    assert (latest_stable / "reports" / "report_matched_wavelet_validation.md").exists()
+    assert (latest_stable / "reports" / "report_semblance_validation.md").exists()
+    assert (latest_stable / "reports" / "report_frequency_shift_attribute.md").exists()
+    assert (latest_stable / "reports" / "report_geometry_ablation.md").exists()
+    assert (latest_stable / "reports" / "report_multi_attribute_ablation.md").exists()
     assert (latest_stable / "metadata" / "meta_run.json").exists()
     metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
     assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
@@ -181,9 +217,15 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["confidence"]["wide_y_high_score_zone_warning"] is not None
     assert metadata["confidence"]["raw_weighted_divergence_warning"] is not None
     assert metadata["output"]["latest_stable_exported"] is True
+    assert metadata["stage4b_validation"]["preprocessing_ablation"] is not None
+    assert metadata["stage4b_validation"]["fk_filter_validation"] is not None
+    assert metadata["stage4b_validation"]["multi_attribute_ablation"] is not None
+    assert metadata["stage4b_validation"]["geometry_ablation"] is not None
     summary_text = (latest_stable / "summary.md").read_text(encoding="utf-8")
     assert "unweighted_best" in summary_text
     assert "weighted_best" in summary_text
     assert "shallow bias warning" in summary_text
     assert "recommended_location" in summary_text
     assert "3D high-score span" in summary_text
+    assert "Stage 4B" in summary_text
+    assert "multi_attribute improved over energy" in summary_text
