@@ -156,7 +156,7 @@ def run_multishot_scan(
     x_grid = scan_grid["x_grid"]
     y_grid = scan_grid["y_grid"]
     depth_grid = scan_grid["depth_grid"]
-    score_volume_raw = np.zeros((len(x_grid), len(y_grid), len(depth_grid)), dtype=float)
+    score_volume_unweighted = np.zeros((len(x_grid), len(y_grid), len(depth_grid)), dtype=float)
     cumulative_energy = _build_energy_cumulative(data)
     trace_energy = cumulative_energy[:, -1, :]
     penetration_depth_m = estimate_penetration_depth(params)
@@ -169,7 +169,7 @@ def run_multishot_scan(
                     candidate_xyz, source_xyz, receiver_xyz, velocity_model, t0_s=params.time.t0_s
                 )
                 if params.scan.score_method == "normalized_energy_stack":
-                    score_volume_raw[ix, iy, iz] = _score_candidate_normalized_fast(
+                    score_volume_unweighted[ix, iy, iz] = _score_candidate_normalized_fast(
                         cumulative_energy,
                         trace_energy,
                         time_axis,
@@ -177,20 +177,20 @@ def run_multishot_scan(
                         params.scan.time_window_half_width_s,
                     )
                 else:
-                    score_volume_raw[ix, iy, iz] = _score_candidate_fast(
+                    score_volume_unweighted[ix, iy, iz] = _score_candidate_fast(
                         cumulative_energy, time_axis, candidate_times, params.scan.time_window_half_width_s
                     )
 
     depth_weights = rayleigh_depth_weight(depth_grid, penetration_depth_m)
-    score_volume_depth_weighted = score_volume_raw * depth_weights[None, None, :]
-    score_volume = score_volume_depth_weighted if params.scan.use_depth_weight else score_volume_raw
-    score_volume_kind = "depth_weighted" if params.scan.use_depth_weight else "raw"
+    score_volume_depth_weighted = score_volume_unweighted * depth_weights[None, None, :]
+    score_volume_active = score_volume_depth_weighted if params.scan.use_depth_weight else score_volume_unweighted
+    score_volume_kind = "depth_weighted" if params.scan.use_depth_weight else "unweighted"
 
     truth = np.array([params.anomaly.x0_m, params.anomaly.y0_m, params.anomaly.depth_m], dtype=float)
-    raw_best = _best_from_volume(score_volume_raw, x_grid, y_grid, depth_grid, truth)
+    unweighted_best = _best_from_volume(score_volume_unweighted, x_grid, y_grid, depth_grid, truth)
     weighted_best = _best_from_volume(score_volume_depth_weighted, x_grid, y_grid, depth_grid, truth)
-    active_best = weighted_best if params.scan.use_depth_weight else raw_best
-    raw_location = raw_best["best_location"]
+    active_best = weighted_best if params.scan.use_depth_weight else unweighted_best
+    raw_location = unweighted_best["best_location"]
     weighted_location = weighted_best["best_location"]
     raw_weighted_vector = np.array(
         [
@@ -211,26 +211,40 @@ def run_multishot_scan(
     )
 
     return {
-        "score_volume": score_volume,
+        "score_volume": score_volume_active,
+        "score_volume_active": score_volume_active,
         "score_volume_kind": score_volume_kind,
-        "score_volume_raw": score_volume_raw,
+        "score_volume_active_kind": score_volume_kind,
+        "score_volume_unweighted": score_volume_unweighted,
+        "score_volume_raw": score_volume_unweighted,
         "score_volume_depth_weighted": score_volume_depth_weighted,
         "depth_weights": depth_weights,
         "depth_weight_enabled": params.scan.use_depth_weight,
         "penetration_depth_m": penetration_depth_m,
-        "normalized_score_volume": _normalize_volume(score_volume),
-        "normalized_score_volume_raw": _normalize_volume(score_volume_raw),
+        "normalized_score_volume": _normalize_volume(score_volume_active),
+        "normalized_score_volume_active": _normalize_volume(score_volume_active),
+        "normalized_score_volume_unweighted": _normalize_volume(score_volume_unweighted),
+        "normalized_score_volume_raw": _normalize_volume(score_volume_unweighted),
         "normalized_score_volume_depth_weighted": _normalize_volume(score_volume_depth_weighted),
-        "raw_best_index": raw_best["best_index"],
-        "raw_best_location": raw_best["best_location"],
-        "raw_best_score": raw_best["best_score"],
-        "raw_truth_error": raw_best["truth_error"],
+        "unweighted_best_index": unweighted_best["best_index"],
+        "unweighted_best_location": unweighted_best["best_location"],
+        "unweighted_best_score": unweighted_best["best_score"],
+        "unweighted_truth_error": unweighted_best["truth_error"],
+        "raw_best_index": unweighted_best["best_index"],
+        "raw_best_location": unweighted_best["best_location"],
+        "raw_best_score": unweighted_best["best_score"],
+        "raw_truth_error": unweighted_best["truth_error"],
         "weighted_best_index": weighted_best["best_index"],
         "weighted_best_location": weighted_best["best_location"],
         "weighted_best_score": weighted_best["best_score"],
         "weighted_truth_error": weighted_best["truth_error"],
         "raw_weighted_difference": raw_weighted_difference,
+        "unweighted_weighted_difference": raw_weighted_difference,
         "depth_prior_bias_warning": bool(depth_prior_bias_warning),
+        "active_best_index": active_best["best_index"],
+        "active_best_location": active_best["best_location"],
+        "active_best_score": active_best["best_score"],
+        "active_truth_error": active_best["truth_error"],
         "best_index": active_best["best_index"],
         "best_location": active_best["best_location"],
         "best_score": active_best["best_score"],

@@ -186,6 +186,17 @@ def build_arg_parser() -> argparse.ArgumentParser:
     scan.add_argument("--scan-time-window-half-width-s", type=float, default=0.015, help="扫描能量拾取半窗长，单位 s。")
     scan.add_argument("--scan-use-depth-weight", type=str_to_bool, default=True, help="是否在扫描得分中加入 Rayleigh 波简化深度敏感性权重。")
     scan.add_argument("--rayleigh-penetration-factor", type=float, default=1.0, help="穿透深度系数：penetration_depth = factor * wavelength。")
+    scan.add_argument(
+        "--compare-score-methods",
+        type=str_to_bool,
+        default=True,
+        help="full_pipeline 中是否轻量对比 diffraction_energy_stack 与 normalized_energy_stack。",
+    )
+    scan.add_argument(
+        "--score-method-list",
+        default="diffraction_energy_stack,normalized_energy_stack",
+        help="用于轻量对比的 score_method 列表，逗号分隔，必须来自 main.py 允许的扫描方法。",
+    )
 
     task = parser.add_argument_group("task 任务控制参数组")
     task.add_argument("--wavelet-frequency-hz", type=float, default=35.0, help="Ricker 子波主频，单位 Hz。")
@@ -325,6 +336,8 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             time_window_half_width_s=args.scan_time_window_half_width_s,
             use_depth_weight=args.scan_use_depth_weight,
             rayleigh_penetration_factor=args.rayleigh_penetration_factor,
+            compare_score_methods=args.compare_score_methods,
+            score_method_list=[item.strip() for item in args.score_method_list.split(",") if item.strip()],
         ),
         task=_namespace(
             wavelet_frequency_hz=args.wavelet_frequency_hz,
@@ -437,6 +450,14 @@ def validate_raw_params(params: SimpleNamespace) -> None:
     if params.scan.rayleigh_penetration_factor <= 0:
         raise ValueError(
             f"rayleigh_penetration_factor 错误：当前值为 {params.scan.rayleigh_penetration_factor}，合理条件是 > 0。"
+        )
+    allowed_score_methods = {"diffraction_energy_stack", "normalized_energy_stack"}
+    if not params.scan.score_method_list:
+        raise ValueError("score_method_list 错误：至少需要包含一个 score method。")
+    invalid_methods = [method for method in params.scan.score_method_list if method not in allowed_score_methods]
+    if invalid_methods:
+        raise ValueError(
+            f"score_method_list 错误：包含不支持的方法 {invalid_methods}，合理选项是 {sorted(allowed_score_methods)}。"
         )
     if params.task.wavelet_frequency_hz <= 0:
         raise ValueError(f"wavelet_frequency_hz 错误：当前值为 {params.task.wavelet_frequency_hz}，合理条件是 > 0。")

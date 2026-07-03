@@ -22,11 +22,15 @@ SELECTED_FIGURES = [
     "fig_raw_vs_weighted_x_depth_slice.png",
     "fig_y_high_score_width_check.png",
     "fig_confidence_diagnostics.png",
+    "fig_score_method_depth_comparison.png",
+    "fig_3d_high_score_uncertainty_summary.png",
+    "fig_x_y_depth_uncertainty_slices.png",
 ]
 
 SELECTED_REPORTS = [
     "report_full_pipeline.md",
     "report_confidence.md",
+    "report_score_method_comparison.md",
 ]
 
 
@@ -86,11 +90,14 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     """生成 latest_stable/summary.md 中文摘要。"""
 
     best = summary_info.get("best_location") or {}
-    raw_best = summary_info.get("raw_best_location") or {}
+    raw_best = summary_info.get("unweighted_best_location") or summary_info.get("raw_best_location") or {}
     weighted_best = summary_info.get("weighted_best_location") or {}
     raw_weighted_difference = summary_info.get("raw_weighted_difference") or {}
     truth_error = summary_info.get("truth_error") or {}
     confidence = summary_info.get("confidence") or {}
+    recommendation = confidence.get("recommendation", {})
+    high_region = confidence.get("high_score_region", {})
+    score_method_comparison = summary_info.get("score_method_comparison") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
@@ -110,9 +117,13 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- figures/fig_raw_vs_weighted_x_depth_slice.png",
             "- figures/fig_y_high_score_width_check.png",
             "- figures/fig_confidence_diagnostics.png",
+            "- figures/fig_score_method_depth_comparison.png",
+            "- figures/fig_3d_high_score_uncertainty_summary.png",
+            "- figures/fig_x_y_depth_uncertainty_slices.png",
             "- animations/anim_pseudo_wavefield.gif",
             "- reports/report_full_pipeline.md",
             "- reports/report_confidence.md",
+            "- reports/report_score_method_comparison.md",
         ]
     )
     content = f"""# latest_stable 稳定成果摘要
@@ -136,11 +147,25 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - best_location：x=`{_format_optional(best.get("x_m"))}` m，y=`{_format_optional(best.get("y_m"))}` m，h=`{_format_optional(best.get("depth_m"))}` m
 - truth_error：`{_format_optional(truth_error.get("distance_m"))}` m
 
-## raw 与 weighted best 对比
+## unweighted 与 weighted best 对比
 
-- raw_best：x=`{_format_optional(raw_best.get("x_m"))}` m，y=`{_format_optional(raw_best.get("y_m"))}` m，h=`{_format_optional(raw_best.get("depth_m"))}` m
+- unweighted_best：x=`{_format_optional(raw_best.get("x_m"))}` m，y=`{_format_optional(raw_best.get("y_m"))}` m，h=`{_format_optional(raw_best.get("depth_m"))}` m
 - weighted_best：x=`{_format_optional(weighted_best.get("x_m"))}` m，y=`{_format_optional(weighted_best.get("y_m"))}` m，h=`{_format_optional(weighted_best.get("depth_m"))}` m
-- raw -> weighted 差异：dx=`{_format_optional(raw_weighted_difference.get("dx_m"))}` m，dy=`{_format_optional(raw_weighted_difference.get("dy_m"))}` m，dh=`{_format_optional(raw_weighted_difference.get("ddepth_m"))}` m，三维距离=`{_format_optional(raw_weighted_difference.get("distance_m"))}` m
+- unweighted -> weighted 差异：dx=`{_format_optional(raw_weighted_difference.get("dx_m"))}` m，dy=`{_format_optional(raw_weighted_difference.get("dy_m"))}` m，dh=`{_format_optional(raw_weighted_difference.get("ddepth_m"))}` m，三维距离=`{_format_optional(raw_weighted_difference.get("distance_m"))}` m
+
+## 推荐位置与不确定性
+
+- recommended_location_type：`{_format_optional(recommendation.get("recommended_location_type"))}`
+- recommended_location：`{_format_optional(recommendation.get("recommended_location"))}`
+- recommended_reason：{_format_optional(recommendation.get("recommended_location_reason"))}
+- depth uncertainty interval：`{_format_optional(recommendation.get("depth_uncertainty_interval_m"))}` m
+- 3D high-score span：x=`{_format_optional(high_region.get("x_span_m"))}` m，y=`{_format_optional(high_region.get("y_span_m"))}` m，depth=`{_format_optional(high_region.get("depth_span_m"))}` m
+- high-score point count：`{_format_optional(high_region.get("high_score_region_point_count"))}`
+
+## score method 对比
+
+- comparison methods：`{list((score_method_comparison.get("methods") or {}).keys())}`
+- depth stability reference：`{_format_optional(score_method_comparison.get("depth_stability_reference"))}`
 
 ## 基础置信度指标
 

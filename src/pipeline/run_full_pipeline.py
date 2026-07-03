@@ -7,13 +7,22 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+import numpy as np
+
 from src.confidence.confidence_report import build_confidence_metrics, write_confidence_report
+from src.localization.scan_grid import build_scan_grid
+from src.localization.score_method_comparison import run_score_method_comparison
 from src.pipeline.run_forward_pipeline import run_forward_pipeline
 from src.pipeline.run_scan_pipeline import run_scan_pipeline
 from src.utils.metadata import build_metadata, save_json
 from src.utils.stable_export import export_latest_stable_outputs, get_git_commit_id
 from src.visualization.plot_confidence import plot_confidence_diagnostics
 from src.visualization.plot_scan import plot_y_high_score_width_check
+from src.visualization.plot_uncertainty import (
+    plot_3d_high_score_uncertainty_summary,
+    plot_score_method_depth_comparison,
+    plot_x_y_depth_uncertainty_slices,
+)
 
 
 def _write_full_pipeline_report(
@@ -26,9 +35,10 @@ def _write_full_pipeline_report(
 
     best = scan_result["best_location"]
     error = scan_result["truth_error"]
-    raw_best = scan_result["raw_best_location"]
+    unweighted_best = scan_result["unweighted_best_location"]
     weighted_best = scan_result["weighted_best_location"]
     diff = scan_result["raw_weighted_difference"]
+    recommended_text = "本次未生成推荐位置。"
     confidence_text = "本次未执行基础置信度分析。"
     if confidence_metrics is not None:
         peak = confidence_metrics["peak"]
@@ -36,6 +46,13 @@ def _write_full_pipeline_report(
         consistency = confidence_metrics["multi_shot_consistency"]
         coupling = confidence_metrics["y_depth_coupling"]
         stage3b = confidence_metrics["stage3b_warnings"]
+        recommendation = confidence_metrics["recommendation"]
+        high_region = confidence_metrics["high_score_region"]
+        recommended_text = f"""- recommended_location_type：`{recommendation["recommended_location_type"]}`
+- recommended_location：`{recommendation["recommended_location"]}`
+- recommended_reason：{recommendation["recommended_location_reason"]}
+- depth uncertainty interval：`{recommendation["depth_uncertainty_interval_m"]}` m
+- 3D high-score span：x=`{high_region["x_span_m"]}` m，y=`{high_region["y_span_m"]}` m，depth=`{high_region["depth_span_m"]}` m"""
         confidence_text = f"""- peak sharpness：`{peak["peak_sharpness"]:.4g}`
 - score contrast：`{contrast["score_contrast"]:.4g}`
 - score percentile：`{contrast["score_percentile"]:.2f}%`
@@ -71,10 +88,14 @@ def _write_full_pipeline_report(
 
 ## raw 与 weighted best 对比
 
-- raw_best：x=`{raw_best["x_m"]}` m，y=`{raw_best["y_m"]}` m，h=`{raw_best["depth_m"]}` m
+- unweighted_best：x=`{unweighted_best["x_m"]}` m，y=`{unweighted_best["y_m"]}` m，h=`{unweighted_best["depth_m"]}` m
 - weighted_best：x=`{weighted_best["x_m"]}` m，y=`{weighted_best["y_m"]}` m，h=`{weighted_best["depth_m"]}` m
-- raw -> weighted 差异：dx=`{diff["dx_m"]}` m，dy=`{diff["dy_m"]}` m，dh=`{diff["ddepth_m"]}` m，三维距离=`{diff["distance_m"]}` m
+- unweighted -> weighted 差异：dx=`{diff["dx_m"]}` m，dy=`{diff["dy_m"]}` m，dh=`{diff["ddepth_m"]}` m，三维距离=`{diff["distance_m"]}` m
 - depth_prior_bias_warning：`{scan_result["depth_prior_bias_warning"]}`
+
+## 推荐位置与三维不确定性
+
+{recommended_text}
 
 ## 基础置信度分析
 
@@ -87,11 +108,55 @@ def _write_full_pipeline_report(
     output_path.write_text(content, encoding="utf-8")
 
 
+def _write_score_method_comparison_report(
+    params: SimpleNamespace,
+    output_path: Path,
+    comparison_result: dict[str, Any],
+) -> None:
+    """写出 score_method 轻量对比报告。"""
+
+    lines = [
+        "# score_method 轻量对比报告",
+        "",
+        "本报告只比较同一数据、同一扫描网格下的 score_method，不是大规模鲁棒性扫描。",
+        "",
+        "| score_method | unweighted_best | weighted_best | unweighted_error_m | weighted_error_m | weighted_depth_at_boundary |",
+        "|---|---|---|---:|---:|---|",
+    ]
+    for method, result in comparison_result["methods"].items():
+        unweighted = result["unweighted_best_location"]
+        weighted = result["weighted_best_location"]
+        lines.append(
+            "| "
+            f"{method} | "
+            f"x={unweighted['x_m']}, y={unweighted['y_m']}, h={unweighted['depth_m']} | "
+            f"x={weighted['x_m']}, y={weighted['y_m']}, h={weighted['depth_m']} | "
+            f"{result['unweighted_truth_error']['distance_m']:.4g} | "
+            f"{result['weighted_truth_error']['distance_m']:.4g} | "
+            f"{result['weighted_depth_at_boundary']} |"
+        )
+    reference = comparison_result["depth_stability_reference"]
+    lines.extend(
+        [
+            "",
+            "## 深度稳定性参考",
+            "",
+            f"- best_unweighted_depth_method：`{reference['best_unweighted_depth_method']}`",
+            f"- best_unweighted_depth_abs_error_m：`{reference['best_unweighted_depth_abs_error_m']}`",
+            f"- 说明：{reference['note']}",
+            "",
+            "当前对比仍基于运动学 DAS-like 数据，不能作为工程确诊。",
+        ]
+    )
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def _build_final_metadata(
     params: SimpleNamespace,
     forward_result: dict[str, Any],
     scan_result: dict[str, Any],
     confidence_metrics: dict[str, Any],
+    score_method_comparison: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -123,8 +188,12 @@ def _build_final_metadata(
             "raw_vs_weighted_best_location_figure": str(paths["figures"] / "fig_raw_vs_weighted_best_location.png"),
             "raw_vs_weighted_x_depth_slice_figure": str(paths["figures"] / "fig_raw_vs_weighted_x_depth_slice.png"),
             "y_high_score_width_check_figure": str(paths["figures"] / "fig_y_high_score_width_check.png"),
+            "score_method_depth_comparison_figure": str(paths["figures"] / "fig_score_method_depth_comparison.png"),
+            "3d_high_score_uncertainty_summary_figure": str(paths["figures"] / "fig_3d_high_score_uncertainty_summary.png"),
+            "x_y_depth_uncertainty_slices_figure": str(paths["figures"] / "fig_x_y_depth_uncertainty_slices.png"),
         },
         confidence_info=confidence_metrics,
+        score_method_comparison=score_method_comparison,
         output_info=output_info,
         git_info=git_info,
     )
@@ -147,6 +216,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     scan_result: dict[str, Any] | None = None
     confidence_metrics: dict[str, Any] | None = None
     stable_export_info: dict[str, Any] | None = None
+    score_method_comparison: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -174,8 +244,50 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 confidence_metrics,
                 paths["figures"] / "fig_y_high_score_width_check.png",
             )
+            plot_3d_high_score_uncertainty_summary(
+                params,
+                confidence_metrics["high_score_region"],
+                paths["figures"] / "fig_3d_high_score_uncertainty_summary.png",
+            )
+            plot_x_y_depth_uncertainty_slices(
+                params,
+                scan_result["score_volume_active"],
+                confidence_metrics["high_score_region"],
+                confidence_metrics["recommended_location"],
+                paths["figures"] / "fig_x_y_depth_uncertainty_slices.png",
+            )
         if params.output.save_report:
             write_confidence_report(params, paths["reports"] / "report_confidence.md", confidence_metrics)
+
+        if params.scan.compare_score_methods:
+            score_method_comparison = run_score_method_comparison(
+                scan_result["scan_data"],
+                params.derived.time_axis,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["velocity_model"],
+                build_scan_grid(params),
+                params,
+            )
+            if params.output.save_arrays:
+                for method, method_result in score_method_comparison["methods"].items():
+                    np.save(
+                        paths["arrays"] / f"arr_score_volume_unweighted_{method}.npy",
+                        method_result["score_volume_unweighted"],
+                    )
+            if params.output.save_figures:
+                plot_score_method_depth_comparison(
+                    params,
+                    score_method_comparison,
+                    paths["figures"] / "fig_score_method_depth_comparison.png",
+                )
+            if params.output.save_report:
+                _write_score_method_comparison_report(
+                    params,
+                    paths["reports"] / "report_score_method_comparison.md",
+                    score_method_comparison,
+                )
+
         _write_full_pipeline_report(
             params,
             forward_result["paths"]["reports"] / "report_full_pipeline.md",
@@ -188,21 +300,24 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             forward_result,
             scan_result,
             confidence_metrics,
+            score_method_comparison,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 3B 三维场景约束下的扫描诊断修正与置信度稳健化",
+                "task_name": "Stage 3C 深度稳健性对比、推荐位置规则与三维不确定性表达",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
                 "best_location": scan_result["best_location"],
                 "raw_best_location": scan_result["raw_best_location"],
+                "unweighted_best_location": scan_result["unweighted_best_location"],
                 "weighted_best_location": scan_result["weighted_best_location"],
                 "raw_weighted_difference": scan_result["raw_weighted_difference"],
                 "truth_error": scan_result["truth_error"],
                 "confidence": confidence_metrics,
+                "score_method_comparison": score_method_comparison,
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],
@@ -218,5 +333,6 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result = dict(forward_result)
     result["scan_result"] = scan_result
     result["confidence_metrics"] = confidence_metrics
+    result["score_method_comparison"] = score_method_comparison
     result["stable_export_info"] = stable_export_info
     return result

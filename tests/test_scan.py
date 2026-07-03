@@ -87,9 +87,13 @@ def test_multishot_scan_finds_simple_anomaly_near_truth():
     )
 
     assert result["score_volume"].shape == params.derived.scan_shape
+    assert result["score_volume_active"].shape == params.derived.scan_shape
+    assert result["score_volume_unweighted"].shape == params.derived.scan_shape
     assert result["score_volume_raw"].shape == params.derived.scan_shape
     assert result["score_volume_depth_weighted"].shape == params.derived.scan_shape
     assert result["raw_best_location"]
+    assert result["unweighted_best_location"]
+    assert result["active_best_location"]
     assert result["weighted_best_location"]
     assert result["raw_weighted_difference"]["distance_m"] >= 0.0
     assert result["score_volume_kind"] in {"raw", "depth_weighted"}

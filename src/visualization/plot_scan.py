@@ -126,28 +126,28 @@ def plot_raw_vs_weighted_best_location(
     scan_result: dict[str, object],
     output_path: Path,
 ) -> None:
-    """绘制 raw_best 与 weighted_best 的平面位置对比图。
+    """绘制 unweighted_best 与 weighted_best 的平面位置对比图。
 
     物理意义：
         depth weighting 是 Rayleigh 波浅层敏感性的简化先验，它可能改变最佳候选位置。
-        本图把不加深度权重的 raw_best 和加权后的 weighted_best 同时画出，避免用户只
+        本图把不加深度权重的 unweighted_best 和加权后的 weighted_best 同时画出，避免用户只
         看到一个主 best_location 而忽略深度先验造成的偏移。
     """
 
     setup_chinese_matplotlib()
     boundary = road_boundary_xy(params)
-    raw_best = scan_result["raw_best_location"]
+    raw_best = scan_result["unweighted_best_location"]
     weighted_best = scan_result["weighted_best_location"]
     fig, ax = plt.subplots(figsize=(9, 4.8), dpi=150)
     ax.plot(boundary[:, 0], boundary[:, 1], color="0.25", linewidth=1.5, label="道路范围")
     ax.scatter(receiver_xyz[:, 0], receiver_xyz[:, 1], s=7, color="#1f77b4", label="DAS-like 光纤通道")
     ax.scatter(source_xyz[:, 0], source_xyz[:, 1], s=26, marker="^", color="#d62728", label="震源点")
     ax.scatter([params.anomaly.x0_m], [params.anomaly.y0_m], marker="x", s=70, color="#2ca02c", label="真实异常体")
-    ax.scatter([raw_best["x_m"]], [raw_best["y_m"]], marker="s", s=55, facecolors="none", edgecolors="white", linewidths=1.8, label="raw_best")
+    ax.scatter([raw_best["x_m"]], [raw_best["y_m"]], marker="s", s=55, facecolors="none", edgecolors="white", linewidths=1.8, label="unweighted_best")
     ax.scatter([weighted_best["x_m"]], [weighted_best["y_m"]], marker="o", s=58, facecolors="none", edgecolors="red", linewidths=1.8, label="weighted_best")
     ax.set_xlabel("沿道路方向 x / m")
     ax.set_ylabel("横穿道路方向 y / m")
-    ax.set_title("raw 与 depth-weighted 最佳位置对比（非工程确诊）")
+    ax.set_title("unweighted 与 depth-weighted 最佳位置对比（非工程确诊）")
     ax.set_aspect("equal", adjustable="box")
     ax.grid(True, alpha=0.25)
     ax.legend(loc="best", fontsize=8)
@@ -161,7 +161,7 @@ def plot_raw_vs_weighted_x_depth_slice(
     scan_result: dict[str, object],
     output_path: Path,
 ) -> None:
-    """绘制 raw 与 depth-weighted x-depth 得分切片对比。
+    """绘制 unweighted 与 depth-weighted x-depth 得分切片对比。
 
     固定 y 为 weighted_best_y。左图显示 raw score，右图显示 depth-weighted score。
     若右图最高点贴近 scan_depth_min，而左图峰带更深或更宽，则说明深度权重可能
@@ -173,14 +173,14 @@ def plot_raw_vs_weighted_x_depth_slice(
     y_grid = params.derived.scan_y_grid
     depth_grid = params.derived.scan_depth_grid
     weighted_best = scan_result["weighted_best_location"]
-    raw_best = scan_result["raw_best_location"]
+    raw_best = scan_result["unweighted_best_location"]
     iy = _nearest_index(y_grid, weighted_best["y_m"])
     raw_slice = scan_result["normalized_score_volume_raw"][:, iy, :].T
     weighted_slice = scan_result["normalized_score_volume_depth_weighted"][:, iy, :].T
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.8), dpi=150, sharey=True)
     for ax, data, title in [
-        (axes[0], raw_slice, "raw score x-depth 切片"),
+        (axes[0], raw_slice, "unweighted score x-depth 切片"),
         (axes[1], weighted_slice, "depth-weighted score x-depth 切片"),
     ]:
         image = ax.imshow(
@@ -192,14 +192,14 @@ def plot_raw_vs_weighted_x_depth_slice(
             vmax=1.0,
         )
         ax.scatter([params.anomaly.x0_m], [params.anomaly.depth_m], marker="x", s=60, color="white", label="真实异常体")
-        ax.scatter([raw_best["x_m"]], [raw_best["depth_m"]], marker="s", s=42, facecolors="none", edgecolors="cyan", label="raw_best")
+        ax.scatter([raw_best["x_m"]], [raw_best["depth_m"]], marker="s", s=42, facecolors="none", edgecolors="cyan", label="unweighted_best")
         ax.scatter([weighted_best["x_m"]], [weighted_best["depth_m"]], marker="o", s=42, facecolors="none", edgecolors="red", label="weighted_best")
         ax.set_xlabel("沿道路方向 x / m")
         ax.set_title(title)
         ax.legend(loc="best", fontsize=7)
         fig.colorbar(image, ax=ax, label="归一化得分")
     axes[0].set_ylabel("埋深 h / m")
-    fig.suptitle("raw 与 depth-weighted 扫描得分对比：检查浅部偏置", fontsize=12)
+    fig.suptitle("unweighted 与 depth-weighted 扫描得分对比：检查浅部偏置", fontsize=12)
     fig.tight_layout()
     fig.savefig(output_path)
     plt.close(fig)

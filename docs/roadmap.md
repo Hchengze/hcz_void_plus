@@ -36,6 +36,16 @@
 - 新增 normalized_energy_stack；
 - 新增三维几何路线文档。
 
+## Stage 3C
+
+深度稳健性对比、推荐位置规则与三维不确定性表达：
+
+- 将 raw 语义整理为 unweighted / depth-weighted / active；
+- 新增 recommended_location、recommended_location_type 和 recommended_reason；
+- 轻量比较 diffraction_energy_stack 与 normalized_energy_stack；
+- 输出三维高分区跨度、等效不确定性盒和不确定性切片；
+- latest_stable 增加推荐位置、score_method 对比和 3D 高分区摘要。
+
 ## 后续阶段
 
 - 更完整的概率置信度体系和不确定性表达；

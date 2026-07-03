@@ -2,10 +2,10 @@
 
 ## 本轮信息
 
-- commit id：`562e2ce`
-- 任务名称：`Stage 3B 三维场景约束下的扫描诊断修正与置信度稳健化`
-- 运行时间：`2026-07-03T14:24:58`
-- 来源目录：`outputs\stage3_run_20260703_142452`
+- commit id：`388ac23`
+- 任务名称：`Stage 3C 深度稳健性对比、推荐位置规则与三维不确定性表达`
+- 运行时间：`2026-07-03T15:13:06`
+- 来源目录：`outputs\stage3_run_20260703_151258`
 
 ## 当前近似条件
 
@@ -19,11 +19,25 @@
 - best_location：x=`60.0` m，y=`9.0` m，h=`0.5` m
 - truth_error：`2.5` m
 
-## raw 与 weighted best 对比
+## unweighted 与 weighted best 对比
 
-- raw_best：x=`60.0` m，y=`9.0` m，h=`2.5` m
+- unweighted_best：x=`60.0` m，y=`9.0` m，h=`2.5` m
 - weighted_best：x=`60.0` m，y=`9.0` m，h=`0.5` m
-- raw -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`-2.0` m，三维距离=`2.0` m
+- unweighted -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`-2.0` m，三维距离=`2.0` m
+
+## 推荐位置与不确定性
+
+- recommended_location_type：`uncertainty_interval`
+- recommended_location：`{'x_m': 60.0, 'y_m': 9.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 62.0], 'y_interval_m': [4.0, 14.0], 'depth_interval_m': [0.5, 2.5]}`
+- recommended_reason：weighted_best 受到深度权重影响且触发边界/宽 y/unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。
+- depth uncertainty interval：`[0.5, 2.5]` m
+- 3D high-score span：x=`2.0` m，y=`10.0` m，depth=`0.5` m
+- high-score point count：`22`
+
+## score method 对比
+
+- comparison methods：`['diffraction_energy_stack', 'normalized_energy_stack']`
+- depth stability reference：`{'best_unweighted_depth_method': 'diffraction_energy_stack', 'best_unweighted_depth_abs_error_m': 0.5, 'note': '仅比较当前场景下 unweighted_best 的深度误差，不代表通用优劣。'}`
 
 ## 基础置信度指标
 
@@ -52,13 +66,17 @@
 - figures/fig_raw_vs_weighted_x_depth_slice.png
 - figures/fig_y_high_score_width_check.png
 - figures/fig_confidence_diagnostics.png
+- figures/fig_score_method_depth_comparison.png
+- figures/fig_3d_high_score_uncertainty_summary.png
+- figures/fig_x_y_depth_uncertainty_slices.png
 - animations/anim_pseudo_wavefield.gif
 - reports/report_full_pipeline.md
 - reports/report_confidence.md
+- reports/report_score_method_comparison.md
 
 ## 导出记录
 
-- 已复制精选文件数量：`17`
+- 已复制精选文件数量：`21`
 - 缺失精选文件数量：`0`
 
 ## 当前限制

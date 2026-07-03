@@ -158,6 +158,7 @@ def assign_confidence_flag(
     coupling_warning: bool,
     stage3b_warnings: dict[str, Any],
     params: SimpleNamespace,
+    high_score_region: dict[str, Any] | None = None,
 ) -> str:
     """根据规则输出 high / medium-low / medium / low 诊断标志。
 
@@ -175,6 +176,12 @@ def assign_confidence_flag(
         stage3b_warnings["wide_y_high_score_zone_warning"]
         or stage3b_warnings["depth_prior_bias_warning"]
     )
+    if high_score_region is not None:
+        moderate_warning = (
+            moderate_warning
+            or high_score_region["y_span_m"] >= params.confidence.coupling_warning_span_y_m
+            or high_score_region["depth_span_m"] >= params.confidence.coupling_warning_span_depth_m
+        )
     if severe_warning or coupling_warning or consistency_warning or peak_sharpness < 1.2 or score_contrast < 1.5:
         return "low"
     if moderate_warning:

@@ -65,6 +65,8 @@ Stage 3B 扫描稳健化：
 
 - `--direct-mute-mode`：`hard/taper/subtract/none`，默认 `taper`
 - `--score-method normalized_energy_stack`：每道归一化局部能量后再堆叠
+- `--compare-score-methods`
+- `--score-method-list`
 
 这些参数仍然全部由 `main.py` 的 argparse 定义、派生和校验。`src/confidence`、`src/utils/stable_export.py` 和 pipeline 只接收解析后的 `params`，不维护第二套局部参数。
 

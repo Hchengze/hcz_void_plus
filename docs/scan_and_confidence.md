@@ -57,15 +57,40 @@ n_x × n_y × n_depth
 - `figures/fig_confidence_diagnostics.png`
 - `reports/report_confidence.md`
 
-Stage 3B 还输出：
+Stage 3B/3C 还输出：
 
 - `figures/fig_raw_vs_weighted_best_location.png`
 - `figures/fig_raw_vs_weighted_x_depth_slice.png`
 - `figures/fig_y_high_score_width_check.png`
+- `figures/fig_score_method_depth_comparison.png`
+- `figures/fig_3d_high_score_uncertainty_summary.png`
+- `figures/fig_x_y_depth_uncertainty_slices.png`
+- `reports/report_score_method_comparison.md`
 
-## raw score 与 weighted score
+## unweighted score 与 weighted score
 
-`score_volume_raw` 表示不加 Rayleigh 深度权重的扫描得分；`score_volume_depth_weighted` 表示乘以 `exp(-h / penetration_depth)` 后的得分。若 weighted_best 比 raw_best 明显更浅，尤其贴近 `scan_depth_min_m`，报告会触发 shallow/boundary warning。这说明深度先验可能影响了最佳深度，不能把 weighted_best 当作稳定深度估计。
+`score_volume_unweighted` 表示不加 Rayleigh 深度权重的当前 score_method 得分；`score_volume_depth_weighted` 表示乘以 `exp(-h / penetration_depth)` 后的得分；`score_volume_active` 表示当前展示主结果。为了兼容旧测试和旧脚本，`score_volume_raw` 仍保留为 `score_volume_unweighted` 的别名。
+
+若 weighted_best 比 unweighted_best 明显更浅，尤其贴近 `scan_depth_min_m`，报告会触发 shallow/boundary warning。这说明深度先验可能影响了最佳深度，不能把 weighted_best 当作稳定深度估计。
+
+## 推荐位置与三维不确定性
+
+Stage 3C 新增 `recommended_location`、`recommended_location_type` 和 `recommended_location_reason`。当 weighted_best 贴边且 unweighted/weighted 分歧明显时，推荐结果会退化为 `uncertainty_interval`，即用三维高分区的 x/y/depth 范围表达候选体，而不是输出一个确定点。
+
+三维高分区定义为：
+
+```text
+score_volume_active >= confidence_threshold_ratio * best_score
+```
+
+输出包括：
+
+- `x_span_m`
+- `y_span_m`
+- `depth_span_m`
+- `high_score_region_point_count`
+- `high_score_region_volume_estimate_m3`
+- `equivalent_uncertainty_box`
 
 这些指标是科研原型阶段的自检工具，不是统计显著性检验、不是完整置信区间，也不能作为工程确诊。
 

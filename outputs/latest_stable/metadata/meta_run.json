@@ -1,6 +1,6 @@
 {
   "project": "hcz_void_plus",
-  "stage": "Stage 3 confidence diagnostics and stable output export",
+  "stage": "Stage 3C recommended location and 3D uncertainty diagnostics",
   "data_shape": {
     "order": "shot × time × channel",
     "shape": [
@@ -40,18 +40,18 @@
     "wavefield_info": {
       "snapshot_count": 8,
       "snapshot_files": [
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t000.png",
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t001.png",
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t002.png",
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t003.png",
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t004.png",
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t005.png",
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t006.png",
-        "outputs\\stage3_run_20260703_142452\\snapshots\\snap_pseudo_wavefield_t007.png"
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t007.png"
       ],
       "animation": {
         "success": true,
-        "path": "outputs\\stage3_run_20260703_142452\\animations\\anim_pseudo_wavefield.gif",
+        "path": "outputs\\stage3_run_20260703_151258\\animations\\anim_pseudo_wavefield.gif",
         "reason": null
       }
     }
@@ -60,6 +60,7 @@
     "enabled": true,
     "score_method": "diffraction_energy_stack",
     "use_depth_weight": true,
+    "depth_weight_applied": true,
     "grid_shape": [
       81,
       17,
@@ -79,7 +80,13 @@
       "distance_m": 2.5
     },
     "score_volume_kind": "depth_weighted",
+    "score_volume_active_kind": "depth_weighted",
     "raw_best_location": {
+      "x_m": 60.0,
+      "y_m": 9.0,
+      "depth_m": 2.5
+    },
+    "unweighted_best_location": {
       "x_m": 60.0,
       "y_m": 9.0,
       "depth_m": 2.5
@@ -96,16 +103,102 @@
       "distance_m": 2.0
     },
     "depth_prior_bias_warning": true,
+    "recommended_location": {
+      "x_m": 60.0,
+      "y_m": 9.0,
+      "depth_m": 2.5,
+      "x_interval_m": [
+        60.0,
+        62.0
+      ],
+      "y_interval_m": [
+        4.0,
+        14.0
+      ],
+      "depth_interval_m": [
+        0.5,
+        2.5
+      ]
+    },
+    "recommended_location_type": "uncertainty_interval",
+    "recommended_location_reason": "weighted_best 受到深度权重影响且触发边界/宽 y/unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。",
+    "depth_uncertainty_interval_m": [
+      0.5,
+      2.5
+    ],
     "score_volume_raw_saved": true,
-    "score_volume_depth_weighted_saved": true
+    "score_volume_unweighted_saved": true,
+    "score_volume_depth_weighted_saved": true,
+    "score_method_comparison": {
+      "methods": {
+        "diffraction_energy_stack": {
+          "unweighted_best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 2.5
+          },
+          "weighted_best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 0.5
+          },
+          "unweighted_truth_error": {
+            "dx_m": 0.0,
+            "dy_m": 0.0,
+            "ddepth_m": -0.5,
+            "distance_m": 0.5
+          },
+          "weighted_truth_error": {
+            "dx_m": 0.0,
+            "dy_m": 0.0,
+            "ddepth_m": -2.5,
+            "distance_m": 2.5
+          },
+          "weighted_depth_at_boundary": true
+        },
+        "normalized_energy_stack": {
+          "unweighted_best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 2.5
+          },
+          "weighted_best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 0.5
+          },
+          "unweighted_truth_error": {
+            "dx_m": 0.0,
+            "dy_m": 0.0,
+            "ddepth_m": -0.5,
+            "distance_m": 0.5
+          },
+          "weighted_truth_error": {
+            "dx_m": 0.0,
+            "dy_m": 0.0,
+            "ddepth_m": -2.5,
+            "distance_m": 2.5
+          },
+          "weighted_depth_at_boundary": true
+        }
+      },
+      "depth_stability_reference": {
+        "best_unweighted_depth_method": "diffraction_energy_stack",
+        "best_unweighted_depth_abs_error_m": 0.5,
+        "note": "仅比较当前场景下 unweighted_best 的深度误差，不代表通用优劣。"
+      }
+    }
   },
   "diagnostics": {
-    "diffraction_travel_time_curve_figure": "outputs\\stage3_run_20260703_142452\\figures\\fig_diffraction_travel_time_curves.png",
-    "path_section_figure": "outputs\\stage3_run_20260703_142452\\figures\\fig_source_anomaly_receiver_path_section.png",
-    "depth_sensitivity_figure": "outputs\\stage3_run_20260703_142452\\figures\\fig_rayleigh_depth_sensitivity.png",
-    "raw_vs_weighted_best_location_figure": "outputs\\stage3_run_20260703_142452\\figures\\fig_raw_vs_weighted_best_location.png",
-    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage3_run_20260703_142452\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
-    "y_high_score_width_check_figure": "outputs\\stage3_run_20260703_142452\\figures\\fig_y_high_score_width_check.png"
+    "diffraction_travel_time_curve_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_rayleigh_depth_sensitivity.png",
+    "raw_vs_weighted_best_location_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_raw_vs_weighted_best_location.png",
+    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
+    "y_high_score_width_check_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_y_high_score_width_check.png",
+    "score_method_depth_comparison_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_score_method_depth_comparison.png",
+    "3d_high_score_uncertainty_summary_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_3d_high_score_uncertainty_summary.png",
+    "x_y_depth_uncertainty_slices_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_x_y_depth_uncertainty_slices.png"
   },
   "confidence": {
     "peak_sharpness": 1.1066476916547154,
@@ -119,6 +212,24 @@
     "wide_y_high_score_zone_warning": true,
     "raw_weighted_divergence_warning": true,
     "shallow_bias_warning": true,
+    "high_score_region": {
+      "threshold_ratio": 0.9,
+      "threshold": 0.03094128385859488,
+      "best_score": 0.034379204287327644,
+      "high_score_region_point_count": 22,
+      "x_span_m": 2.0,
+      "y_span_m": 10.0,
+      "depth_span_m": 0.5,
+      "high_score_region_volume_estimate_m3": 22.0,
+      "equivalent_uncertainty_box": {
+        "x_min_m": 60.0,
+        "x_max_m": 62.0,
+        "y_min_m": 4.0,
+        "y_max_m": 14.0,
+        "depth_min_m": 0.5,
+        "depth_max_m": 1.0
+      }
+    },
     "low_confidence_flag": "low"
   },
   "output": {
@@ -136,9 +247,9 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "562e2ce",
+    "commit_id": "388ac23",
     "push_attempted": true,
-    "push_success": true
+    "push_success": false
   },
   "limitations": [
     "不是完整 DAS 仪器模拟。",

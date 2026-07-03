@@ -20,6 +20,9 @@
 - 基础置信度诊断：peak sharpness、score contrast、multi-shot consistency、y-depth coupling warning 和 high/medium/low 规则型标志。
 - Stage 3B 扫描稳健化：raw score 与 depth-weighted score 分离，显式输出 raw_best、weighted_best 和二者差异。
 - Stage 3B 新增 warning：深度边界、宽 y 高分区、raw/weighted 分歧、浅部偏置。
+- Stage 3C 推荐位置规则：不再把 depth-weighted best 自动当主推荐点，输出 `recommended_location`、推荐类型和理由。
+- Stage 3C 三维高分区不确定性：输出 x/y/depth 跨度、等效不确定性盒和候选体统计。
+- Stage 3C 轻量 score_method 对比：`diffraction_energy_stack` 与 `normalized_energy_stack`。
 - 直达波 mute 默认改为 `taper`，保留 `hard/subtract/none`。
 - 新增 `normalized_energy_stack` 作为可选扫描得分方法。
 - `outputs/latest_stable/` 精选稳定成果导出，便于每轮人工快速检查。
@@ -102,6 +105,8 @@ Stage 2 的扫描方法是 `diffraction_energy_stack`：
 
 ```text
 arrays/arr_score_volume.npy
+arrays/arr_score_volume_unweighted.npy
+arrays/arr_score_volume_active.npy
 arrays/arr_score_volume_raw.npy
 arrays/arr_score_volume_depth_weighted.npy
 arrays/arr_scan_x_grid.npy
@@ -131,10 +136,16 @@ figures/fig_confidence_diagnostics.png
 figures/fig_raw_vs_weighted_best_location.png
 figures/fig_raw_vs_weighted_x_depth_slice.png
 figures/fig_y_high_score_width_check.png
+figures/fig_score_method_depth_comparison.png
+figures/fig_3d_high_score_uncertainty_summary.png
+figures/fig_x_y_depth_uncertainty_slices.png
 reports/report_confidence.md
+reports/report_score_method_comparison.md
 ```
 
 这些指标不是概率置信度，不是完整不确定性评价，也不能作为工程确诊结论。
+
+Stage 3C 的 `recommended_location` 是科研候选表达。若 depth-weighted best 贴边且 unweighted/weighted 分歧明显，系统会推荐不确定性区间，而不是把 weighted best 写成确定点。
 
 ## 物理自检图
 

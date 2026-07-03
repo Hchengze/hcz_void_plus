@@ -89,6 +89,7 @@ def build_metadata(
     scan_result: dict[str, Any] | None = None,
     diagnostics_info: dict[str, Any] | None = None,
     confidence_info: dict[str, Any] | None = None,
+    score_method_comparison: dict[str, Any] | None = None,
     output_info: dict[str, Any] | None = None,
     git_info: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -101,7 +102,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 3 confidence diagnostics and stable output export",
+        "stage": "Stage 3C recommended location and 3D uncertainty diagnostics",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -136,18 +137,27 @@ def build_metadata(
             "enabled": params.scan.enabled,
             "score_method": params.scan.score_method,
             "use_depth_weight": params.scan.use_depth_weight,
+            "depth_weight_applied": params.scan.use_depth_weight,
             "grid_shape": params.derived.scan_shape,
             "grid_point_count": params.derived.scan_grid_point_count,
             "best_location": None,
             "best_score": None,
             "truth_error": None,
             "score_volume_kind": None,
+            "score_volume_active_kind": None,
             "raw_best_location": None,
+            "unweighted_best_location": None,
             "weighted_best_location": None,
             "raw_weighted_difference": None,
             "depth_prior_bias_warning": None,
+            "recommended_location": None,
+            "recommended_location_type": None,
+            "recommended_location_reason": None,
+            "depth_uncertainty_interval_m": None,
             "score_volume_raw_saved": False,
+            "score_volume_unweighted_saved": False,
             "score_volume_depth_weighted_saved": False,
+            "score_method_comparison": None,
         },
         "diagnostics": {
             "diffraction_travel_time_curve_figure": None,
@@ -156,6 +166,9 @@ def build_metadata(
             "raw_vs_weighted_best_location_figure": None,
             "raw_vs_weighted_x_depth_slice_figure": None,
             "y_high_score_width_check_figure": None,
+            "score_method_depth_comparison_figure": None,
+            "3d_high_score_uncertainty_summary_figure": None,
+            "x_y_depth_uncertainty_slices_figure": None,
         },
         "confidence": {
             "peak_sharpness": None,
@@ -169,6 +182,7 @@ def build_metadata(
             "wide_y_high_score_zone_warning": None,
             "raw_weighted_divergence_warning": None,
             "shallow_bias_warning": None,
+            "high_score_region": None,
             "low_confidence_flag": None,
         },
         "output": {
@@ -215,11 +229,14 @@ def build_metadata(
         metadata["scan"]["best_score"] = scan_result.get("best_score")
         metadata["scan"]["truth_error"] = scan_result.get("truth_error")
         metadata["scan"]["score_volume_kind"] = scan_result.get("score_volume_kind")
+        metadata["scan"]["score_volume_active_kind"] = scan_result.get("score_volume_active_kind")
+        metadata["scan"]["unweighted_best_location"] = scan_result.get("unweighted_best_location")
         metadata["scan"]["raw_best_location"] = scan_result.get("raw_best_location")
         metadata["scan"]["weighted_best_location"] = scan_result.get("weighted_best_location")
         metadata["scan"]["raw_weighted_difference"] = scan_result.get("raw_weighted_difference")
         metadata["scan"]["depth_prior_bias_warning"] = scan_result.get("depth_prior_bias_warning")
         metadata["scan"]["score_volume_raw_saved"] = True
+        metadata["scan"]["score_volume_unweighted_saved"] = True
         metadata["scan"]["score_volume_depth_weighted_saved"] = True
     if diagnostics_info is not None:
         metadata["diagnostics"].update(diagnostics_info)
@@ -237,9 +254,28 @@ def build_metadata(
                 "wide_y_high_score_zone_warning": confidence_info["stage3b_warnings"]["wide_y_high_score_zone_warning"],
                 "raw_weighted_divergence_warning": confidence_info["stage3b_warnings"]["raw_weighted_divergence_warning"],
                 "shallow_bias_warning": confidence_info["stage3b_warnings"]["shallow_bias_warning"],
+                "high_score_region": confidence_info["high_score_region"],
                 "low_confidence_flag": confidence_info["low_confidence_flag"],
             }
         )
+        metadata["scan"]["recommended_location"] = confidence_info["recommended_location"]
+        metadata["scan"]["recommended_location_type"] = confidence_info["recommended_location_type"]
+        metadata["scan"]["recommended_location_reason"] = confidence_info["recommended_location_reason"]
+        metadata["scan"]["depth_uncertainty_interval_m"] = confidence_info["depth_uncertainty_interval_m"]
+    if score_method_comparison is not None:
+        metadata["scan"]["score_method_comparison"] = {
+            "methods": {
+                method: {
+                    "unweighted_best_location": result["unweighted_best_location"],
+                    "weighted_best_location": result["weighted_best_location"],
+                    "unweighted_truth_error": result["unweighted_truth_error"],
+                    "weighted_truth_error": result["weighted_truth_error"],
+                    "weighted_depth_at_boundary": result["weighted_depth_at_boundary"],
+                }
+                for method, result in score_method_comparison["methods"].items()
+            },
+            "depth_stability_reference": score_method_comparison["depth_stability_reference"],
+        }
     if output_info is not None:
         metadata["output"].update(output_info)
     if git_info is not None:

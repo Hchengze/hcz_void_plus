@@ -34,7 +34,7 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 
     best = scan_result["best_location"]
     error = scan_result["truth_error"]
-    raw_best = scan_result["raw_best_location"]
+    unweighted_best = scan_result["unweighted_best_location"]
     weighted_best = scan_result["weighted_best_location"]
     diff = scan_result["raw_weighted_difference"]
     content = f"""# 扫描定位报告
@@ -62,11 +62,11 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 - best_score：`{scan_result["best_score"]}`
 - truth_error：dx=`{error["dx_m"]}` m，dy=`{error["dy_m"]}` m，dh=`{error["ddepth_m"]}` m，三维距离=`{error["distance_m"]}` m
 
-## raw 与 weighted best 分离
+## unweighted 与 weighted best 分离
 
-- raw_best：x=`{raw_best["x_m"]}` m，y=`{raw_best["y_m"]}` m，h=`{raw_best["depth_m"]}` m，score=`{scan_result["raw_best_score"]}`
+- unweighted_best：x=`{unweighted_best["x_m"]}` m，y=`{unweighted_best["y_m"]}` m，h=`{unweighted_best["depth_m"]}` m，score=`{scan_result["unweighted_best_score"]}`
 - weighted_best：x=`{weighted_best["x_m"]}` m，y=`{weighted_best["y_m"]}` m，h=`{weighted_best["depth_m"]}` m，score=`{scan_result["weighted_best_score"]}`
-- raw -> weighted 差异：dx=`{diff["dx_m"]}` m，dy=`{diff["dy_m"]}` m，dh=`{diff["ddepth_m"]}` m，三维距离=`{diff["distance_m"]}` m
+- unweighted -> weighted 差异：dx=`{diff["dx_m"]}` m，dy=`{diff["dy_m"]}` m，dh=`{diff["ddepth_m"]}` m，三维距离=`{diff["distance_m"]}` m
 - depth_prior_bias_warning：`{scan_result["depth_prior_bias_warning"]}`
 
 ## 风险提示
@@ -135,6 +135,8 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
 
     if params.output.save_arrays:
         np.save(paths["arrays"] / "arr_score_volume.npy", scan_result["score_volume"])
+        np.save(paths["arrays"] / "arr_score_volume_active.npy", scan_result["score_volume_active"])
+        np.save(paths["arrays"] / "arr_score_volume_unweighted.npy", scan_result["score_volume_unweighted"])
         np.save(paths["arrays"] / "arr_score_volume_raw.npy", scan_result["score_volume_raw"])
         np.save(paths["arrays"] / "arr_score_volume_depth_weighted.npy", scan_result["score_volume_depth_weighted"])
         np.save(paths["arrays"] / "arr_scan_x_grid.npy", params.derived.scan_x_grid)

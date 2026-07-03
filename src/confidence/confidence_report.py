@@ -11,6 +11,7 @@ import numpy as np
 from src.confidence.consistency import compute_multishot_consistency
 from src.confidence.coupling_warning import analyze_stage3b_scan_warnings, analyze_y_depth_coupling, assign_confidence_flag
 from src.confidence.peak_analysis import analyze_peak_sharpness, compute_score_contrast
+from src.confidence.uncertainty_region import build_recommended_location, compute_3d_high_score_region
 from src.model.velocity_model import UniformVelocityModel
 
 
@@ -62,6 +63,13 @@ def build_confidence_metrics(
         scan_result,
         params,
     )
+    high_score_region = compute_3d_high_score_region(
+        score_volume,
+        params.derived.scan_x_grid,
+        params.derived.scan_y_grid,
+        params.derived.scan_depth_grid,
+        params.confidence.threshold_ratio,
+    )
     flag = assign_confidence_flag(
         peak["peak_sharpness"],
         contrast["score_contrast"],
@@ -70,13 +78,22 @@ def build_confidence_metrics(
         coupling["warning"],
         stage3b_warnings,
         params,
+        high_score_region,
     )
+    recommendation = build_recommended_location(params, scan_result, stage3b_warnings, high_score_region)
     return {
         "peak": peak,
         "contrast": contrast,
         "multi_shot_consistency": consistency,
         "y_depth_coupling": coupling,
         "stage3b_warnings": stage3b_warnings,
+        "high_score_region": high_score_region,
+        "recommendation": recommendation,
+        "recommended_location": recommendation["recommended_location"],
+        "recommended_location_type": recommendation["recommended_location_type"],
+        "recommended_location_reason": recommendation["recommended_location_reason"],
+        "depth_uncertainty_interval_m": recommendation["depth_uncertainty_interval_m"],
+        "unweighted_best_location": scan_result.get("unweighted_best_location"),
         "raw_best_location": scan_result.get("raw_best_location"),
         "weighted_best_location": scan_result.get("weighted_best_location"),
         "raw_weighted_difference": scan_result.get("raw_weighted_difference"),
@@ -93,9 +110,11 @@ def write_confidence_report(params: SimpleNamespace, output_path: Path, metrics:
     consistency = metrics["multi_shot_consistency"]
     coupling = metrics["y_depth_coupling"]
     stage3b = metrics["stage3b_warnings"]
-    raw_best = metrics.get("raw_best_location") or {}
+    unweighted_best = metrics.get("unweighted_best_location") or metrics.get("raw_best_location") or {}
     weighted_best = metrics.get("weighted_best_location") or {}
     diff = metrics.get("raw_weighted_difference") or {}
+    high_region = metrics["high_score_region"]
+    recommendation = metrics["recommendation"]
     content = f"""# 基础置信度诊断报告
 
 ## 指标摘要
@@ -114,11 +133,27 @@ def write_confidence_report(params: SimpleNamespace, output_path: Path, metrics:
 - shallow bias warning：`{stage3b["shallow_bias_warning"]}`
 - confidence flag：`{metrics["low_confidence_flag"]}`
 
-## raw 与 weighted best 对比
+## unweighted 与 weighted best 对比
 
-- raw_best：x=`{raw_best.get("x_m")}` m，y=`{raw_best.get("y_m")}` m，h=`{raw_best.get("depth_m")}` m
+- unweighted_best：x=`{unweighted_best.get("x_m")}` m，y=`{unweighted_best.get("y_m")}` m，h=`{unweighted_best.get("depth_m")}` m
 - weighted_best：x=`{weighted_best.get("x_m")}` m，y=`{weighted_best.get("y_m")}` m，h=`{weighted_best.get("depth_m")}` m
-- raw -> weighted 差异：dx=`{diff.get("dx_m")}` m，dy=`{diff.get("dy_m")}` m，dh=`{diff.get("ddepth_m")}` m，三维距离=`{diff.get("distance_m")}` m
+- unweighted -> weighted 差异：dx=`{diff.get("dx_m")}` m，dy=`{diff.get("dy_m")}` m，dh=`{diff.get("ddepth_m")}` m，三维距离=`{diff.get("distance_m")}` m
+
+## 推荐位置表达
+
+- recommended_location_type：`{recommendation["recommended_location_type"]}`
+- recommended_location：`{recommendation["recommended_location"]}`
+- depth uncertainty interval：`{recommendation["depth_uncertainty_interval_m"]}` m
+- recommended reason：{recommendation["recommended_location_reason"]}
+
+## 三维高分区统计
+
+- high score threshold：`{high_region["threshold_ratio"]}` × best_score
+- high score point count：`{high_region["high_score_region_point_count"]}`
+- x span：`{high_region["x_span_m"]}` m
+- y span：`{high_region["y_span_m"]}` m
+- depth span：`{high_region["depth_span_m"]}` m
+- equivalent uncertainty box：`{high_region["equivalent_uncertainty_box"]}`
 
 ## Stage 3B 新增 warning
 

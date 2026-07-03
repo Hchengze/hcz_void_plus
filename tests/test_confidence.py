@@ -4,6 +4,7 @@ from main import args_to_params, parse_arguments
 from src.confidence.consistency import compute_multishot_consistency
 from src.confidence.coupling_warning import analyze_stage3b_scan_warnings, analyze_y_depth_coupling, assign_confidence_flag
 from src.confidence.peak_analysis import analyze_peak_sharpness, compute_score_contrast
+from src.confidence.uncertainty_region import build_recommended_location, compute_3d_high_score_region
 from src.model.velocity_model import build_velocity_model
 
 
@@ -155,3 +156,58 @@ def test_stage3b_warnings_for_boundary_divergence_and_wide_y():
     assert warnings["raw_weighted_divergence_warning"] is True
     assert warnings["shallow_bias_warning"] is True
     assert assign_confidence_flag(3.0, 3.0, 0.1, False, False, warnings, params) == "low"
+
+
+def test_3d_high_score_region_and_recommendation_avoid_boundary_weighted_best():
+    params = args_to_params(
+        parse_arguments(
+            [
+                "--scan-x-min-m",
+                "58",
+                "--scan-x-max-m",
+                "62",
+                "--scan-x-step-m",
+                "2",
+                "--scan-y-min-m",
+                "8",
+                "--scan-y-max-m",
+                "10",
+                "--scan-y-step-m",
+                "1",
+                "--scan-depth-min-m",
+                "0.5",
+                "--scan-depth-max-m",
+                "3.5",
+                "--scan-depth-step-m",
+                "1",
+            ]
+        )
+    )
+    score = np.zeros(params.derived.scan_shape, dtype=float)
+    score[:, :, 0:2] = 10.0
+    region = compute_3d_high_score_region(
+        score,
+        params.derived.scan_x_grid,
+        params.derived.scan_y_grid,
+        params.derived.scan_depth_grid,
+        0.9,
+    )
+    warnings = {
+        "best_depth_at_boundary_warning": True,
+        "raw_weighted_divergence_warning": True,
+        "wide_y_high_score_zone_warning": True,
+        "shallow_bias_warning": True,
+    }
+    scan_result = {
+        "unweighted_best_location": {"x_m": 60.0, "y_m": 9.0, "depth_m": 2.5},
+        "weighted_best_location": {"x_m": 60.0, "y_m": 9.0, "depth_m": 0.5},
+        "active_best_location": {"x_m": 60.0, "y_m": 9.0, "depth_m": 0.5},
+    }
+    recommendation = build_recommended_location(params, scan_result, warnings, region)
+
+    assert region["high_score_region_point_count"] > 0
+    assert region["x_span_m"] >= 0.0
+    assert region["y_span_m"] >= 0.0
+    assert region["depth_span_m"] >= 1.0
+    assert recommendation["recommended_location_type"] == "uncertainty_interval"
+    assert recommendation["recommended_location"]["depth_m"] != scan_result["weighted_best_location"]["depth_m"]

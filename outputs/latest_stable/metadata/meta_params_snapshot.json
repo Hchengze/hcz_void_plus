@@ -86,7 +86,12 @@
     "direct_mute_half_width_s": 0.02,
     "time_window_half_width_s": 0.015,
     "use_depth_weight": true,
-    "rayleigh_penetration_factor": 1.0
+    "rayleigh_penetration_factor": 1.0,
+    "compare_score_methods": true,
+    "score_method_list": [
+      "diffraction_energy_stack",
+      "normalized_energy_stack"
+    ]
   },
   "task": {
     "wavelet_frequency_hz": 35.0,
@@ -1826,6 +1831,6 @@
     "estimated_wavelength_m": 8.666666666666666,
     "rayleigh_penetration_depth_m": 8.666666666666666,
     "latest_stable_dir": "outputs\\latest_stable",
-    "output_run_dir": "outputs\\stage3_run_20260703_142452"
+    "output_run_dir": "outputs\\stage3_run_20260703_151258"
   }
 }

@@ -145,6 +145,9 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_raw_vs_weighted_best_location.png").exists()
     assert (output_dir / "figures" / "fig_raw_vs_weighted_x_depth_slice.png").exists()
     assert (output_dir / "figures" / "fig_y_high_score_width_check.png").exists()
+    assert (output_dir / "figures" / "fig_score_method_depth_comparison.png").exists()
+    assert (output_dir / "figures" / "fig_3d_high_score_uncertainty_summary.png").exists()
+    assert (output_dir / "figures" / "fig_x_y_depth_uncertainty_slices.png").exists()
     assert (output_dir / "reports" / "report_confidence.md").exists()
     assert (output_dir / "arrays" / "arr_confidence_metrics.json").exists()
     latest_stable = tmp_path / "latest_stable"
@@ -155,8 +158,12 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "figures" / "fig_raw_vs_weighted_best_location.png").exists()
     assert (latest_stable / "figures" / "fig_raw_vs_weighted_x_depth_slice.png").exists()
     assert (latest_stable / "figures" / "fig_y_high_score_width_check.png").exists()
+    assert (latest_stable / "figures" / "fig_score_method_depth_comparison.png").exists()
+    assert (latest_stable / "figures" / "fig_3d_high_score_uncertainty_summary.png").exists()
+    assert (latest_stable / "figures" / "fig_x_y_depth_uncertainty_slices.png").exists()
     assert (latest_stable / "reports" / "report_full_pipeline.md").exists()
     assert (latest_stable / "reports" / "report_confidence.md").exists()
+    assert (latest_stable / "reports" / "report_score_method_comparison.md").exists()
     assert (latest_stable / "metadata" / "meta_run.json").exists()
     metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
     assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
@@ -166,6 +173,8 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["scan"]["raw_best_location"] is not None
     assert metadata["scan"]["weighted_best_location"] is not None
     assert metadata["scan"]["raw_weighted_difference"] is not None
+    assert metadata["scan"]["recommended_location"] is not None
+    assert metadata["scan"]["score_method_comparison"] is not None
     assert metadata["diagnostics"]["diffraction_travel_time_curve_figure"]
     assert metadata["confidence"]["peak_sharpness"] is not None
     assert metadata["confidence"]["best_depth_at_boundary_warning"] is not None
@@ -173,6 +182,8 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["confidence"]["raw_weighted_divergence_warning"] is not None
     assert metadata["output"]["latest_stable_exported"] is True
     summary_text = (latest_stable / "summary.md").read_text(encoding="utf-8")
-    assert "raw_best" in summary_text
+    assert "unweighted_best" in summary_text
     assert "weighted_best" in summary_text
     assert "shallow bias warning" in summary_text
+    assert "recommended_location" in summary_text
+    assert "3D high-score span" in summary_text
