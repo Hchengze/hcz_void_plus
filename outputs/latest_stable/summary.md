@@ -2,7 +2,7 @@
 
 ## 本轮信息
 
-- commit id：`13158c1`
+- commit id：`f04c949`
 - 任务名称：`Stage 5B 正演技术路线确立 + 分层运动学正演主线 + acoustic2d validation`
 - 运行时间：`2026-07-04T00:36:05`
 - 来源目录：`outputs\stage5b_run_20260704_003514`
