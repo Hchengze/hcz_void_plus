@@ -4,10 +4,13 @@
 
 ## 当前近似条件
 
-- forward：`kinematic approximation`
+- active forward engine：`layered_kinematic`
+- forward：`layered_kinematic straight-ray kinematic approximation`
 - DAS-like：`DAS-like response approximation`
 - velocity：`layered`，支持 uniform / layered / lateral gradient / localized low velocity zone
 - velocity approximation：`straight-ray kinematic approximation`，不是弹性波速度反演
+- acoustic2d_prototype：只用于 acoustic wave-equation infrastructure validation，不是 Rayleigh 波正演
+- elastic2d：下一阶段 Rayleigh/free-surface/void scattering 的核心局部全波场方向
 - surface response：`kinematic_surface_response_snapshot`，只是 Rayleigh 波走时控制的地表响应示意，不是真实弹性波模拟
 - Rayleigh depth sensitivity：`exp(-h / penetration_depth)` 简化权重，不是严格模态深度核
 
@@ -59,6 +62,10 @@
 ## Stage 5A 速度模型升级
 
 本轮新增 layered / lateral_gradient / localized_low_velocity_zone / layered_with_anomaly_perturbation 速度模型，并输出 velocity model ablation 与 model mismatch 报告。分层和非均匀速度会改变绕射走时曲线与扫描结果，但当前仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
+
+## Stage 5B 正演技术路线
+
+本轮确立 F0-F6 forward roadmap：F0 `kinematic_baseline` 保留为快速基线；F1 `layered_kinematic` 是当前主定位 forward；F2 `acoustic2d_prototype` 只验证声学波动方程框架；F3 `elastic2d` 是下一步 Rayleigh/free-surface/void scattering 核心；F4-F6 面向多剖面 elastic、小域 3D elastic 和外部 solver adapters。
 
 ## 风险提示
 

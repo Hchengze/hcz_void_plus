@@ -46,6 +46,11 @@ SELECTED_FIGURES = [
     "fig_layered_velocity_profile.png",
     "fig_velocity_model_travel_time_residuals.png",
     "fig_model_mismatch_error_summary.png",
+    "fig_forward_engine_comparison.png",
+    "fig_layered_kinematic_vs_baseline_gather.png",
+    "fig_forward_roadmap_status.png",
+    "fig_acoustic2d_wavefield_snapshots.png",
+    "fig_acoustic2d_shot_gather.png",
 ]
 
 SELECTED_REPORTS = [
@@ -62,6 +67,8 @@ SELECTED_REPORTS = [
     "report_multi_attribute_ablation.md",
     "report_velocity_model_ablation.md",
     "report_model_mismatch.md",
+    "report_forward_engine_ablation.md",
+    "report_acoustic2d_prototype.md",
 ]
 
 
@@ -132,12 +139,17 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     depth_prior_sensitivity = summary_info.get("depth_prior_sensitivity") or {}
     stage4b_validation = summary_info.get("stage4b_validation") or {}
     stage5a_validation = summary_info.get("stage5a_validation") or {}
+    stage5b_validation = summary_info.get("stage5b_validation") or {}
     preprocessing_ablation = stage4b_validation.get("preprocessing_ablation") or {}
     fk_validation = stage4b_validation.get("fk_filter_validation") or {}
     multi_attribute_ablation = stage4b_validation.get("multi_attribute_ablation") or {}
     geometry_ablation = stage4b_validation.get("geometry_ablation") or {}
     velocity_model_ablation = stage5a_validation.get("velocity_model_ablation") or {}
     model_mismatch = stage5a_validation.get("model_mismatch") or {}
+    forward_engine_ablation = stage5b_validation.get("forward_engine_ablation") or {}
+    forward_layered_vs_baseline = forward_engine_ablation.get("layered_vs_baseline") or {}
+    forward_engines = forward_engine_ablation.get("engines") or {}
+    acoustic2d = forward_engines.get("acoustic2d_prototype") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
@@ -181,6 +193,11 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- figures/fig_layered_velocity_profile.png",
             "- figures/fig_velocity_model_travel_time_residuals.png",
             "- figures/fig_model_mismatch_error_summary.png",
+            "- figures/fig_forward_engine_comparison.png",
+            "- figures/fig_layered_kinematic_vs_baseline_gather.png",
+            "- figures/fig_forward_roadmap_status.png",
+            "- figures/fig_acoustic2d_wavefield_snapshots.png",
+            "- figures/fig_acoustic2d_shot_gather.png",
             "- animations/anim_pseudo_wavefield.gif",
             "- reports/report_full_pipeline.md",
             "- reports/report_confidence.md",
@@ -195,6 +212,8 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- reports/report_multi_attribute_ablation.md",
             "- reports/report_velocity_model_ablation.md",
             "- reports/report_model_mismatch.md",
+            "- reports/report_forward_engine_ablation.md",
+            "- reports/report_acoustic2d_prototype.md",
         ]
     )
     content = f"""# latest_stable 稳定成果摘要
@@ -210,6 +229,9 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 
 - `kinematic approximation`
 - `DAS-like response approximation`
+- active forward engine：`{_format_optional(summary_info.get("forward_engine_active") or forward_engine_ablation.get("active_forward_engine"))}`
+- available forward engines：`{_format_optional(summary_info.get("forward_engine_available") or forward_engine_ablation.get("available_forward_engines"))}`
+- forward modeling stage：`{_format_optional(summary_info.get("forward_modeling_stage") or "F1 layered_kinematic + F2 acoustic2d validation")}`
 - `kinematic_surface_response`，不是真实弹性波场模拟
 - Rayleigh 深度权重是 `exp(-h / penetration_depth)` 简化近似，不是严格模态深度核
 
@@ -267,6 +289,18 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - model mismatch riskiest case：`{_format_optional(model_mismatch.get("riskiest_case"))}`
 - minimum recommended velocity model：`{_format_optional(model_mismatch.get("minimum_recommended_velocity_model"))}`
 - note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
+
+## Stage 5B 正演技术路线
+
+- forward_engine_active：`{_format_optional(summary_info.get("forward_engine_active") or forward_engine_ablation.get("active_forward_engine"))}`
+- forward_engine_available：`{_format_optional(summary_info.get("forward_engine_available") or forward_engine_ablation.get("available_forward_engines"))}`
+- forward_engine_next_required：`{_format_optional(summary_info.get("forward_engine_next_required") or forward_engine_ablation.get("next_required_forward"))}`
+- forward_modeling_stage：`{_format_optional(summary_info.get("forward_modeling_stage") or "F0-F6 roadmap established")}`
+- layered_vs_baseline travel-time RMS residual：`{_format_optional(forward_layered_vs_baseline.get("travel_time_residual_rms_ms"))}` ms
+- layered_vs_baseline synthetic relative difference：`{_format_optional(forward_layered_vs_baseline.get("synthetic_relative_difference"))}`
+- acoustic2d_prototype_status：CFL stable=`{_format_optional(acoustic2d.get("cfl_stable"))}`，snapshot_count=`{_format_optional(acoustic2d.get("snapshot_count"))}`
+- elastic2d_design_status：`{_format_optional(summary_info.get("elastic2d_design_status") or "planned_next_core")}`
+- note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering。
 
 ## 基础置信度指标
 

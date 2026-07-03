@@ -1,8 +1,8 @@
-# 当前状态：Stage 5A
+# 当前状态：Stage 5B
 
 ## 最新事实
 
-1. Stage 4B 已完成并推送，当前进入 Stage 5A。
+1. Stage 5A 已完成并推送，当前进入 Stage 5B。
 2. 当前定位结果仍应表达为 `uncertainty_interval` 或三维候选体，不应写成确定工程诊断点。
 3. 预处理中 `taper direct mute`、`trace normalization` 和 bandpass 对绕射识别有明显作用。
 4. FK / f-v 速度扇区滤波当前增强有限，更适合作为 QC 和后续增强接口。
@@ -11,11 +11,15 @@
 7. two-side sources 在 Stage 4B 几何消融中对 y 约束改善最明显。
 8. y-depth 可分辨性仍是瓶颈。
 9. 均匀速度模型是物理真实性短板，Stage 5A 默认升级到 layered。
-10. 真实道路场景中，速度模型不确定性、观测几何和 y-depth 耦合必须一起讨论。
+10. Stage 5B 已确立 forward roadmap：F1 `layered_kinematic` 为当前主线，F2 `acoustic2d_prototype` 只作 validation，F3 `elastic2d` 为下一步核心。
+11. 真实道路场景中，正演真实性、速度模型不确定性、观测几何和 y-depth 耦合必须一起讨论。
 
 ## 当前默认主线
 
 - 稳定代码区：`code/current_3d_algorithm/`
+- 当前正演主线：`layered_kinematic`
+- validation forward：`acoustic2d_prototype`，不是 Rayleigh 波正演
+- 下一步物理正演：`elastic2d`
 - 默认速度模型：`layered`
 - 主定位：`multi_attribute_unweighted`
 - depth weighting：辅助诊断，不默认主导定位
@@ -28,5 +32,10 @@
 - `outputs/latest_stable/summary.md`
 - `outputs/latest_stable/figures/fig_velocity_model_comparison.png`
 - `outputs/latest_stable/figures/fig_model_mismatch_error_summary.png`
+- `outputs/latest_stable/figures/fig_forward_engine_comparison.png`
+- `outputs/latest_stable/figures/fig_forward_roadmap_status.png`
+- `outputs/latest_stable/figures/fig_acoustic2d_wavefield_snapshots.png`
 - `outputs/latest_stable/reports/report_velocity_model_ablation.md`
 - `outputs/latest_stable/reports/report_model_mismatch.md`
+- `outputs/latest_stable/reports/report_forward_engine_ablation.md`
+- `outputs/latest_stable/reports/report_acoustic2d_prototype.md`

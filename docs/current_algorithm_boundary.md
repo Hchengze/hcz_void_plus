@@ -10,6 +10,8 @@
 6. 当前异常体是 `equivalent scatter representation`，不是真实边界散射。
 7. 当前三维几何是 `source_xyz / receiver_xyz / candidate_xyz` 运动学几何。
 8. 当前结果是科研候选区，不是工程确诊。
+9. 当前 `acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不是 Rayleigh 波正演。
+10. `elastic2d` 才是 Rayleigh/free-surface/void scattering 的下一步核心。
 
 ## 速度模型边界
 
@@ -34,3 +36,11 @@ travel_time = integral(ds / v(x, y, z))
 - model mismatch 风险。
 
 不能把 `best_location` 写成工程确诊点。
+
+## 正演路线边界
+
+- F0 `kinematic_baseline` 只保留为快速基线。
+- F1 `layered_kinematic` 是当前 active forward engine。
+- F2 `acoustic2d_prototype` 只能验证声学数值框架，不能解释为 Rayleigh 或空洞弹性散射。
+- F3 `elastic2d` 是下一步局部全波场验证方向。
+- F5 full/local 3D elastic 是长期小域验证目标，不是当前默认主流程。

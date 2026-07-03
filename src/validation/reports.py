@@ -205,3 +205,103 @@ def write_model_mismatch_report(path: Path, result: dict[str, Any]) -> None:
         ]
     )
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_forward_engine_ablation_report(path: Path, result: dict[str, Any]) -> None:
+    """写出 Stage 5B 正演引擎消融报告。
+
+    报告强调 F0/F1/F2 的角色差异：F1 是当前主定位 forward，F2 只验证声学
+    波动方程基础设施，不能被解释为 Rayleigh 波或空洞弹性散射正演。
+    """
+
+    layered_vs_baseline = result["layered_vs_baseline"]
+    lines = [
+        "# 正演引擎消融报告",
+        "",
+        "本报告比较 `kinematic_baseline`、`layered_kinematic` 与 `acoustic2d_prototype` 的阶段角色。",
+        "`acoustic2d_prototype` 只验证波动方程数值框架，不参与 DAS-like 主定位，也不能代表 Rayleigh 波正演。",
+        "",
+        "| engine | stage | velocity/model | data/snapshot shape | RMS or max amplitude | role |",
+        "|---|---|---|---|---:|---|",
+    ]
+    baseline = result["engines"]["kinematic_baseline"]
+    layered = result["engines"]["layered_kinematic"]
+    acoustic = result["engines"]["acoustic2d_prototype"]
+    lines.extend(
+        [
+            "| "
+            f"kinematic_baseline | {baseline['forward_stage']} | {baseline['velocity_model_type']} | "
+            f"{baseline['data_shape']} | {baseline['synthetic_rms']:.4g} | F0 快速基线 |",
+            "| "
+            f"layered_kinematic | {layered['forward_stage']} | {layered['velocity_model_type']} | "
+            f"{layered['data_shape']} | {layered['synthetic_rms']:.4g} | F1 当前主线 |",
+            "| "
+            f"acoustic2d_prototype | {acoustic['forward_stage']} | scalar acoustic | "
+            f"{acoustic['shot_gather_shape']} / {acoustic['wavefield_snapshot_shape']} | "
+            f"{acoustic['max_abs_amplitude']:.4g} | F2 validation prototype |",
+        ]
+    )
+    lines.extend(
+        [
+            "",
+            "## F1 相对 F0 的差异",
+            "",
+            f"- synthetic RMS difference：`{layered_vs_baseline['synthetic_rms_difference']:.4g}`。",
+            f"- synthetic relative difference：`{layered_vs_baseline['synthetic_relative_difference']:.4g}`。",
+            f"- travel-time residual mean：`{layered_vs_baseline['travel_time_residual_mean_ms']:.4g}` ms。",
+            f"- travel-time residual RMS：`{layered_vs_baseline['travel_time_residual_rms_ms']:.4g}` ms。",
+            f"- travel-time residual max abs：`{layered_vs_baseline['travel_time_residual_max_abs_ms']:.4g}` ms。",
+            "",
+            "## acoustic2d prototype 边界",
+            "",
+            f"- CFL stable：`{acoustic['cfl_stable']}`。",
+            f"- CFL number：`{acoustic['cfl_number']:.4g}`。",
+            "- acoustic2d 只有标量声学压力场，没有剪切波和自由表面 Rayleigh 模式。",
+            "- acoustic2d 可以验证网格、震源、接收、absorbing boundary、CFL 和快照输出。",
+            "- acoustic2d 不能验证 Rayleigh/free-surface/void scattering；下一步必须进入 elastic2d。",
+            "",
+            "## 当前结论",
+            "",
+            "- active forward engine：`layered_kinematic`。",
+            "- available forward engines：`kinematic_baseline, layered_kinematic, acoustic2d_prototype`。",
+            "- next required forward：`elastic2d`。",
+            "- 当前结果仍是科研候选区，不是工程确诊。",
+        ]
+    )
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_acoustic2d_prototype_report(path: Path, result: dict[str, Any]) -> None:
+    """写出 acoustic2d prototype 专项报告。"""
+
+    acoustic = result["engines"]["acoustic2d_prototype"]
+    lines = [
+        "# acoustic2d prototype 验证报告",
+        "",
+        "`acoustic2d_prototype` 是二维标量 acoustic FDTD 最小原型。它只用于验证波动方程基础设施，不能代表 Rayleigh 波、自由表面或空洞弹性散射正演。",
+        "",
+        "## 输出",
+        "",
+        f"- shot gather shape：`{acoustic['shot_gather_shape']}`。",
+        f"- wavefield snapshot shape：`{acoustic['wavefield_snapshot_shape']}`。",
+        f"- snapshot count：`{acoustic['snapshot_count']}`。",
+        f"- CFL stable：`{acoustic['cfl_stable']}`。",
+        f"- CFL number：`{acoustic['cfl_number']:.4g}`。",
+        f"- max abs amplitude：`{acoustic['max_abs_amplitude']:.4g}`。",
+        f"- energy：`{acoustic['energy']:.4g}`。",
+        "",
+        "## 能验证什么",
+        "",
+        "- 二维网格和分层 acoustic velocity 的组织方式。",
+        "- Ricker 震源、接收线和 shot gather 输出。",
+        "- sponge absorbing boundary 与 CFL 稳定性检查。",
+        "- wavefield snapshots 的保存和可视化链路。",
+        "",
+        "## 不能验证什么",
+        "",
+        "- 不能验证 Rayleigh 波。",
+        "- 不能验证自由表面条件。",
+        "- 不能验证 void/free-surface/elastic scattering。",
+        "- 不能替代 `layered_kinematic` 主流程，也不能替代下一步 `elastic2d`。",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")

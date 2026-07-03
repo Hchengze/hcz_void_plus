@@ -23,8 +23,9 @@ def simulate_scatter_wave(
 
     物理意义：
         异常体被离散为一个或多个等效散射点。每条 source-scatter-receiver
-        路径按 t_scatter = t0 + d(source, scatter)/v_eff + d(scatter, receiver)/v_eff
-        计算到时，并叠加 Ricker 子波。
+        路径通过 velocity_model 的 straight-ray 路径采样积分接口计算到时，
+        并叠加 Ricker 子波。uniform 模型会退化为两段 distance / v；分层和
+        非均匀模型会沿两段三维路径积分局部速度。
 
     输入参数：
         params：统一参数对象；
@@ -32,7 +33,7 @@ def simulate_scatter_wave(
         receiver_xyz：shape = (n_channel, 3)，单位 m；
         scatter_xyz：shape = (n_scatter, 3)，单位 m；
         scatter_weight：shape = (n_scatter,)，无量纲相对散射强度；
-        velocity_model：均匀等效瑞雷波速度模型。
+        velocity_model：统一运动学速度模型对象，支持 uniform/layered/heterogeneous。
 
     输出形状：
         data，shape = (n_shot, n_time, n_channel)，即 shot × time × channel。

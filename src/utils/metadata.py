@@ -86,6 +86,7 @@ def build_metadata(
     scatter_weight: np.ndarray,
     font_info: dict[str, Any] | None = None,
     wavefield_info: dict[str, Any] | None = None,
+    forward_info: dict[str, Any] | None = None,
     scan_result: dict[str, Any] | None = None,
     diagnostics_info: dict[str, Any] | None = None,
     confidence_info: dict[str, Any] | None = None,
@@ -103,18 +104,29 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5A stable 3D algorithm consolidation and layered velocity modeling",
+        "stage": "Stage 5B forward roadmap and layered kinematic engine",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
         },
         "approximation": {
             "forward": "kinematic approximation",
+            "forward_engine": None,
+            "forward_modeling_stage": None,
             "das_like": "DAS-like response approximation",
             "receiver": "point_receiver approximation",
             "velocity_model": params.velocity.model_type,
             "velocity_model_family": "uniform/layered/lateral_gradient/localized_low_velocity_zone",
             "velocity_approximation": "straight-ray kinematic approximation",
+            "active_forward_engine": getattr(params.forward, "engine", "layered_kinematic"),
+            "available_forward_engines": [
+                "kinematic_baseline",
+                "layered_kinematic",
+                "acoustic2d_prototype",
+            ],
+            "forward_engine_next_required": "elastic2d",
+            "acoustic2d_prototype_status": "validation_only_not_rayleigh_forward",
+            "elastic2d_design_status": "planned_next_core",
             "wavefield_snapshot_type": "kinematic_surface_response_snapshot",
             "surface_response_type": "kinematic_surface_response",
             "is_true_elastic_wavefield": False,
@@ -249,6 +261,10 @@ def build_metadata(
         metadata["scan"]["score_volume_raw_saved"] = True
         metadata["scan"]["score_volume_unweighted_saved"] = True
         metadata["scan"]["score_volume_depth_weighted_saved"] = True
+    if forward_info is not None:
+        metadata["approximation"]["forward_engine"] = forward_info.get("forward_engine")
+        metadata["approximation"]["forward_modeling_stage"] = forward_info.get("forward_stage")
+        metadata["approximation"]["forward_engine_note"] = forward_info.get("note")
     if diagnostics_info is not None:
         metadata["diagnostics"].update(diagnostics_info)
     if confidence_info is not None:

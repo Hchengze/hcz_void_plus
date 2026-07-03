@@ -1,4 +1,4 @@
-"""Stage 4A full_pipeline：参考审计接入 + 三维几何 + 预处理 + 多属性扫描 + 稳定成果导出。"""
+"""Stage 5B full_pipeline：三维定位闭环、分层运动学正演主线与 forward 验证。"""
 
 from __future__ import annotations
 
@@ -29,6 +29,10 @@ from src.visualization.plot_uncertainty import (
 )
 from src.validation.common import summarize_volume
 from src.validation.fk_filter_validation import run_fk_filter_validation
+from src.validation.forward_engine_ablation import (
+    run_forward_engine_ablation,
+    strip_forward_engine_ablation_arrays,
+)
 from src.validation.geometry_ablation import run_geometry_ablation
 from src.validation.model_mismatch import run_model_mismatch_experiment
 from src.validation.multi_attribute_ablation import run_multi_attribute_ablation
@@ -36,6 +40,8 @@ from src.validation.preprocessing_ablation import run_preprocessing_ablation
 from src.validation.reports import (
     write_attribute_validation_report,
     write_fk_filter_validation_report,
+    write_acoustic2d_prototype_report,
+    write_forward_engine_ablation_report,
     write_geometry_ablation_report,
     write_model_mismatch_report,
     write_multi_attribute_ablation_report,
@@ -61,6 +67,13 @@ from src.visualization.plot_stage5a import (
     plot_model_mismatch_error_summary,
     plot_velocity_model_comparison,
     plot_velocity_model_travel_time_residuals,
+)
+from src.visualization.plot_stage5b import (
+    plot_acoustic2d_shot_gather,
+    plot_acoustic2d_wavefield_snapshots,
+    plot_forward_engine_comparison,
+    plot_forward_roadmap_status,
+    plot_layered_kinematic_vs_baseline_gather,
 )
 
 
@@ -110,10 +123,13 @@ def _write_full_pipeline_report(
 
 ## 当前近似条件
 
-- forward：`kinematic approximation`
+- active forward engine：`{params.forward.engine}`
+- forward：`layered_kinematic straight-ray kinematic approximation`
 - DAS-like：`DAS-like response approximation`
 - velocity：`{params.velocity.model_type}`，支持 uniform / layered / lateral gradient / localized low velocity zone
 - velocity approximation：`straight-ray kinematic approximation`，不是弹性波速度反演
+- acoustic2d_prototype：只用于 acoustic wave-equation infrastructure validation，不是 Rayleigh 波正演
+- elastic2d：下一阶段 Rayleigh/free-surface/void scattering 的核心局部全波场方向
 - surface response：`kinematic_surface_response_snapshot`，只是 Rayleigh 波走时控制的地表响应示意，不是真实弹性波模拟
 - Rayleigh depth sensitivity：`exp(-h / penetration_depth)` 简化权重，不是严格模态深度核
 
@@ -150,6 +166,10 @@ def _write_full_pipeline_report(
 ## Stage 5A 速度模型升级
 
 本轮新增 layered / lateral_gradient / localized_low_velocity_zone / layered_with_anomaly_perturbation 速度模型，并输出 velocity model ablation 与 model mismatch 报告。分层和非均匀速度会改变绕射走时曲线与扫描结果，但当前仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
+
+## Stage 5B 正演技术路线
+
+本轮确立 F0-F6 forward roadmap：F0 `kinematic_baseline` 保留为快速基线；F1 `layered_kinematic` 是当前主定位 forward；F2 `acoustic2d_prototype` 只验证声学波动方程框架；F3 `elastic2d` 是下一步 Rayleigh/free-surface/void scattering 核心；F4-F6 面向多剖面 elastic、小域 3D elastic 和外部 solver adapters。
 
 ## 风险提示
 
@@ -229,6 +249,7 @@ def _build_final_metadata(
     depth_prior_sensitivity: dict[str, Any] | None,
     stage4b_validation: dict[str, Any] | None,
     stage5a_validation: dict[str, Any] | None,
+    stage5b_validation: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -283,15 +304,30 @@ def _build_final_metadata(
                 paths["figures"] / "fig_velocity_model_travel_time_residuals.png"
             ),
             "model_mismatch_error_summary_figure": str(paths["figures"] / "fig_model_mismatch_error_summary.png"),
+            "forward_engine_comparison_figure": str(paths["figures"] / "fig_forward_engine_comparison.png"),
+            "layered_kinematic_vs_baseline_gather_figure": str(
+                paths["figures"] / "fig_layered_kinematic_vs_baseline_gather.png"
+            ),
+            "forward_roadmap_status_figure": str(paths["figures"] / "fig_forward_roadmap_status.png"),
+            "acoustic2d_wavefield_snapshots_figure": str(
+                paths["figures"] / "fig_acoustic2d_wavefield_snapshots.png"
+            ),
+            "acoustic2d_shot_gather_figure": str(paths["figures"] / "fig_acoustic2d_shot_gather.png"),
         },
         confidence_info=confidence_metrics,
         score_method_comparison=score_method_comparison,
         depth_prior_sensitivity=depth_prior_sensitivity,
+        forward_info={
+            "forward_engine": forward_result.get("forward_engine", params.forward.engine),
+            "forward_stage": forward_result.get("forward_stage"),
+            "note": "Stage 5B 当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation。",
+        },
         output_info=output_info,
         git_info=git_info,
     )
     metadata["stage4b_validation"] = stage4b_validation or {}
     metadata["stage5a_validation"] = stage5a_validation or {}
+    metadata["stage5b_validation"] = stage5b_validation or {}
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -320,6 +356,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     geometry_ablation: dict[str, Any] | None = None
     velocity_model_ablation: dict[str, Any] | None = None
     model_mismatch: dict[str, Any] | None = None
+    forward_engine_ablation: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -586,6 +623,44 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 )
                 write_model_mismatch_report(paths["reports"] / "report_model_mismatch.md", model_mismatch)
 
+        forward_engine_ablation = run_forward_engine_ablation(
+            params,
+            forward_result["source_xyz"],
+            forward_result["receiver_xyz"],
+            forward_result["scatter_xyz"],
+            forward_result["scatter_weight"],
+        )
+        if params.output.save_figures:
+            plot_forward_engine_comparison(
+                forward_engine_ablation,
+                paths["figures"] / "fig_forward_engine_comparison.png",
+            )
+            plot_layered_kinematic_vs_baseline_gather(
+                forward_engine_ablation,
+                paths["figures"] / "fig_layered_kinematic_vs_baseline_gather.png",
+            )
+            plot_forward_roadmap_status(
+                forward_engine_ablation,
+                paths["figures"] / "fig_forward_roadmap_status.png",
+            )
+            plot_acoustic2d_wavefield_snapshots(
+                forward_engine_ablation,
+                paths["figures"] / "fig_acoustic2d_wavefield_snapshots.png",
+            )
+            plot_acoustic2d_shot_gather(
+                forward_engine_ablation,
+                paths["figures"] / "fig_acoustic2d_shot_gather.png",
+            )
+        if params.output.save_report:
+            write_forward_engine_ablation_report(
+                paths["reports"] / "report_forward_engine_ablation.md",
+                forward_engine_ablation,
+            )
+            write_acoustic2d_prototype_report(
+                paths["reports"] / "report_acoustic2d_prototype.md",
+                forward_engine_ablation,
+            )
+
         _write_full_pipeline_report(
             params,
             forward_result["paths"]["reports"] / "report_full_pipeline.md",
@@ -611,6 +686,9 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             "velocity_model_ablation": velocity_model_ablation,
             "model_mismatch": model_mismatch,
         }
+        stage5b_validation = {
+            "forward_engine_ablation": strip_forward_engine_ablation_arrays(forward_engine_ablation),
+        }
         _build_final_metadata(
             params,
             forward_result,
@@ -620,15 +698,26 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             depth_prior_sensitivity,
             stage4b_validation,
             stage5a_validation,
+            stage5b_validation,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 5A 项目收口清理 + 稳定算法沉淀 + 分层/非均匀速度模型",
+                "task_name": "Stage 5B 正演技术路线确立 + 分层运动学正演主线 + acoustic2d validation",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
+                "forward_engine_active": params.forward.engine,
+                "forward_engine_available": [
+                    "kinematic_baseline",
+                    "layered_kinematic",
+                    "acoustic2d_prototype",
+                ],
+                "forward_engine_next_required": "elastic2d",
+                "forward_modeling_stage": "F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d designed",
+                "acoustic2d_prototype_status": "validation_only_not_rayleigh_forward",
+                "elastic2d_design_status": "planned_next_core",
                 "best_location": scan_result["best_location"],
                 "raw_best_location": scan_result["raw_best_location"],
                 "unweighted_best_location": scan_result["unweighted_best_location"],
@@ -640,6 +729,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "depth_prior_sensitivity": depth_prior_sensitivity,
                 "stage4b_validation": stage4b_validation,
                 "stage5a_validation": stage5a_validation,
+                "stage5b_validation": stage5b_validation,
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],
@@ -663,5 +753,6 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["geometry_ablation"] = geometry_ablation
     result["velocity_model_ablation"] = velocity_model_ablation
     result["model_mismatch"] = model_mismatch
+    result["forward_engine_ablation"] = forward_engine_ablation
     result["stable_export_info"] = stable_export_info
     return result

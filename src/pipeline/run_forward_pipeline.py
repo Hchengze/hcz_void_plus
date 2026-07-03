@@ -8,10 +8,9 @@ from typing import Any
 
 import numpy as np
 
-from src.forward.multishot_forward import synthesize_multishot_forward
+from src.forward.forward_registry import get_forward_engine_spec, run_registered_forward
 from src.geometry.acquisition_geometry import generate_receiver_xyz, generate_source_xyz
 from src.model.anomalies import anomaly_to_scatter_points, build_anomaly_from_params
-from src.model.velocity_model import build_velocity_model
 from src.utils.metadata import build_metadata, save_json
 from src.utils.path_manager import ensure_output_subdirs
 from src.utils.random_seed import set_random_seed
@@ -49,6 +48,7 @@ def _write_forward_report(
 
 - task：`{params.project.task}`
 - 数据形状：`{tuple(synthetic_data.shape)}`，维度顺序为 `shot × time × channel`
+- forward engine：`{params.forward.engine}`
 - DAS-like 接收级别：`{params.das_like.response_level}`
 - 速度模型：`{params.velocity.model_type}`，代表速度 `{params.velocity.rayleigh_velocity_mps} m/s`
 - 速度近似：`straight-ray kinematic approximation`，不是 3D elastic wavefield
@@ -103,18 +103,17 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     params.derived.receiver_xyz = receiver_xyz
     params.derived.source_xyz = source_xyz
 
-    velocity_model = build_velocity_model(params)
     anomaly = build_anomaly_from_params(params)
     scatter_xyz, scatter_weight = anomaly_to_scatter_points(anomaly, params.anomaly.scatter_point_mode)
 
-    forward_result = synthesize_multishot_forward(
+    forward_result = run_registered_forward(
         params=params,
         source_xyz=source_xyz,
         receiver_xyz=receiver_xyz,
         scatter_xyz=scatter_xyz,
         scatter_weight=scatter_weight,
-        velocity_model=velocity_model,
     )
+    velocity_model = forward_result["velocity_model"]
     synthetic_data = forward_result["synthetic_data"]
 
     if params.output.save_arrays:
@@ -161,7 +160,19 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         "animation": animation_info,
     }
 
-    metadata = build_metadata(params, synthetic_data, scatter_xyz, scatter_weight, font_info, wavefield_info)
+    metadata = build_metadata(
+        params,
+        synthetic_data,
+        scatter_xyz,
+        scatter_weight,
+        font_info,
+        wavefield_info,
+        forward_info={
+            "forward_engine": forward_result.get("forward_engine", params.forward.engine),
+            "forward_stage": forward_result.get("forward_stage"),
+            "note": "当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation。",
+        },
+    )
     save_json(paths["metadata"] / "params_snapshot.json", params)
     save_json(paths["metadata"] / "meta_run.json", metadata)
 
@@ -193,6 +204,8 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         "receiver_xyz": receiver_xyz,
         "source_xyz": source_xyz,
         "velocity_model": velocity_model,
+        "forward_engine": forward_result.get("forward_engine", params.forward.engine),
+        "forward_stage": forward_result.get("forward_stage", get_forward_engine_spec(params.forward.engine).stage),
         "scatter_xyz": scatter_xyz,
         "scatter_weight": scatter_weight,
         "font_info": font_info,

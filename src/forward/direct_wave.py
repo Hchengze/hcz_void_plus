@@ -20,15 +20,16 @@ def simulate_direct_wave(
     """生成多炮直达瑞雷波记录。
 
     物理意义：
-        对每一个炮点和每一个 DAS-like 通道，按
-        t_direct = t0 + distance(source, receiver) / v_rayleigh
-        计算直达瑞雷波到时，并在对应时间位置叠加 Ricker 子波。
+        对每一个炮点和每一个 DAS-like 通道，通过 velocity_model 的
+        straight-ray 路径采样积分接口计算直达波到时，并在对应时间位置叠加
+        Ricker 子波。uniform 模型会退化为 distance / v；layered 或 heterogeneous
+        模型会沿路径采样局部速度。
 
     输入参数：
         params：统一参数对象；
         source_xyz：shape = (n_shot, 3)，单位 m；
         receiver_xyz：shape = (n_channel, 3)，单位 m；
-        velocity_model：均匀等效瑞雷波速度模型，速度单位 m/s。
+        velocity_model：统一运动学速度模型对象，支持 uniform/layered/heterogeneous。
 
     输出形状：
         data，shape = (n_shot, n_time, n_channel)，即 shot × time × channel。

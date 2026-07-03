@@ -16,12 +16,26 @@ def get_current_algorithm_summary() -> dict[str, Any]:
     速度模型也只是 straight-ray kinematic approximation。
     """
 
+    forward_roadmap = {
+        "F0": "kinematic_baseline：快速均匀速度运动学基线，不是当前主正演。",
+        "F1": "layered_kinematic：当前主定位 forward，straight-ray kinematic approximation。",
+        "F2": "acoustic2d_prototype：声学波动方程基础设施验证，不代表 Rayleigh 波。",
+        "F3": "elastic2d：下一步 Rayleigh/free-surface/void scattering 核心方向。",
+        "F4": "2.5D / multi-section elastic validation。",
+        "F5": "local small-domain 3D elastic validation。",
+        "F6": "external solver adapters，不复制第三方代码。",
+    }
+
     return {
-        "stage": "Stage 5A",
+        "stage": "Stage 5B",
         "stable_area": "code/current_3d_algorithm",
         "research_area": "src",
         "geometry": "3D source_xyz / receiver_xyz / candidate_xyz",
-        "forward": "DAS-like response approximation + kinematic approximation",
+        "forward": "layered_kinematic straight-ray kinematic approximation",
+        "stable_forward_engine": "layered_kinematic",
+        "available_validation_forward": "acoustic2d_prototype",
+        "planned_physics_forward": "elastic2d",
+        "forward_roadmap": forward_roadmap,
         "velocity_default": "layered",
         "velocity_models": [
             "uniform",

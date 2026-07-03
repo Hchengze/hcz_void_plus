@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 
 from src.localization.multishot_scan import run_multishot_scan
-from src.model.velocity_model import UniformVelocityModel
+from src.model.velocity_model import KinematicVelocityModel
 
 
 def run_score_method_comparison(
@@ -16,7 +16,7 @@ def run_score_method_comparison(
     time_axis: np.ndarray,
     source_xyz: np.ndarray,
     receiver_xyz: np.ndarray,
-    velocity_model: UniformVelocityModel,
+    velocity_model: KinematicVelocityModel,
     scan_grid: dict[str, Any],
     params: SimpleNamespace,
 ) -> dict[str, Any]:
@@ -80,4 +80,3 @@ def run_score_method_comparison(
             "note": "仅比较当前场景下 unweighted_best 的深度误差，不代表通用优劣。",
         },
     }
-

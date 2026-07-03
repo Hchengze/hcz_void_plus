@@ -2,15 +2,18 @@
 
 ## 本轮信息
 
-- commit id：`d8b4dac`
-- 任务名称：`Stage 5A 项目收口清理 + 稳定算法沉淀 + 分层/非均匀速度模型`
-- 运行时间：`2026-07-03T20:56:40`
-- 来源目录：`outputs\stage5a_run_20260703_205610`
+- commit id：`13158c1`
+- 任务名称：`Stage 5B 正演技术路线确立 + 分层运动学正演主线 + acoustic2d validation`
+- 运行时间：`2026-07-04T00:36:05`
+- 来源目录：`outputs\stage5b_run_20260704_003514`
 
 ## 当前近似条件
 
 - `kinematic approximation`
 - `DAS-like response approximation`
+- active forward engine：`layered_kinematic`
+- available forward engines：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype']`
+- forward modeling stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d designed`
 - `kinematic_surface_response`，不是真实弹性波场模拟
 - Rayleigh 深度权重是 `exp(-h / penetration_depth)` 简化近似，不是严格模态深度核
 
@@ -69,6 +72,18 @@
 - minimum recommended velocity model：`layered`
 - note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
+## Stage 5B 正演技术路线
+
+- forward_engine_active：`layered_kinematic`
+- forward_engine_available：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype']`
+- forward_engine_next_required：`elastic2d`
+- forward_modeling_stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d designed`
+- layered_vs_baseline travel-time RMS residual：`57.07585810059442` ms
+- layered_vs_baseline synthetic relative difference：`1.320055775620881`
+- acoustic2d_prototype_status：CFL stable=`True`，snapshot_count=`6`
+- elastic2d_design_status：`planned_next_core`
+- note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering。
+
 ## 基础置信度指标
 
 - peak sharpness：`2.0599457066651934`
@@ -120,6 +135,11 @@
 - figures/fig_layered_velocity_profile.png
 - figures/fig_velocity_model_travel_time_residuals.png
 - figures/fig_model_mismatch_error_summary.png
+- figures/fig_forward_engine_comparison.png
+- figures/fig_layered_kinematic_vs_baseline_gather.png
+- figures/fig_forward_roadmap_status.png
+- figures/fig_acoustic2d_wavefield_snapshots.png
+- figures/fig_acoustic2d_shot_gather.png
 - animations/anim_pseudo_wavefield.gif
 - reports/report_full_pipeline.md
 - reports/report_confidence.md
@@ -134,10 +154,12 @@
 - reports/report_multi_attribute_ablation.md
 - reports/report_velocity_model_ablation.md
 - reports/report_model_mismatch.md
+- reports/report_forward_engine_ablation.md
+- reports/report_acoustic2d_prototype.md
 
 ## 导出记录
 
-- 已复制精选文件数量：`52`
+- 已复制精选文件数量：`59`
 - 缺失精选文件数量：`0`
 
 ## 当前限制

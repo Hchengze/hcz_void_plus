@@ -10,7 +10,7 @@ import numpy as np
 from src.localization.travel_time import compute_candidate_diffraction_times
 from src.localization.attribute_scoring import combine_attribute_scores, score_candidate_attributes
 from src.localization.multi_attribute_scan import score_weights_from_params
-from src.model.velocity_model import UniformVelocityModel
+from src.model.velocity_model import KinematicVelocityModel
 from src.physics.rayleigh import estimate_penetration_depth, rayleigh_depth_weight
 
 
@@ -136,7 +136,7 @@ def run_multishot_scan(
     time_axis: np.ndarray,
     source_xyz: np.ndarray,
     receiver_xyz: np.ndarray,
-    velocity_model: UniformVelocityModel,
+    velocity_model: KinematicVelocityModel,
     scan_grid: dict[str, Any],
     params: SimpleNamespace,
 ) -> dict[str, Any]:

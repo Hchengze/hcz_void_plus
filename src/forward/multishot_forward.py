@@ -9,7 +9,7 @@ import numpy as np
 from src.das_like.das_response_level import apply_das_like_response
 from src.forward.direct_wave import simulate_direct_wave
 from src.forward.scatter_kinematic import simulate_scatter_wave
-from src.model.velocity_model import UniformVelocityModel
+from src.model.velocity_model import KinematicVelocityModel
 
 
 def add_gaussian_noise(data: np.ndarray, snr_db: float, rng: np.random.Generator) -> np.ndarray:
@@ -45,7 +45,7 @@ def synthesize_multishot_forward(
     receiver_xyz: np.ndarray,
     scatter_xyz: np.ndarray,
     scatter_weight: np.ndarray,
-    velocity_model: UniformVelocityModel,
+    velocity_model: KinematicVelocityModel,
 ) -> dict[str, np.ndarray]:
     """合成多炮 DAS-like 运动学正演数据。
 
@@ -59,7 +59,7 @@ def synthesize_multishot_forward(
         receiver_xyz：shape = (n_channel, 3)，单位 m；
         scatter_xyz：shape = (n_scatter, 3)，单位 m；
         scatter_weight：shape = (n_scatter,)，无量纲；
-        velocity_model：均匀等效瑞雷波速度模型。
+        velocity_model：统一速度模型对象，可为 uniform、layered 或 heterogeneous。
 
     输出：
         dict，包含 direct_data、scatter_data、synthetic_data，所有数组 shape 都为

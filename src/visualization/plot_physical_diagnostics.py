@@ -18,7 +18,7 @@ import numpy as np
 
 from src.features.direct_arrival import predict_direct_arrival_times
 from src.localization.travel_time import compute_candidate_diffraction_times
-from src.model.velocity_model import UniformVelocityModel
+from src.model.velocity_model import KinematicVelocityModel
 from src.physics.rayleigh import estimate_penetration_depth, rayleigh_depth_weight
 from src.visualization.plot_style import setup_chinese_matplotlib
 
@@ -99,7 +99,7 @@ def plot_diffraction_travel_time_curves(
     data: np.ndarray,
     source_xyz: np.ndarray,
     receiver_xyz: np.ndarray,
-    velocity_model: UniformVelocityModel,
+    velocity_model: KinematicVelocityModel,
     best_location: dict[str, float] | None,
     output_path: Path,
 ) -> None:

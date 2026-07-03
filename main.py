@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage5a_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5b_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -218,6 +218,21 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=None,
         help="兼容 Stage 1 的旧参数；若设置，会覆盖 --max-shot-gather-figures。",
     )
+
+    forward = parser.add_argument_group("forward 正演引擎参数组")
+    forward.add_argument(
+        "--forward-engine",
+        default="layered_kinematic",
+        choices=["kinematic_baseline", "layered_kinematic", "acoustic2d_prototype"],
+        help="正演引擎：layered_kinematic 为当前主线；acoustic2d_prototype 仅作 validation。",
+    )
+    forward.add_argument("--acoustic2d-enabled", type=str_to_bool, default=False, help="是否运行 acoustic2d_prototype 验证输出。")
+    forward.add_argument("--acoustic2d-nx", type=int, default=201, help="acoustic2d 网格 x 点数。")
+    forward.add_argument("--acoustic2d-nz", type=int, default=101, help="acoustic2d 网格 z 点数。")
+    forward.add_argument("--acoustic2d-dx-m", type=float, default=0.1, help="acoustic2d x 网格间距 m。")
+    forward.add_argument("--acoustic2d-dz-m", type=float, default=0.1, help="acoustic2d z 网格间距 m。")
+    forward.add_argument("--acoustic2d-duration-s", type=float, default=0.2, help="acoustic2d 模拟时长 s。")
+    forward.add_argument("--acoustic2d-snapshot-count", type=int, default=6, help="acoustic2d 快照数量。")
 
     scan = parser.add_argument_group("scan 扫描定位参数组")
     scan.add_argument("--scan-enabled", type=str_to_bool, default=True, help="是否启用基础 x-y-h 多炮扫描定位。")
@@ -458,6 +473,16 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             export_latest_stable=args.export_latest_stable,
             latest_stable_dirname=args.latest_stable_dirname,
         ),
+        forward=_namespace(
+            engine=args.forward_engine,
+            acoustic2d_enabled=args.acoustic2d_enabled,
+            acoustic2d_nx=args.acoustic2d_nx,
+            acoustic2d_nz=args.acoustic2d_nz,
+            acoustic2d_dx_m=args.acoustic2d_dx_m,
+            acoustic2d_dz_m=args.acoustic2d_dz_m,
+            acoustic2d_duration_s=args.acoustic2d_duration_s,
+            acoustic2d_snapshot_count=args.acoustic2d_snapshot_count,
+        ),
         scan=_namespace(
             enabled=args.scan_enabled,
             x_min_m=args.scan_x_min_m,
@@ -600,6 +625,16 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         raise ValueError(
             f"max_shot_gather_figures 错误：当前值为 {params.output.max_shot_gather_figures}，合理条件是 >= 0。"
         )
+    if params.forward.engine == "acoustic2d_prototype" and params.project.task in {"debug", "forward", "full_pipeline"}:
+        raise ValueError("acoustic2d_prototype 是 validation 引擎，不能作为默认 DAS-like 主流程 forward_engine。")
+    if params.forward.acoustic2d_nx < 20 or params.forward.acoustic2d_nz < 20:
+        raise ValueError("acoustic2d_nx/acoustic2d_nz 错误：最小网格点数均应 >= 20。")
+    if params.forward.acoustic2d_dx_m <= 0 or params.forward.acoustic2d_dz_m <= 0:
+        raise ValueError("acoustic2d dx/dz 错误：网格间距必须 > 0。")
+    if params.forward.acoustic2d_duration_s <= 0:
+        raise ValueError("acoustic2d_duration_s 错误：模拟时长必须 > 0。")
+    if params.forward.acoustic2d_snapshot_count < 1:
+        raise ValueError("acoustic2d_snapshot_count 错误：快照数量必须 >= 1。")
     if params.output.wavefield_snapshot_count < 1:
         raise ValueError(
             f"wavefield_snapshot_count 错误：当前值为 {params.output.wavefield_snapshot_count}，合理条件是 >= 1。"
@@ -829,7 +864,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 5A 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5B 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")
@@ -837,6 +872,7 @@ def print_params_summary(params: SimpleNamespace) -> None:
     print(f"shots: {params.source.shot_count}, source_y={params.source.y_m} m")
     print(f"time: nt={params.derived.nt}, dt={params.time.dt_s} s")
     print(f"scan grid: {params.derived.scan_shape}, points={params.derived.scan_grid_point_count}")
+    print(f"forward engine: {params.forward.engine}")
     print(f"velocity model: {params.velocity.model_type}")
     print(
         "rayleigh depth sensitivity: "

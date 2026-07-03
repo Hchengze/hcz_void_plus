@@ -1,6 +1,6 @@
 {
   "project": "hcz_void_plus",
-  "stage": "Stage 5A stable 3D algorithm consolidation and layered velocity modeling",
+  "stage": "Stage 5B forward roadmap and layered kinematic engine",
   "data_shape": {
     "order": "shot × time × channel",
     "shape": [
@@ -11,16 +11,28 @@
   },
   "approximation": {
     "forward": "kinematic approximation",
+    "forward_engine": "layered_kinematic",
+    "forward_modeling_stage": "F1",
     "das_like": "DAS-like response approximation",
     "receiver": "point_receiver approximation",
     "velocity_model": "layered",
     "velocity_model_family": "uniform/layered/lateral_gradient/localized_low_velocity_zone",
     "velocity_approximation": "straight-ray kinematic approximation",
+    "active_forward_engine": "layered_kinematic",
+    "available_forward_engines": [
+      "kinematic_baseline",
+      "layered_kinematic",
+      "acoustic2d_prototype"
+    ],
+    "forward_engine_next_required": "elastic2d",
+    "acoustic2d_prototype_status": "validation_only_not_rayleigh_forward",
+    "elastic2d_design_status": "planned_next_core",
     "wavefield_snapshot_type": "kinematic_surface_response_snapshot",
     "surface_response_type": "kinematic_surface_response",
     "is_true_elastic_wavefield": false,
     "is_true_wave_equation_snapshot": false,
-    "rayleigh_depth_sensitivity_included": true
+    "rayleigh_depth_sensitivity_included": true,
+    "forward_engine_note": "Stage 5B 当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation。"
   },
   "physics": {
     "rayleigh_depth_sensitivity_enabled": true,
@@ -53,20 +65,24 @@
       "warning": null
     },
     "wavefield_info": {
-      "snapshot_count": 8,
+      "snapshot_count": 12,
       "snapshot_files": [
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t000.png",
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t001.png",
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t002.png",
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t003.png",
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t004.png",
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t005.png",
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t006.png",
-        "outputs\\stage5a_run_20260703_205610\\snapshots\\snap_pseudo_wavefield_t007.png"
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t007.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t008.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t009.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t010.png",
+        "outputs\\stage5b_run_20260704_003514\\snapshots\\snap_pseudo_wavefield_t011.png"
       ],
       "animation": {
         "success": true,
-        "path": "outputs\\stage5a_run_20260703_205610\\animations\\anim_pseudo_wavefield.gif",
+        "path": "outputs\\stage5b_run_20260704_003514\\animations\\anim_pseudo_wavefield.gif",
         "reason": null
       }
     }
@@ -263,33 +279,38 @@
     }
   },
   "diagnostics": {
-    "diffraction_travel_time_curve_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_diffraction_travel_time_curves.png",
-    "path_section_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_source_anomaly_receiver_path_section.png",
-    "depth_sensitivity_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_rayleigh_depth_sensitivity.png",
-    "raw_vs_weighted_best_location_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_raw_vs_weighted_best_location.png",
-    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
-    "y_high_score_width_check_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_y_high_score_width_check.png",
-    "score_method_depth_comparison_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_score_method_depth_comparison.png",
-    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_3d_high_score_uncertainty_summary.png",
-    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_x_y_depth_uncertainty_slices.png",
-    "multi_attribute_score_comparison_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_multi_attribute_score_comparison.png",
-    "depth_prior_sensitivity_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_depth_prior_sensitivity.png",
-    "preprocessing_comparison_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_preprocessing_comparison.png",
-    "preprocessing_ablation_summary_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_preprocessing_ablation_summary.png",
-    "fk_spectrum_before_after_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_fk_spectrum_before_after.png",
-    "fk_filter_effect_on_gather_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_fk_filter_effect_on_gather.png",
-    "matched_wavelet_score_comparison_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_matched_wavelet_score_comparison.png",
-    "semblance_score_volume_slice_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_semblance_score_volume_slice.png",
-    "frequency_shift_attribute_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_frequency_shift_attribute.png",
-    "geometry_ablation_best_locations_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_geometry_ablation_best_locations.png",
-    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_geometry_ablation_uncertainty_spans.png",
-    "multi_attribute_ablation_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_multi_attribute_ablation.png",
-    "3d_high_score_components_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_3d_high_score_components.png",
-    "recommendation_decision_flow_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_recommendation_decision_flow.png",
-    "velocity_model_comparison_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_velocity_model_comparison.png",
-    "layered_velocity_profile_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_layered_velocity_profile.png",
-    "velocity_model_travel_time_residuals_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_velocity_model_travel_time_residuals.png",
-    "model_mismatch_error_summary_figure": "outputs\\stage5a_run_20260703_205610\\figures\\fig_model_mismatch_error_summary.png"
+    "diffraction_travel_time_curve_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_rayleigh_depth_sensitivity.png",
+    "raw_vs_weighted_best_location_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_raw_vs_weighted_best_location.png",
+    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
+    "y_high_score_width_check_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_y_high_score_width_check.png",
+    "score_method_depth_comparison_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_score_method_depth_comparison.png",
+    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_3d_high_score_uncertainty_summary.png",
+    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_x_y_depth_uncertainty_slices.png",
+    "multi_attribute_score_comparison_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_multi_attribute_score_comparison.png",
+    "depth_prior_sensitivity_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_depth_prior_sensitivity.png",
+    "preprocessing_comparison_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_preprocessing_comparison.png",
+    "preprocessing_ablation_summary_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_preprocessing_ablation_summary.png",
+    "fk_spectrum_before_after_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_fk_spectrum_before_after.png",
+    "fk_filter_effect_on_gather_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_fk_filter_effect_on_gather.png",
+    "matched_wavelet_score_comparison_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_matched_wavelet_score_comparison.png",
+    "semblance_score_volume_slice_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_semblance_score_volume_slice.png",
+    "frequency_shift_attribute_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_frequency_shift_attribute.png",
+    "geometry_ablation_best_locations_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_geometry_ablation_best_locations.png",
+    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_geometry_ablation_uncertainty_spans.png",
+    "multi_attribute_ablation_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_multi_attribute_ablation.png",
+    "3d_high_score_components_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_3d_high_score_components.png",
+    "recommendation_decision_flow_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_recommendation_decision_flow.png",
+    "velocity_model_comparison_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_velocity_model_comparison.png",
+    "layered_velocity_profile_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_layered_velocity_profile.png",
+    "velocity_model_travel_time_residuals_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_velocity_model_travel_time_residuals.png",
+    "model_mismatch_error_summary_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_model_mismatch_error_summary.png",
+    "forward_engine_comparison_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_forward_engine_comparison.png",
+    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
+    "forward_roadmap_status_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_forward_roadmap_status.png",
+    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_acoustic2d_wavefield_snapshots.png",
+    "acoustic2d_shot_gather_figure": "outputs\\stage5b_run_20260704_003514\\figures\\fig_acoustic2d_shot_gather.png"
   },
   "confidence": {
     "peak_sharpness": 2.0599457066651934,
@@ -366,9 +387,9 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "d8b4dac",
+    "commit_id": "13158c1",
     "push_attempted": true,
-    "push_success": true
+    "push_success": false
   },
   "limitations": [
     "不是完整 DAS 仪器模拟。",
@@ -1254,6 +1275,142 @@
       "riskiest_case": "layered_forward_uniform_scan",
       "minimum_recommended_velocity_model": "layered",
       "note": "若真实为 layered 而扫描仍假设 uniform，可能引入系统走时残差和 y-depth 不确定性。"
+    }
+  },
+  "stage5b_validation": {
+    "forward_engine_ablation": {
+      "available_forward_engines": [
+        "kinematic_baseline",
+        "layered_kinematic",
+        "acoustic2d_prototype"
+      ],
+      "active_forward_engine": "layered_kinematic",
+      "default_localization_forward": "layered_kinematic",
+      "next_required_forward": "elastic2d",
+      "roadmap_status": [
+        {
+          "stage": "F0",
+          "name": "kinematic_baseline",
+          "status": "implemented_baseline",
+          "role": "快速均匀速度运动学基线，不是当前主正演。"
+        },
+        {
+          "stage": "F1",
+          "name": "layered_kinematic",
+          "status": "active_forward",
+          "role": "当前主流程：分层/非均匀 straight-ray kinematic approximation。"
+        },
+        {
+          "stage": "F2",
+          "name": "acoustic2d_prototype",
+          "status": "implemented_validation",
+          "role": "声学波动方程基础设施验证，不代表 Rayleigh 波。"
+        },
+        {
+          "stage": "F3",
+          "name": "elastic2d",
+          "status": "designed_next",
+          "role": "下一步 Rayleigh/free-surface/void scattering 局部全波场方向。"
+        },
+        {
+          "stage": "F4",
+          "name": "multi_section_elastic",
+          "status": "planned",
+          "role": "面向三维几何的多剖面 elastic validation。"
+        },
+        {
+          "stage": "F5",
+          "name": "local_3d_elastic",
+          "status": "long_term",
+          "role": "小域局部 3D elastic validation，不是默认主流程。"
+        },
+        {
+          "stage": "F6",
+          "name": "external_solver_adapters",
+          "status": "planned_adapters",
+          "role": "Devito/Deepwave/SPECFEM/k-Wave 等 adapter 计划，不复制第三方代码。"
+        }
+      ],
+      "engines": {
+        "kinematic_baseline": {
+          "forward_engine": "kinematic_baseline",
+          "forward_stage": "F0",
+          "velocity_model_type": "uniform",
+          "representative_velocity_mps": 260.0,
+          "data_shape": [
+            9,
+            801,
+            121
+          ],
+          "direct_rms": 0.017587418148068138,
+          "scatter_rms": 0.009939178415580764,
+          "synthetic_rms": 0.021777025403476175
+        },
+        "layered_kinematic": {
+          "forward_engine": "layered_kinematic",
+          "forward_stage": "F1",
+          "velocity_model_type": "layered",
+          "representative_velocity_mps": 260.0,
+          "data_shape": [
+            9,
+            801,
+            121
+          ],
+          "direct_rms": 0.01751283174004882,
+          "scatter_rms": 0.0066976932960702415,
+          "synthetic_rms": 0.018845655870672384
+        },
+        "acoustic2d_prototype": {
+          "forward_engine": "acoustic2d_prototype",
+          "forward_stage": "F2",
+          "shot_gather_shape": [
+            1980,
+            48
+          ],
+          "wavefield_snapshot_shape": [
+            6,
+            101,
+            201
+          ],
+          "snapshot_count": 6,
+          "cfl_stable": true,
+          "cfl_number": 0.49999999999999994,
+          "max_abs_amplitude": 14.454566321369894,
+          "energy": 0.005463025661325667,
+          "limitation": "2D scalar acoustic FDTD 只验证波动方程框架，不能代表 Rayleigh/free-surface/void scattering。"
+        }
+      },
+      "layered_vs_baseline": {
+        "synthetic_rms_difference": 0.028746888159701372,
+        "synthetic_relative_difference": 1.320055775620881,
+        "travel_time_residual_mean_ms": 53.891507874662366,
+        "travel_time_residual_rms_ms": 57.07585810059442,
+        "travel_time_residual_max_abs_ms": 102.37405197450688,
+        "direct_wave_uses_velocity_model_interface": true,
+        "scatter_wave_uses_velocity_model_interface": true,
+        "scan_uses_velocity_model_interface": true
+      },
+      "forward_specs": {
+        "kinematic_baseline": {
+          "stage": "F0",
+          "description": "source-scatter-receiver 运动学基线正演。",
+          "limitation": "快速基线，不是真实波场，不考虑分层/非均匀速度主线。",
+          "is_default_localization_forward": false
+        },
+        "layered_kinematic": {
+          "stage": "F1",
+          "description": "分层/非均匀 straight-ray kinematic forward，当前主流程默认引擎。",
+          "limitation": "路径仍为直线采样积分，不是弹性波全波场。",
+          "is_default_localization_forward": true
+        },
+        "acoustic2d_prototype": {
+          "stage": "F2",
+          "description": "二维标量 acoustic FDTD prototype，用于波动方程框架验证。",
+          "limitation": "不能真实模拟 Rayleigh/free-surface/void scattering，不作为默认定位数据。",
+          "is_default_localization_forward": false
+        }
+      },
+      "note": "layered_kinematic 是当前主定位 forward；kinematic_baseline 只作基线；acoustic2d_prototype 只验证声学波动方程基础设施，不能代表 Rayleigh 波。"
     }
   }
 }
