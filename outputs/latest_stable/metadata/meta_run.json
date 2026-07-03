@@ -111,9 +111,9 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "cef827a",
+    "commit_id": "82ee9a7",
     "push_attempted": true,
-    "push_success": false
+    "push_success": true
   },
   "limitations": [
     "不是完整 DAS 仪器模拟。",
