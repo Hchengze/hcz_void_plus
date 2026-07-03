@@ -11,6 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 from src.visualization.plot_style import setup_chinese_matplotlib
 
@@ -124,6 +125,88 @@ def plot_geometry_layout_check(
     ax.set_title("道路-光纤-震源-异常体几何自检图（x-y 平面，不是 x-depth 剖面）")
     ax.grid(True, alpha=0.25)
     ax.legend(loc="upper right", fontsize=7, ncol=2)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def plot_receiver_source_3d_layout(
+    params: SimpleNamespace,
+    receiver_xyz: np.ndarray,
+    source_xyz: np.ndarray,
+    output_path: Path,
+) -> None:
+    """绘制 source_xyz 与 receiver_xyz 的三维布局。
+
+    当前仍是 3D kinematic geometry，不是 3D elastic wavefield。该图用于检查 CSV、
+    polyline 或 grid 源接收点是否正确进入三维坐标管线。
+    """
+
+    setup_chinese_matplotlib()
+    fig = plt.figure(figsize=(8.5, 6), dpi=150)
+    ax = fig.add_subplot(111, projection="3d")
+    ax.scatter(receiver_xyz[:, 0], receiver_xyz[:, 1], receiver_xyz[:, 2], s=10, color="#1f77b4", label="receiver_xyz")
+    ax.scatter(source_xyz[:, 0], source_xyz[:, 1], source_xyz[:, 2], s=30, marker="^", color="#d62728", label="source_xyz")
+    ax.set_xlabel("x / m")
+    ax.set_ylabel("y / m")
+    ax.set_zlabel("z(depth) / m")
+    ax.invert_zaxis()
+    ax.set_title("三维源-接收点布局（运动学几何，不是真实 3D 波场）")
+    ax.legend(loc="best")
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def plot_anomaly_3d_scatter_points(
+    params: SimpleNamespace,
+    scatter_xyz: np.ndarray,
+    output_path: Path,
+) -> None:
+    """绘制三维异常体等效散射点的 x-y 与 x-depth 投影。"""
+
+    setup_chinese_matplotlib()
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.8), dpi=150)
+    axes[0].scatter(scatter_xyz[:, 0], scatter_xyz[:, 1], s=42, marker="+", color="#006d2c", label="等效散射点")
+    axes[0].scatter([params.anomaly.x0_m], [params.anomaly.y0_m], marker="x", color="red", s=70, label="异常体中心")
+    axes[0].set_xlabel("x / m")
+    axes[0].set_ylabel("y / m")
+    axes[0].set_title("异常体散射点 x-y 投影")
+    axes[0].legend(loc="best", fontsize=8)
+    axes[1].scatter(scatter_xyz[:, 0], scatter_xyz[:, 2], s=42, marker="+", color="#006d2c", label="等效散射点")
+    axes[1].scatter([params.anomaly.x0_m], [params.anomaly.depth_m], marker="x", color="red", s=70, label="异常体中心")
+    axes[1].invert_yaxis()
+    axes[1].set_xlabel("x / m")
+    axes[1].set_ylabel("depth / m")
+    axes[1].set_title("异常体散射点 x-depth 投影")
+    axes[1].legend(loc="best", fontsize=8)
+    fig.suptitle("三维异常体 equivalent scatter representation（非真实边界散射）", fontsize=12)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def plot_3d_geometry_overview(
+    params: SimpleNamespace,
+    receiver_xyz: np.ndarray,
+    source_xyz: np.ndarray,
+    scatter_xyz: np.ndarray,
+    output_path: Path,
+) -> None:
+    """绘制三维道路 DAS-like 场景总览。"""
+
+    setup_chinese_matplotlib()
+    fig = plt.figure(figsize=(9, 6), dpi=150)
+    ax = fig.add_subplot(111, projection="3d")
+    ax.scatter(receiver_xyz[:, 0], receiver_xyz[:, 1], receiver_xyz[:, 2], s=8, color="#1f77b4", label="receiver")
+    ax.scatter(source_xyz[:, 0], source_xyz[:, 1], source_xyz[:, 2], s=25, marker="^", color="#d62728", label="source")
+    ax.scatter(scatter_xyz[:, 0], scatter_xyz[:, 1], scatter_xyz[:, 2], s=35, marker="+", color="#2ca02c", label="scatter points")
+    ax.set_xlabel("x / m")
+    ax.set_ylabel("y / m")
+    ax.set_zlabel("z(depth) / m")
+    ax.invert_zaxis()
+    ax.set_title("三维几何总览：source/receiver/candidate 均为 xyz（非 elastic3d）")
+    ax.legend(loc="best")
     fig.tight_layout()
     fig.savefig(output_path)
     plt.close(fig)

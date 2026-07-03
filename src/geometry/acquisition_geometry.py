@@ -10,6 +10,9 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from src.geometry.receiver_polyline import build_receiver_xyz
+from src.geometry.source_layout import build_source_xyz
+
 
 def check_coordinate_array(name: str, array: np.ndarray) -> None:
     """检查三维坐标数组的形状。
@@ -52,13 +55,7 @@ def generate_receiver_xyz(params: SimpleNamespace) -> np.ndarray:
         gauge length、光纤耦合、解调和方向敏感性。
     """
 
-    receiver_xyz = np.column_stack(
-        [
-            params.derived.channel_x,
-            np.full(params.fiber.channel_count, params.fiber.y_m),
-            np.full(params.fiber.channel_count, params.fiber.z_m),
-        ]
-    )
+    receiver_xyz = build_receiver_xyz(params)
     check_coordinate_array("receiver_xyz", receiver_xyz)
     return receiver_xyz
 
@@ -80,12 +77,6 @@ def generate_source_xyz(params: SimpleNamespace) -> np.ndarray:
         Stage 1 不模拟震源真实力学过程，只把震源作为运动学走时起点。
     """
 
-    source_xyz = np.column_stack(
-        [
-            params.derived.shot_x,
-            np.full(params.source.shot_count, params.source.y_m),
-            np.full(params.source.shot_count, params.source.z_m),
-        ]
-    )
+    source_xyz = build_source_xyz(params)
     check_coordinate_array("source_xyz", source_xyz)
     return source_xyz

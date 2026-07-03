@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage3_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage4a_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -71,16 +71,22 @@ def build_arg_parser() -> argparse.ArgumentParser:
     fiber = parser.add_argument_group("fiber 光纤参数组")
     fiber.add_argument("--fiber-y-m", type=float, default=0.0, help="光纤横向 y 坐标，典型单侧几何中近似为 0。")
     fiber.add_argument("--fiber-z-m", type=float, default=0.0, help="光纤等效接收深度，单位 m。")
+    fiber.add_argument("--fiber-burial-depth-m", type=float, default=0.0, help="光纤埋深参数，默认 0；作为 receiver z 坐标的三维几何表达。")
     fiber.add_argument("--fiber-x-start-m", type=float, default=0.0, help="第一个 DAS-like 通道的 x 坐标，单位 m。")
     fiber.add_argument("--fiber-channel-spacing-m", type=float, default=1.0, help="相邻光纤通道间距，单位 m。")
     fiber.add_argument("--fiber-channel-count", type=int, default=121, help="光纤通道数量，是主参数。")
+    fiber.add_argument("--receiver-geometry-mode", default="straight", choices=["straight", "polyline_csv"], help="接收几何模式：straight 为默认直线，polyline_csv 从 CSV 读取三维接收点。")
+    fiber.add_argument("--receiver-polyline-csv", default=None, help="receiver polyline CSV 路径，列名建议为 x_m,y_m,z_m。")
 
     source = parser.add_argument_group("source 震源参数组")
     source.add_argument("--source-y-m", type=float, default=None, help="震源线 y 坐标；未设置时自动等于 road_width_m。")
+    source.add_argument("--source-line-y-m", type=float, default=None, help="震源线 y 坐标别名；未设置时默认等于 road_width_m。")
     source.add_argument("--source-z-m", type=float, default=0.0, help="震源 z 坐标，单位 m。")
     source.add_argument("--source-x-start-m", type=float, default=10.0, help="第一个炮点的 x 坐标，单位 m。")
     source.add_argument("--source-shot-spacing-m", type=float, default=10.0, help="相邻炮点间距，单位 m。")
     source.add_argument("--source-shot-count", type=int, default=9, help="炮点数量，是主参数。")
+    source.add_argument("--source-geometry-mode", default="line", choices=["line", "grid", "csv"], help="震源几何模式：line 默认直线，grid 为 x-y 网格，csv 从文件读取三维点。")
+    source.add_argument("--source-points-csv", default=None, help="source points CSV 路径，列名建议为 x_m,y_m,z_m。")
     source.add_argument(
         "--source-type",
         default="hammer",
@@ -94,15 +100,21 @@ def build_arg_parser() -> argparse.ArgumentParser:
     time.add_argument("--time-t0-s", type=float, default=0.02, help="震源激发和记录参考零时之间的等效延迟，单位 s。")
 
     velocity = parser.add_argument_group("velocity 速度模型参数组")
-    velocity.add_argument("--velocity-model-type", default="uniform", choices=["uniform"], help="Stage 2 仅实现 uniform。")
+    velocity.add_argument("--velocity-model-type", default="uniform", choices=["uniform"], help="当前阶段仅实现 uniform。")
     velocity.add_argument("--rayleigh-velocity-mps", type=float, default=260.0, help="等效瑞雷波速度，单位 m/s。")
 
     anomaly = parser.add_argument_group("anomaly 异常体参数组")
-    anomaly.add_argument("--anomaly-type", default="cavity", choices=["cavity"], help="异常体类型；Stage 2 支持 cavity。")
+    anomaly.add_argument("--anomaly-type", default="cavity", choices=["cavity"], help="异常体类型；当前支持 cavity。")
     anomaly.add_argument("--anomaly-x0-m", type=float, default=60.0, help="异常体中心 x 坐标，单位 m。")
     anomaly.add_argument("--anomaly-y0-m", type=float, default=9.0, help="异常体中心 y 坐标，单位 m。")
     anomaly.add_argument("--anomaly-depth-m", type=float, default=3.0, help="异常体中心深度 h，单位 m，向下为正。")
     anomaly.add_argument("--anomaly-radius-m", type=float, default=1.5, help="异常体等效半径，单位 m。")
+    anomaly.add_argument("--anomaly-shape", default="sphere", choices=["sphere", "ellipsoid", "box", "cylinder", "pipe_trench"], help="三维异常体形状，用于等效散射点生成。")
+    anomaly.add_argument("--anomaly-size-x-m", type=float, default=2.0, help="异常体 x 方向尺度，单位 m。")
+    anomaly.add_argument("--anomaly-size-y-m", type=float, default=2.0, help="异常体 y 方向尺度，单位 m。")
+    anomaly.add_argument("--anomaly-size-z-m", type=float, default=1.0, help="异常体 z/depth 方向尺度，单位 m。")
+    anomaly.add_argument("--anomaly-orientation-deg", type=float, default=0.0, help="异常体平面内朝向角，单位 degree。")
+    anomaly.add_argument("--scatter-point-density", default="coarse", choices=["center", "coarse", "medium"], help="三维等效散射点密度。")
     anomaly.add_argument("--scatter-strength", type=float, default=0.8, help="等效散射强度，无量纲。")
     anomaly.add_argument(
         "--scatter-point-mode",
@@ -116,10 +128,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--das-response-level",
         default="point_receiver",
         choices=["point_receiver"],
-        help="DAS-like 响应层级；Stage 2 仍为点式接收近似。",
+        help="DAS-like 响应层级；当前仍为点式接收近似。",
     )
     das_like.add_argument("--gauge-length-m", type=float, default=10.0, help="DAS gauge length 参数；point_receiver 不参与波形计算。")
-    das_like.add_argument("--strain-rate", type=str_to_bool, default=False, help="应变率标签；Stage 2 仅进入 metadata。")
+    das_like.add_argument("--strain-rate", type=str_to_bool, default=False, help="应变率标签；当前仅进入 metadata。")
 
     noise = parser.add_argument_group("noise 噪声参数组")
     noise.add_argument("--noise-enabled", type=str_to_bool, default=False, help="是否加入高斯白噪声。")
@@ -139,7 +151,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     output.add_argument("--wavefield-grid-ny", type=int, default=80, help="伪波场 y 方向网格数。")
     output.add_argument("--wavefield-animation-fps", type=float, default=4.0, help="伪波场 GIF 帧率。")
     output.add_argument("--wavefield-shot-index", type=int, default=0, help="用于伪波场展示的炮点索引，从 0 开始。")
-    output.add_argument("--output-prefix-style", default="compact", choices=["compact"], help="输出文件前缀规则，Stage 2 使用 compact。")
+    output.add_argument("--output-prefix-style", default="compact", choices=["compact"], help="输出文件前缀规则，当前使用 compact。")
     output.add_argument(
         "--export-latest-stable",
         type=str_to_bool,
@@ -186,6 +198,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     scan.add_argument("--scan-time-window-half-width-s", type=float, default=0.015, help="扫描能量拾取半窗长，单位 s。")
     scan.add_argument("--scan-use-depth-weight", type=str_to_bool, default=True, help="是否在扫描得分中加入 Rayleigh 波简化深度敏感性权重。")
     scan.add_argument("--rayleigh-penetration-factor", type=float, default=1.0, help="穿透深度系数：penetration_depth = factor * wavelength。")
+    scan.add_argument("--active-score-kind", default="multi_attribute_unweighted", choices=["unweighted", "depth_weighted", "multi_attribute_unweighted"], help="主定位使用的 score 体；默认不让 depth prior 直接决定主结果。")
     scan.add_argument(
         "--compare-score-methods",
         type=str_to_bool,
@@ -197,6 +210,27 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default="diffraction_energy_stack,normalized_energy_stack",
         help="用于轻量对比的 score_method 列表，逗号分隔，必须来自 main.py 允许的扫描方法。",
     )
+    scan.add_argument("--scan-score-mode", default="multi_attribute", choices=["energy", "multi_attribute"], help="定位评分模式：energy 为单属性能量，multi_attribute 为多属性加权组合。")
+    scan.add_argument("--score-weight-energy", type=float, default=1.0, help="多属性 energy_score 权重。")
+    scan.add_argument("--score-weight-normalized-energy", type=float, default=0.5, help="多属性 normalized_energy_score 权重。")
+    scan.add_argument("--score-weight-matched-wavelet", type=float, default=1.0, help="多属性 matched_wavelet_score 权重。")
+    scan.add_argument("--score-weight-semblance", type=float, default=0.5, help="多属性 semblance_score 权重。")
+    scan.add_argument("--score-weight-frequency-shift", type=float, default=0.0, help="频移属性预留权重，本轮默认不参与。")
+    scan.add_argument("--depth-prior-sensitivity-enabled", type=str_to_bool, default=True, help="是否输出 depth prior 强度轻量敏感性诊断。")
+    scan.add_argument("--depth-prior-factor-list", default="0.5,1.0,2.0,off", help="depth prior 敏感性因子列表，逗号分隔，off 表示不加深度权重。")
+
+    preprocess = parser.add_argument_group("preprocessing 预处理参数组")
+    preprocess.add_argument("--preprocess-enabled", type=str_to_bool, default=True, help="扫描前是否执行预处理流水线。")
+    preprocess.add_argument("--bandpass-enabled", type=str_to_bool, default=True, help="是否执行带通滤波。")
+    preprocess.add_argument("--bandpass-low-hz", type=float, default=5.0, help="带通低截止频率 Hz。")
+    preprocess.add_argument("--bandpass-high-hz", type=float, default=80.0, help="带通高截止频率 Hz。")
+    preprocess.add_argument("--agc-enabled", type=str_to_bool, default=False, help="是否执行 AGC。")
+    preprocess.add_argument("--agc-window-s", type=float, default=0.05, help="AGC 滑动窗长度 s。")
+    preprocess.add_argument("--envelope-enabled", type=str_to_bool, default=False, help="是否转为 Hilbert 包络属性。")
+    preprocess.add_argument("--trace-normalization", default="rms", choices=["none", "rms", "max"], help="按道归一化方式。")
+    preprocess.add_argument("--fk-filter-enabled", type=str_to_bool, default=False, help="是否执行简化 f-k 速度扇区滤波。")
+    preprocess.add_argument("--fk-velocity-min-mps", type=float, default=80.0, help="f-k 速度扇区最小表观速度 m/s。")
+    preprocess.add_argument("--fk-velocity-max-mps", type=float, default=500.0, help="f-k 速度扇区最大表观速度 m/s。")
 
     task = parser.add_argument_group("task 任务控制参数组")
     task.add_argument("--wavelet-frequency-hz", type=float, default=35.0, help="Ricker 子波主频，单位 Hz。")
@@ -270,18 +304,24 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
         road=_namespace(width_m=args.road_width_m, length_m=args.road_length_m, surface_z_m=args.road_surface_z_m),
         fiber=_namespace(
             y_m=args.fiber_y_m,
-            z_m=args.fiber_z_m,
+            z_m=args.fiber_burial_depth_m if args.fiber_burial_depth_m is not None else args.fiber_z_m,
+            burial_depth_m=args.fiber_burial_depth_m,
             x_start_m=args.fiber_x_start_m,
             channel_spacing_m=args.fiber_channel_spacing_m,
             channel_count=args.fiber_channel_count,
+            geometry_mode=args.receiver_geometry_mode,
+            polyline_csv=args.receiver_polyline_csv,
         ),
         source=_namespace(
-            y_m=args.source_y_m,
+            y_m=args.source_y_m if args.source_y_m is not None else args.source_line_y_m,
+            line_y_m=args.source_line_y_m,
             z_m=args.source_z_m,
             x_start_m=args.source_x_start_m,
             shot_spacing_m=args.source_shot_spacing_m,
             shot_count=args.source_shot_count,
             source_type=args.source_type,
+            geometry_mode=args.source_geometry_mode,
+            points_csv=args.source_points_csv,
         ),
         time=_namespace(dt_s=args.time_dt_s, record_length_s=args.time_record_length_s, t0_s=args.time_t0_s),
         velocity=_namespace(model_type=args.velocity_model_type, rayleigh_velocity_mps=args.rayleigh_velocity_mps),
@@ -291,6 +331,12 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             y0_m=args.anomaly_y0_m,
             depth_m=args.anomaly_depth_m,
             radius_m=args.anomaly_radius_m,
+            shape=args.anomaly_shape,
+            size_x_m=args.anomaly_size_x_m,
+            size_y_m=args.anomaly_size_y_m,
+            size_z_m=args.anomaly_size_z_m,
+            orientation_deg=args.anomaly_orientation_deg,
+            scatter_point_density=args.scatter_point_density,
             scatter_strength=args.scatter_strength,
             scatter_point_mode=args.scatter_point_mode,
         ),
@@ -336,8 +382,30 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             time_window_half_width_s=args.scan_time_window_half_width_s,
             use_depth_weight=args.scan_use_depth_weight,
             rayleigh_penetration_factor=args.rayleigh_penetration_factor,
+            active_score_kind=args.active_score_kind,
             compare_score_methods=args.compare_score_methods,
             score_method_list=[item.strip() for item in args.score_method_list.split(",") if item.strip()],
+            score_mode=args.scan_score_mode,
+            weight_energy=args.score_weight_energy,
+            weight_normalized_energy=args.score_weight_normalized_energy,
+            weight_matched_wavelet=args.score_weight_matched_wavelet,
+            weight_semblance=args.score_weight_semblance,
+            weight_frequency_shift=args.score_weight_frequency_shift,
+            depth_prior_sensitivity_enabled=args.depth_prior_sensitivity_enabled,
+            depth_prior_factor_list=[item.strip() for item in args.depth_prior_factor_list.split(",") if item.strip()],
+        ),
+        preprocessing=_namespace(
+            enabled=args.preprocess_enabled,
+            bandpass_enabled=args.bandpass_enabled,
+            bandpass_low_hz=args.bandpass_low_hz,
+            bandpass_high_hz=args.bandpass_high_hz,
+            agc_enabled=args.agc_enabled,
+            agc_window_s=args.agc_window_s,
+            envelope_enabled=args.envelope_enabled,
+            trace_normalization=args.trace_normalization,
+            fk_filter_enabled=args.fk_filter_enabled,
+            fk_velocity_min_mps=args.fk_velocity_min_mps,
+            fk_velocity_max_mps=args.fk_velocity_max_mps,
         ),
         task=_namespace(
             wavelet_frequency_hz=args.wavelet_frequency_hz,
@@ -387,6 +455,11 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         raise ValueError(f"rayleigh_velocity_mps 错误：当前值为 {params.velocity.rayleigh_velocity_mps}，合理条件是速度 > 0。")
     if params.anomaly.depth_m <= 0:
         raise ValueError(f"anomaly_depth_m 错误：当前值为 {params.anomaly.depth_m}，合理条件是异常体深度 > 0。")
+    if params.anomaly.size_x_m <= 0 or params.anomaly.size_y_m <= 0 or params.anomaly.size_z_m <= 0:
+        raise ValueError(
+            "anomaly size 参数错误："
+            f"当前为 ({params.anomaly.size_x_m}, {params.anomaly.size_y_m}, {params.anomaly.size_z_m})，合理条件是三方向尺度均 > 0。"
+        )
     if not (0.0 <= params.anomaly.y0_m <= params.road.width_m):
         raise ValueError(
             f"anomaly_y0_m 错误：当前值为 {params.anomaly.y0_m}，合理条件是 0 <= y <= {params.road.width_m}。"
@@ -459,6 +532,32 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         raise ValueError(
             f"score_method_list 错误：包含不支持的方法 {invalid_methods}，合理选项是 {sorted(allowed_score_methods)}。"
         )
+    if params.fiber.geometry_mode == "polyline_csv" and not params.fiber.polyline_csv:
+        raise ValueError("receiver_polyline_csv 错误：receiver-geometry-mode=polyline_csv 时必须提供 CSV 路径。")
+    if params.source.geometry_mode == "csv" and not params.source.points_csv:
+        raise ValueError("source_points_csv 错误：source-geometry-mode=csv 时必须提供 CSV 路径。")
+    if params.preprocessing.bandpass_low_hz <= 0 or params.preprocessing.bandpass_high_hz <= 0:
+        raise ValueError("bandpass 频率错误：low/high 均必须 > 0。")
+    if params.preprocessing.bandpass_low_hz >= params.preprocessing.bandpass_high_hz:
+        raise ValueError(
+            f"bandpass 频率错误：low={params.preprocessing.bandpass_low_hz}, high={params.preprocessing.bandpass_high_hz}，合理条件是 low < high。"
+        )
+    if params.preprocessing.agc_window_s <= 0:
+        raise ValueError(f"agc_window_s 错误：当前值为 {params.preprocessing.agc_window_s}，合理条件是 > 0。")
+    if params.preprocessing.fk_velocity_min_mps <= 0 or params.preprocessing.fk_velocity_max_mps <= 0:
+        raise ValueError("fk velocity 错误：速度上下限均必须 > 0。")
+    if params.preprocessing.fk_velocity_min_mps >= params.preprocessing.fk_velocity_max_mps:
+        raise ValueError("fk velocity 错误：fk_velocity_min_mps 必须小于 fk_velocity_max_mps。")
+    if min(
+        params.scan.weight_energy,
+        params.scan.weight_normalized_energy,
+        params.scan.weight_matched_wavelet,
+        params.scan.weight_semblance,
+        params.scan.weight_frequency_shift,
+    ) < 0:
+        raise ValueError("score weight 错误：多属性评分权重不能为负。")
+    if not params.scan.depth_prior_factor_list:
+        raise ValueError("depth_prior_factor_list 错误：至少需要一个因子或 off。")
     if params.task.wavelet_frequency_hz <= 0:
         raise ValueError(f"wavelet_frequency_hz 错误：当前值为 {params.task.wavelet_frequency_hz}，合理条件是 > 0。")
     if params.task.wavelet_dominant_frequency_hz <= 0:
@@ -605,7 +704,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 3 参数摘要 ===")
+    print("=== hcz_void_plus Stage 4A 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")
@@ -648,7 +747,7 @@ def dispatch_task(params: SimpleNamespace) -> dict[str, Any]:
         from src.pipeline.run_full_pipeline import run_full_pipeline
 
         return run_full_pipeline(params)
-    raise ValueError(f"task={params.project.task} 已预留，但 Stage 2 尚未实现该独立流程。")
+    raise ValueError(f"task={params.project.task} 已预留，但当前阶段尚未实现该独立流程。")
 
 
 def main(argv: Iterable[str] | None = None) -> dict[str, Any]:

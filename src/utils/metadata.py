@@ -90,6 +90,7 @@ def build_metadata(
     diagnostics_info: dict[str, Any] | None = None,
     confidence_info: dict[str, Any] | None = None,
     score_method_comparison: dict[str, Any] | None = None,
+    depth_prior_sensitivity: dict[str, Any] | None = None,
     output_info: dict[str, Any] | None = None,
     git_info: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -102,7 +103,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 3C recommended location and 3D uncertainty diagnostics",
+        "stage": "Stage 4A reference-backed preprocessing and 3D multi-attribute localization",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -158,6 +159,7 @@ def build_metadata(
             "score_volume_unweighted_saved": False,
             "score_volume_depth_weighted_saved": False,
             "score_method_comparison": None,
+            "depth_prior_sensitivity": None,
         },
         "diagnostics": {
             "diffraction_travel_time_curve_figure": None,
@@ -169,6 +171,9 @@ def build_metadata(
             "score_method_depth_comparison_figure": None,
             "3d_high_score_uncertainty_summary_figure": None,
             "x_y_depth_uncertainty_slices_figure": None,
+            "multi_attribute_score_comparison_figure": None,
+            "depth_prior_sensitivity_figure": None,
+            "preprocessing_comparison_figure": None,
         },
         "confidence": {
             "peak_sharpness": None,
@@ -276,6 +281,8 @@ def build_metadata(
             },
             "depth_stability_reference": score_method_comparison["depth_stability_reference"],
         }
+    if depth_prior_sensitivity is not None:
+        metadata["scan"]["depth_prior_sensitivity"] = depth_prior_sensitivity
     if output_info is not None:
         metadata["output"].update(output_info)
     if git_info is not None:

@@ -96,7 +96,7 @@ def test_multishot_scan_finds_simple_anomaly_near_truth():
     assert result["active_best_location"]
     assert result["weighted_best_location"]
     assert result["raw_weighted_difference"]["distance_m"] >= 0.0
-    assert result["score_volume_kind"] in {"raw", "depth_weighted"}
+    assert result["score_volume_kind"] in {"raw", "unweighted", "depth_weighted", "multi_attribute_unweighted"}
     assert np.isfinite(result["score_volume"]).all()
     assert np.all(result["score_volume_depth_weighted"] <= result["score_volume_raw"] + 1.0e-12)
     assert result["truth_error"]["distance_m"] <= 4.0

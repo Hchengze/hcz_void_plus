@@ -1,6 +1,6 @@
 # Full Pipeline 综合报告
 
-本次运行完成：DAS-like 运动学多炮正演、中文图件、运动学地表响应示意图/GIF、直达波预测、基础 x-y-h 多炮扫描定位和 Stage 3 基础置信度诊断。
+本次运行完成：DAS-like 运动学多炮正演、三维观测几何诊断、基础预处理、多属性 x-y-h 扫描定位、深度先验敏感性诊断和规则型稳定性自检。
 
 ## 当前近似条件
 
@@ -14,10 +14,12 @@
 
 - score method：`diffraction_energy_stack`
 - score volume shape：`(81, 17, 16)`
-- arr_score_volume.npy 当前主结果：`depth_weighted`
+- arr_score_volume.npy 当前主结果：`multi_attribute_unweighted`
+- active score kind：`multi_attribute_unweighted`
+- scan score mode：`multi_attribute`
 - scan depth weighting：`True`
-- best_location：x=`60.0` m，y=`9.0` m，h=`0.5` m
-- truth_error distance：`2.5` m
+- best_location：x=`60.0` m，y=`9.0` m，h=`2.5` m
+- truth_error distance：`0.5` m
 
 ## raw 与 weighted best 对比
 
@@ -29,19 +31,19 @@
 ## 推荐位置与三维不确定性
 
 - recommended_location_type：`uncertainty_interval`
-- recommended_location：`{'x_m': 60.0, 'y_m': 9.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 62.0], 'y_interval_m': [4.0, 14.0], 'depth_interval_m': [0.5, 2.5]}`
+- recommended_location：`{'x_m': 60.0, 'y_m': 9.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 60.0], 'y_interval_m': [6.0, 13.0], 'depth_interval_m': [0.5, 6.0]}`
 - recommended_reason：weighted_best 受到深度权重影响且触发边界/宽 y/unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。
-- depth uncertainty interval：`[0.5, 2.5]` m
-- 3D high-score span：x=`2.0` m，y=`10.0` m，depth=`0.5` m
+- depth uncertainty interval：`[0.5, 6.0]` m
+- 3D high-score span：x=`0.0` m，y=`7.0` m，depth=`5.5` m
 
 ## 基础置信度分析
 
-- peak sharpness：`1.107`
-- score contrast：`7.2`
+- peak sharpness：`1.115`
+- score contrast：`5.448`
 - score percentile：`100.00%`
-- multi-shot consistency CV：`0.2073`
-- y-depth coupling warning：`False`
-- best_depth_at_boundary_warning：`True`
+- multi-shot consistency CV：`0.2796`
+- y-depth coupling warning：`True`
+- best_depth_at_boundary_warning：`False`
 - wide_y_high_score_zone_warning：`True`
 - raw_weighted_divergence_warning：`True`
 - shallow_bias_warning：`True`

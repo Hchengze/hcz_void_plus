@@ -1,4 +1,4 @@
-"""Stage 3 full_pipeline：正演 + 扫描 + 基础置信度 + 稳定成果导出。"""
+"""Stage 4A full_pipeline：参考审计接入 + 三维几何 + 预处理 + 多属性扫描 + 稳定成果导出。"""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ import numpy as np
 
 from src.confidence.confidence_report import build_confidence_metrics, write_confidence_report
 from src.localization.scan_grid import build_scan_grid
+from src.localization.depth_prior_sensitivity import run_depth_prior_sensitivity
 from src.localization.score_method_comparison import run_score_method_comparison
 from src.pipeline.run_forward_pipeline import run_forward_pipeline
 from src.pipeline.run_scan_pipeline import run_scan_pipeline
@@ -20,6 +21,8 @@ from src.visualization.plot_confidence import plot_confidence_diagnostics
 from src.visualization.plot_scan import plot_y_high_score_width_check
 from src.visualization.plot_uncertainty import (
     plot_3d_high_score_uncertainty_summary,
+    plot_depth_prior_sensitivity,
+    plot_multi_attribute_score_comparison,
     plot_score_method_depth_comparison,
     plot_x_y_depth_uncertainty_slices,
 )
@@ -67,7 +70,7 @@ def _write_full_pipeline_report(
 这些指标只是规则型科研诊断，用于帮助人工判断结果是否稳定，不能作为工程确诊。"""
     content = f"""# Full Pipeline 综合报告
 
-本次运行完成：DAS-like 运动学多炮正演、中文图件、运动学地表响应示意图/GIF、直达波预测、基础 x-y-h 多炮扫描定位和 Stage 3 基础置信度诊断。
+本次运行完成：DAS-like 运动学多炮正演、三维观测几何诊断、基础预处理、多属性 x-y-h 扫描定位、深度先验敏感性诊断和规则型稳定性自检。
 
 ## 当前近似条件
 
@@ -82,6 +85,8 @@ def _write_full_pipeline_report(
 - score method：`{params.scan.score_method}`
 - score volume shape：`{tuple(scan_result["score_volume"].shape)}`
 - arr_score_volume.npy 当前主结果：`{scan_result["score_volume_kind"]}`
+- active score kind：`{scan_result["score_volume_active_kind"]}`
+- scan score mode：`{params.scan.score_mode}`
 - scan depth weighting：`{params.scan.use_depth_weight}`
 - best_location：x=`{best["x_m"]}` m，y=`{best["y_m"]}` m，h=`{best["depth_m"]}` m
 - truth_error distance：`{error["distance_m"]}` m
@@ -151,12 +156,32 @@ def _write_score_method_comparison_report(
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _write_depth_prior_sensitivity_report(output_path: Path, sensitivity_result: dict[str, Any]) -> None:
+    """写出 depth prior 敏感性中文报告。"""
+
+    lines = [
+        "# depth prior 敏感性报告",
+        "",
+        "本报告基于 unweighted score volume 快速评估不同 Rayleigh depth prior 因子对 best depth 的影响。",
+        "",
+        "| factor | penetration_depth_m | best_location | best_depth_at_boundary |",
+        "|---|---:|---|---|",
+    ]
+    for factor, result in sensitivity_result["factors"].items():
+        lines.append(
+            f"| {factor} | {result['penetration_depth_m']} | {result['best_location']} | {result['best_depth_at_boundary']} |"
+        )
+    lines.append("\n该诊断不是严格 Rayleigh 模态核，只用于检查 depth prior 是否支配定位结果。")
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def _build_final_metadata(
     params: SimpleNamespace,
     forward_result: dict[str, Any],
     scan_result: dict[str, Any],
     confidence_metrics: dict[str, Any],
     score_method_comparison: dict[str, Any] | None,
+    depth_prior_sensitivity: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -191,9 +216,13 @@ def _build_final_metadata(
             "score_method_depth_comparison_figure": str(paths["figures"] / "fig_score_method_depth_comparison.png"),
             "3d_high_score_uncertainty_summary_figure": str(paths["figures"] / "fig_3d_high_score_uncertainty_summary.png"),
             "x_y_depth_uncertainty_slices_figure": str(paths["figures"] / "fig_x_y_depth_uncertainty_slices.png"),
+            "multi_attribute_score_comparison_figure": str(paths["figures"] / "fig_multi_attribute_score_comparison.png"),
+            "depth_prior_sensitivity_figure": str(paths["figures"] / "fig_depth_prior_sensitivity.png"),
+            "preprocessing_comparison_figure": str(paths["figures"] / "fig_preprocessing_comparison.png"),
         },
         confidence_info=confidence_metrics,
         score_method_comparison=score_method_comparison,
+        depth_prior_sensitivity=depth_prior_sensitivity,
         output_info=output_info,
         git_info=git_info,
     )
@@ -202,14 +231,15 @@ def _build_final_metadata(
 
 
 def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
-    """运行 Stage 3 完整闭环。
+    """运行 Stage 4A 完整闭环。
 
     流程顺序：
         1. 运动学 DAS-like 正演；
-        2. x-y-h 多炮扫描定位；
-        3. 基础置信度诊断；
-        4. 综合报告和 metadata；
-        5. 可选导出 outputs/latest_stable 精选成果。
+        2. 三维观测几何与异常体散射点诊断；
+        3. 基础预处理；
+        4. 多属性 x-y-h 扫描定位；
+        5. 规则型置信度、三维高分区和 depth prior 敏感性诊断；
+        6. 综合报告、metadata 和 outputs/latest_stable 精选成果导出。
     """
 
     forward_result = run_forward_pipeline(params)
@@ -217,6 +247,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     confidence_metrics: dict[str, Any] | None = None
     stable_export_info: dict[str, Any] | None = None
     score_method_comparison: dict[str, Any] | None = None
+    depth_prior_sensitivity: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -256,6 +287,11 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 confidence_metrics["recommended_location"],
                 paths["figures"] / "fig_x_y_depth_uncertainty_slices.png",
             )
+            plot_multi_attribute_score_comparison(
+                params,
+                scan_result,
+                paths["figures"] / "fig_multi_attribute_score_comparison.png",
+            )
         if params.output.save_report:
             write_confidence_report(params, paths["reports"] / "report_confidence.md", confidence_metrics)
 
@@ -288,6 +324,20 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                     score_method_comparison,
                 )
 
+        if params.scan.depth_prior_sensitivity_enabled:
+            depth_prior_sensitivity = run_depth_prior_sensitivity(scan_result["score_volume_unweighted"], params)
+            if params.output.save_figures:
+                plot_depth_prior_sensitivity(
+                    params,
+                    depth_prior_sensitivity,
+                    paths["figures"] / "fig_depth_prior_sensitivity.png",
+                )
+            if params.output.save_report:
+                _write_depth_prior_sensitivity_report(
+                    paths["reports"] / "report_depth_prior_sensitivity.md",
+                    depth_prior_sensitivity,
+                )
+
         _write_full_pipeline_report(
             params,
             forward_result["paths"]["reports"] / "report_full_pipeline.md",
@@ -301,13 +351,14 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             scan_result,
             confidence_metrics,
             score_method_comparison,
+            depth_prior_sensitivity,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 3C 深度稳健性对比、推荐位置规则与三维不确定性表达",
+                "task_name": "Stage 4A Reference 审计接入 + 三维观测几何泛化 + 预处理与定位算法增强",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
                 "best_location": scan_result["best_location"],
@@ -318,6 +369,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "truth_error": scan_result["truth_error"],
                 "confidence": confidence_metrics,
                 "score_method_comparison": score_method_comparison,
+                "depth_prior_sensitivity": depth_prior_sensitivity,
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],
@@ -334,5 +386,6 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["scan_result"] = scan_result
     result["confidence_metrics"] = confidence_metrics
     result["score_method_comparison"] = score_method_comparison
+    result["depth_prior_sensitivity"] = depth_prior_sensitivity
     result["stable_export_info"] = stable_export_info
     return result

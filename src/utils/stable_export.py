@@ -25,12 +25,19 @@ SELECTED_FIGURES = [
     "fig_score_method_depth_comparison.png",
     "fig_3d_high_score_uncertainty_summary.png",
     "fig_x_y_depth_uncertainty_slices.png",
+    "fig_3d_geometry_overview.png",
+    "fig_receiver_source_3d_layout.png",
+    "fig_anomaly_3d_scatter_points.png",
+    "fig_multi_attribute_score_comparison.png",
+    "fig_depth_prior_sensitivity.png",
+    "fig_preprocessing_comparison.png",
 ]
 
 SELECTED_REPORTS = [
     "report_full_pipeline.md",
     "report_confidence.md",
     "report_score_method_comparison.md",
+    "report_depth_prior_sensitivity.md",
 ]
 
 
@@ -98,6 +105,7 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     recommendation = confidence.get("recommendation", {})
     high_region = confidence.get("high_score_region", {})
     score_method_comparison = summary_info.get("score_method_comparison") or {}
+    depth_prior_sensitivity = summary_info.get("depth_prior_sensitivity") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
@@ -120,10 +128,17 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- figures/fig_score_method_depth_comparison.png",
             "- figures/fig_3d_high_score_uncertainty_summary.png",
             "- figures/fig_x_y_depth_uncertainty_slices.png",
+            "- figures/fig_3d_geometry_overview.png",
+            "- figures/fig_receiver_source_3d_layout.png",
+            "- figures/fig_anomaly_3d_scatter_points.png",
+            "- figures/fig_multi_attribute_score_comparison.png",
+            "- figures/fig_depth_prior_sensitivity.png",
+            "- figures/fig_preprocessing_comparison.png",
             "- animations/anim_pseudo_wavefield.gif",
             "- reports/report_full_pipeline.md",
             "- reports/report_confidence.md",
             "- reports/report_score_method_comparison.md",
+            "- reports/report_depth_prior_sensitivity.md",
         ]
     )
     content = f"""# latest_stable 稳定成果摘要
@@ -166,6 +181,10 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 
 - comparison methods：`{list((score_method_comparison.get("methods") or {}).keys())}`
 - depth stability reference：`{_format_optional(score_method_comparison.get("depth_stability_reference"))}`
+
+## depth prior sensitivity
+
+- factors：`{list((depth_prior_sensitivity.get("factors") or {}).keys())}`
 
 ## 基础置信度指标
 

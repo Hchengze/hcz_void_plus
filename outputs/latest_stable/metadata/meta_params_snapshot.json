@@ -1,7 +1,7 @@
 {
   "project": {
     "task": "full_pipeline",
-    "run_name": "stage3_run",
+    "run_name": "stage4a_run",
     "random_seed": 20260703
   },
   "road": {
@@ -12,17 +12,23 @@
   "fiber": {
     "y_m": 0.0,
     "z_m": 0.0,
+    "burial_depth_m": 0.0,
     "x_start_m": 0.0,
     "channel_spacing_m": 1.0,
-    "channel_count": 121
+    "channel_count": 121,
+    "geometry_mode": "straight",
+    "polyline_csv": null
   },
   "source": {
     "y_m": 18.0,
+    "line_y_m": null,
     "z_m": 0.0,
     "x_start_m": 10.0,
     "shot_spacing_m": 10.0,
     "shot_count": 9,
-    "source_type": "hammer"
+    "source_type": "hammer",
+    "geometry_mode": "line",
+    "points_csv": null
   },
   "time": {
     "dt_s": 0.001,
@@ -39,6 +45,12 @@
     "y0_m": 9.0,
     "depth_m": 3.0,
     "radius_m": 1.5,
+    "shape": "sphere",
+    "size_x_m": 2.0,
+    "size_y_m": 2.0,
+    "size_z_m": 1.0,
+    "orientation_deg": 0.0,
+    "scatter_point_density": "coarse",
     "scatter_strength": 0.8,
     "scatter_point_mode": "center_and_boundary"
   },
@@ -87,11 +99,38 @@
     "time_window_half_width_s": 0.015,
     "use_depth_weight": true,
     "rayleigh_penetration_factor": 1.0,
+    "active_score_kind": "multi_attribute_unweighted",
     "compare_score_methods": true,
     "score_method_list": [
       "diffraction_energy_stack",
       "normalized_energy_stack"
+    ],
+    "score_mode": "multi_attribute",
+    "weight_energy": 1.0,
+    "weight_normalized_energy": 0.5,
+    "weight_matched_wavelet": 1.0,
+    "weight_semblance": 0.5,
+    "weight_frequency_shift": 0.0,
+    "depth_prior_sensitivity_enabled": true,
+    "depth_prior_factor_list": [
+      "0.5",
+      "1.0",
+      "2.0",
+      "off"
     ]
+  },
+  "preprocessing": {
+    "enabled": true,
+    "bandpass_enabled": true,
+    "bandpass_low_hz": 5.0,
+    "bandpass_high_hz": 80.0,
+    "agc_enabled": false,
+    "agc_window_s": 0.05,
+    "envelope_enabled": false,
+    "trace_normalization": "rms",
+    "fk_filter_enabled": false,
+    "fk_velocity_min_mps": 80.0,
+    "fk_velocity_max_mps": 500.0
   },
   "task": {
     "wavelet_frequency_hz": 35.0,
@@ -1831,6 +1870,6 @@
     "estimated_wavelength_m": 8.666666666666666,
     "rayleigh_penetration_depth_m": 8.666666666666666,
     "latest_stable_dir": "outputs\\latest_stable",
-    "output_run_dir": "outputs\\stage3_run_20260703_151258"
+    "output_run_dir": "outputs\\stage4a_run_20260703_155513"
   }
 }

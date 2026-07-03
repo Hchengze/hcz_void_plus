@@ -1,6 +1,6 @@
 {
   "project": "hcz_void_plus",
-  "stage": "Stage 3C recommended location and 3D uncertainty diagnostics",
+  "stage": "Stage 4A reference-backed preprocessing and 3D multi-attribute localization",
   "data_shape": {
     "order": "shot × time × channel",
     "shape": [
@@ -40,18 +40,18 @@
     "wavefield_info": {
       "snapshot_count": 8,
       "snapshot_files": [
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t000.png",
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t001.png",
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t002.png",
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t003.png",
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t004.png",
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t005.png",
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t006.png",
-        "outputs\\stage3_run_20260703_151258\\snapshots\\snap_pseudo_wavefield_t007.png"
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage4a_run_20260703_155513\\snapshots\\snap_pseudo_wavefield_t007.png"
       ],
       "animation": {
         "success": true,
-        "path": "outputs\\stage3_run_20260703_151258\\animations\\anim_pseudo_wavefield.gif",
+        "path": "outputs\\stage4a_run_20260703_155513\\animations\\anim_pseudo_wavefield.gif",
         "reason": null
       }
     }
@@ -70,17 +70,17 @@
     "best_location": {
       "x_m": 60.0,
       "y_m": 9.0,
-      "depth_m": 0.5
+      "depth_m": 2.5
     },
-    "best_score": 0.034379204287327644,
+    "best_score": 37.653673393313944,
     "truth_error": {
       "dx_m": 0.0,
       "dy_m": 0.0,
-      "ddepth_m": -2.5,
-      "distance_m": 2.5
+      "ddepth_m": -0.5,
+      "distance_m": 0.5
     },
-    "score_volume_kind": "depth_weighted",
-    "score_volume_active_kind": "depth_weighted",
+    "score_volume_kind": "multi_attribute_unweighted",
+    "score_volume_active_kind": "multi_attribute_unweighted",
     "raw_best_location": {
       "x_m": 60.0,
       "y_m": 9.0,
@@ -109,22 +109,22 @@
       "depth_m": 2.5,
       "x_interval_m": [
         60.0,
-        62.0
+        60.0
       ],
       "y_interval_m": [
-        4.0,
-        14.0
+        6.0,
+        13.0
       ],
       "depth_interval_m": [
         0.5,
-        2.5
+        6.0
       ]
     },
     "recommended_location_type": "uncertainty_interval",
     "recommended_location_reason": "weighted_best 受到深度权重影响且触发边界/宽 y/unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。",
     "depth_uncertainty_interval_m": [
       0.5,
-      2.5
+      6.0
     ],
     "score_volume_raw_saved": true,
     "score_volume_unweighted_saved": true,
@@ -187,47 +187,94 @@
         "best_unweighted_depth_abs_error_m": 0.5,
         "note": "仅比较当前场景下 unweighted_best 的深度误差，不代表通用优劣。"
       }
+    },
+    "depth_prior_sensitivity": {
+      "factors": {
+        "0.5": {
+          "penetration_depth_m": 4.333333333333333,
+          "best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 0.5
+          },
+          "best_score": 33.04504342595823,
+          "best_depth_at_boundary": true
+        },
+        "1.0": {
+          "penetration_depth_m": 8.666666666666666,
+          "best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 0.5
+          },
+          "best_score": 35.00755483971795,
+          "best_depth_at_boundary": true
+        },
+        "2.0": {
+          "penetration_depth_m": 17.333333333333332,
+          "best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 0.5
+          },
+          "best_score": 36.03209411891016,
+          "best_depth_at_boundary": true
+        },
+        "off": {
+          "penetration_depth_m": null,
+          "best_location": {
+            "x_m": 60.0,
+            "y_m": 9.0,
+            "depth_m": 2.5
+          },
+          "best_score": 37.653673393313944,
+          "best_depth_at_boundary": false
+        }
+      }
     }
   },
   "diagnostics": {
-    "diffraction_travel_time_curve_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_diffraction_travel_time_curves.png",
-    "path_section_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_source_anomaly_receiver_path_section.png",
-    "depth_sensitivity_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_rayleigh_depth_sensitivity.png",
-    "raw_vs_weighted_best_location_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_raw_vs_weighted_best_location.png",
-    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
-    "y_high_score_width_check_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_y_high_score_width_check.png",
-    "score_method_depth_comparison_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_score_method_depth_comparison.png",
-    "3d_high_score_uncertainty_summary_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_3d_high_score_uncertainty_summary.png",
-    "x_y_depth_uncertainty_slices_figure": "outputs\\stage3_run_20260703_151258\\figures\\fig_x_y_depth_uncertainty_slices.png"
+    "diffraction_travel_time_curve_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_rayleigh_depth_sensitivity.png",
+    "raw_vs_weighted_best_location_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_raw_vs_weighted_best_location.png",
+    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
+    "y_high_score_width_check_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_y_high_score_width_check.png",
+    "score_method_depth_comparison_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_score_method_depth_comparison.png",
+    "3d_high_score_uncertainty_summary_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_3d_high_score_uncertainty_summary.png",
+    "x_y_depth_uncertainty_slices_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_x_y_depth_uncertainty_slices.png",
+    "multi_attribute_score_comparison_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_multi_attribute_score_comparison.png",
+    "depth_prior_sensitivity_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_depth_prior_sensitivity.png",
+    "preprocessing_comparison_figure": "outputs\\stage4a_run_20260703_155513\\figures\\fig_preprocessing_comparison.png"
   },
   "confidence": {
-    "peak_sharpness": 1.1066476916547154,
-    "score_contrast": 7.19986793911462,
+    "peak_sharpness": 1.1147675967113735,
+    "score_contrast": 5.447588478737515,
     "score_percentile": 100.0,
-    "multi_shot_consistency_mean": 0.03642095015342198,
-    "multi_shot_consistency_std": 0.0075503591999769885,
-    "multi_shot_consistency_cv": 0.20730813359265382,
-    "y_depth_coupling_warning": false,
-    "best_depth_at_boundary_warning": true,
+    "multi_shot_consistency_mean": 112.1238150347497,
+    "multi_shot_consistency_std": 31.347016047372506,
+    "multi_shot_consistency_cv": 0.27957500409397734,
+    "y_depth_coupling_warning": true,
+    "best_depth_at_boundary_warning": false,
     "wide_y_high_score_zone_warning": true,
     "raw_weighted_divergence_warning": true,
     "shallow_bias_warning": true,
     "high_score_region": {
       "threshold_ratio": 0.9,
-      "threshold": 0.03094128385859488,
-      "best_score": 0.034379204287327644,
-      "high_score_region_point_count": 22,
-      "x_span_m": 2.0,
-      "y_span_m": 10.0,
-      "depth_span_m": 0.5,
-      "high_score_region_volume_estimate_m3": 22.0,
+      "threshold": 33.888306053982554,
+      "best_score": 37.653673393313944,
+      "high_score_region_point_count": 87,
+      "x_span_m": 0.0,
+      "y_span_m": 7.0,
+      "depth_span_m": 5.5,
+      "high_score_region_volume_estimate_m3": 87.0,
       "equivalent_uncertainty_box": {
         "x_min_m": 60.0,
-        "x_max_m": 62.0,
-        "y_min_m": 4.0,
-        "y_max_m": 14.0,
+        "x_max_m": 60.0,
+        "y_min_m": 6.0,
+        "y_max_m": 13.0,
         "depth_min_m": 0.5,
-        "depth_max_m": 1.0
+        "depth_max_m": 6.0
       }
     },
     "low_confidence_flag": "low"
@@ -247,9 +294,9 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "a189067",
+    "commit_id": "a77d036",
     "push_attempted": true,
-    "push_success": true
+    "push_success": false
   },
   "limitations": [
     "不是完整 DAS 仪器模拟。",
@@ -299,34 +346,34 @@
         3.0
       ],
       [
-        61.5,
+        61.0,
         9.0,
         3.0
       ],
       [
-        58.5,
+        59.0,
         9.0,
         3.0
       ],
       [
         60.0,
-        10.5,
+        10.0,
         3.0
       ],
       [
         60.0,
-        7.5,
+        8.0,
         3.0
       ],
       [
         60.0,
         9.0,
-        4.5
+        3.5
       ],
       [
         60.0,
         9.0,
-        2.25
+        2.5
       ]
     ],
     "weights": [

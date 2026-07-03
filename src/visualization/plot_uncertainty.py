@@ -166,3 +166,81 @@ def plot_x_y_depth_uncertainty_slices(
     fig.savefig(output_path)
     plt.close(fig)
 
+
+def plot_multi_attribute_score_comparison(
+    params: SimpleNamespace,
+    scan_result: dict[str, Any],
+    output_path: Path,
+) -> None:
+    """绘制多属性 score 的 best 位置与得分摘要。
+
+    该图用于检查 energy、normalized energy、matched wavelet 和 semblance 是否对
+    x/y/depth 给出一致候选。若属性之间分歧明显，报告应倾向不确定性区间而非单点。
+    """
+
+    setup_chinese_matplotlib()
+    volumes = scan_result.get("attribute_score_volumes", {})
+    names = ["energy_score", "normalized_energy_score", "matched_wavelet_score", "semblance_score"]
+    best_depths = []
+    best_x = []
+    best_y = []
+    for name in names:
+        volume = volumes.get(name)
+        if volume is None or not np.any(np.isfinite(volume)):
+            best_depths.append(0.0)
+            best_x.append(0.0)
+            best_y.append(0.0)
+            continue
+        idx = np.unravel_index(int(np.argmax(volume)), volume.shape)
+        best_x.append(float(params.derived.scan_x_grid[idx[0]]))
+        best_y.append(float(params.derived.scan_y_grid[idx[1]]))
+        best_depths.append(float(params.derived.scan_depth_grid[idx[2]]))
+
+    x = np.arange(len(names))
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.8), dpi=150)
+    axes[0].bar(x, best_depths, color="#4C78A8")
+    axes[0].axhline(params.anomaly.depth_m, color="red", linestyle="--", linewidth=1.1, label="真实深度")
+    axes[0].set_xticks(x)
+    axes[0].set_xticklabels(names, rotation=15, ha="right")
+    axes[0].set_ylabel("best depth / m")
+    axes[0].set_title("各属性 best depth")
+    axes[0].legend(loc="best", fontsize=8)
+    axes[1].scatter(best_x, best_y, s=65, c=best_depths, cmap="viridis", label="属性 best")
+    axes[1].scatter([params.anomaly.x0_m], [params.anomaly.y0_m], marker="x", s=70, color="red", label="真实异常体")
+    for i, name in enumerate(names):
+        axes[1].text(best_x[i], best_y[i], f" {name}", fontsize=7)
+    axes[1].set_xlabel("x / m")
+    axes[1].set_ylabel("y / m")
+    axes[1].set_title("各属性 best x-y 投影")
+    axes[1].legend(loc="best", fontsize=8)
+    fig.suptitle("多属性扫描得分对比（科研候选，不是工程确诊）", fontsize=12)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def plot_depth_prior_sensitivity(
+    params: SimpleNamespace,
+    sensitivity_result: dict[str, Any],
+    output_path: Path,
+) -> None:
+    """绘制 depth prior 因子对 best depth 的影响。"""
+
+    setup_chinese_matplotlib()
+    factors = list(sensitivity_result["factors"].keys())
+    depths = [sensitivity_result["factors"][factor]["best_location"]["depth_m"] for factor in factors]
+    x = np.arange(len(factors))
+    fig, ax = plt.subplots(figsize=(8.5, 4.8), dpi=150)
+    ax.plot(x, depths, marker="o", linewidth=1.8, label="best depth")
+    ax.axhline(params.anomaly.depth_m, color="red", linestyle="--", linewidth=1.1, label="真实深度")
+    ax.axhline(params.scan.depth_min_m, color="0.4", linestyle=":", linewidth=1.0, label="深度边界")
+    ax.set_xticks(x)
+    ax.set_xticklabels(factors)
+    ax.set_xlabel("depth prior factor")
+    ax.set_ylabel("best depth / m")
+    ax.set_title("depth prior 强度敏感性诊断")
+    ax.legend(loc="best", fontsize=8)
+    ax.grid(True, alpha=0.25)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)

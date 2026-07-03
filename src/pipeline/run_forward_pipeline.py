@@ -1,4 +1,4 @@
-"""Stage 2 正演与中文可视化 pipeline。"""
+"""Stage 4A 正演、三维几何诊断与中文可视化 pipeline。"""
 
 from __future__ import annotations
 
@@ -16,7 +16,13 @@ from src.utils.metadata import build_metadata, save_json
 from src.utils.path_manager import ensure_output_subdirs
 from src.utils.random_seed import set_random_seed
 from src.visualization.plot_gather import plot_shot_gather
-from src.visualization.plot_geometry import plot_geometry, plot_geometry_layout_check
+from src.visualization.plot_geometry import (
+    plot_3d_geometry_overview,
+    plot_anomaly_3d_scatter_points,
+    plot_geometry,
+    plot_geometry_layout_check,
+    plot_receiver_source_3d_layout,
+)
 from src.visualization.plot_pseudo_wavefield import (
     save_pseudo_wavefield_animation,
     save_pseudo_wavefield_snapshots,
@@ -125,6 +131,9 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             scatter_xyz,
             paths["figures"] / "fig_geometry_layout_check.png",
         )
+        plot_receiver_source_3d_layout(params, receiver_xyz, source_xyz, paths["figures"] / "fig_receiver_source_3d_layout.png")
+        plot_anomaly_3d_scatter_points(params, scatter_xyz, paths["figures"] / "fig_anomaly_3d_scatter_points.png")
+        plot_3d_geometry_overview(params, receiver_xyz, source_xyz, scatter_xyz, paths["figures"] / "fig_3d_geometry_overview.png")
         n_fig = min(params.output.max_shot_gather_figures, params.source.shot_count)
         for shot_index in range(n_fig):
             plot_shot_gather(params, synthetic_data, shot_index, paths["figures"] / f"fig_shot_gather_{shot_index:03d}.png")
@@ -167,7 +176,7 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         )
 
     log_text = (
-        "Stage 2 forward pipeline completed.\n"
+        "Stage 4A forward pipeline completed.\n"
         "Approximation: kinematic approximation + DAS-like response approximation.\n"
         "Surface response: kinematic_surface_response_snapshot, not true elastic wave equation snapshot.\n"
         f"Output directory: {paths['root']}\n"

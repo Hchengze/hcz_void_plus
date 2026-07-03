@@ -4,7 +4,7 @@
 
 项目面向道路地下空洞、脱空、松散区、管沟、管线周边扰动、弱夹层和破碎带等浅层异常体。典型几何为单侧 DAS-like 接收：光纤沿道路方向布设，近似位于 `y = 0`；震源线位于道路另一侧或道路边缘，近似位于 `y = W`；异常体位于道路下方 `(x0, y0, h)`。
 
-## 当前 Stage 3 已实现
+## 当前 Stage 4A 已实现
 
 - `main.py` 统一 argparse 参数中心。
 - DAS-like point receiver approximation。
@@ -23,6 +23,12 @@
 - Stage 3C 推荐位置规则：不再把 depth-weighted best 自动当主推荐点，输出 `recommended_location`、推荐类型和理由。
 - Stage 3C 三维高分区不确定性：输出 x/y/depth 跨度、等效不确定性盒和候选体统计。
 - Stage 3C 轻量 score_method 对比：`diffraction_energy_stack` 与 `normalized_energy_stack`。
+- Stage 4A reference 审计接入：新增 `docs/reference_inventory.md`、`docs/reference_algorithm_admission.md` 和 `docs/reference_backed_algorithm_plan.md`，把文献、旧代码和参考算法纳入开发闭环。
+- Stage 4A 三维观测几何泛化：`receiver_xyz` 和 `source_xyz` 支持默认直线、CSV 点集和震源网格，后续正演、走时、扫描和可视化均使用三维坐标。
+- Stage 4A 三维异常体形状：支持 `sphere/ellipsoid/box/cylinder/pipe_trench` 的等效散射点表达，强调这是运动学等效表示，不是真实边界散射。
+- Stage 4A 预处理增强：新增 bandpass、AGC、包络、道归一化和简化 f-k 速度扇区滤波接口。
+- Stage 4A 定位增强：从单一能量堆叠扩展为 `multi_attribute`，组合 energy、normalized energy、matched wavelet 和 semblance 属性。
+- Stage 4A depth prior 不再默认决定主结果，默认主 score 为不加深度权重的多属性结果，depth weighting 只作为辅助诊断和敏感性分析。
 - 直达波 mute 默认改为 `taper`，保留 `hard/subtract/none`。
 - 新增 `normalized_energy_stack` 作为可选扫描得分方法。
 - `outputs/latest_stable/` 精选稳定成果导出，便于每轮人工快速检查。

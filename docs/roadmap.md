@@ -46,6 +46,18 @@
 - 输出三维高分区跨度、等效不确定性盒和不确定性切片；
 - latest_stable 增加推荐位置、score_method 对比和 3D 高分区摘要。
 
+## Stage 4A
+
+Reference 审计接入 + 三维观测几何泛化 + 预处理与定位算法增强：
+
+- 审计 `reference/`、`code/`、`tools_code/` 和 `literature_reproduction/`，明确哪些资料可吸收、需重写或仅作阅读参考；
+- 接收点和震源点统一为三维 `receiver_xyz/source_xyz`，默认直线场景继续可跑，同时预留 CSV/polyline/grid；
+- 异常体从中心点扩展到 sphere、ellipsoid、box、cylinder、pipe_trench 的等效散射点表达；
+- 扫描前加入 bandpass、AGC、包络、道归一化和简化 f-k 滤波接口；
+- 定位评分从单一 energy stack 扩展为 multi_attribute，包含 energy、normalized energy、matched wavelet 和 semblance；
+- depth prior 默认不再决定主定位，只作为辅助诊断和敏感性分析；
+- latest_stable 增加三维几何、异常体散射点、预处理对比、多属性评分和 depth prior 敏感性图。
+
 ## 后续阶段
 
 - 更完整的概率置信度体系和不确定性表达；

@@ -8,6 +8,8 @@ from typing import Any
 import numpy as np
 
 from src.localization.travel_time import compute_candidate_diffraction_times
+from src.localization.attribute_scoring import combine_attribute_scores, score_candidate_attributes
+from src.localization.multi_attribute_scan import score_weights_from_params
 from src.model.velocity_model import UniformVelocityModel
 from src.physics.rayleigh import estimate_penetration_depth, rayleigh_depth_weight
 
@@ -157,9 +159,17 @@ def run_multishot_scan(
     y_grid = scan_grid["y_grid"]
     depth_grid = scan_grid["depth_grid"]
     score_volume_unweighted = np.zeros((len(x_grid), len(y_grid), len(depth_grid)), dtype=float)
+    attribute_volumes = {
+        "energy_score": np.zeros_like(score_volume_unweighted),
+        "normalized_energy_score": np.zeros_like(score_volume_unweighted),
+        "matched_wavelet_score": np.zeros_like(score_volume_unweighted),
+        "semblance_score": np.zeros_like(score_volume_unweighted),
+        "frequency_shift_score": np.zeros_like(score_volume_unweighted),
+    }
     cumulative_energy = _build_energy_cumulative(data)
     trace_energy = cumulative_energy[:, -1, :]
     penetration_depth_m = estimate_penetration_depth(params)
+    attribute_weights = score_weights_from_params(params)
 
     for ix, x_m in enumerate(x_grid):
         for iy, y_m in enumerate(y_grid):
@@ -168,7 +178,19 @@ def run_multishot_scan(
                 candidate_times = compute_candidate_diffraction_times(
                     candidate_xyz, source_xyz, receiver_xyz, velocity_model, t0_s=params.time.t0_s
                 )
-                if params.scan.score_method == "normalized_energy_stack":
+                if params.scan.score_mode == "multi_attribute":
+                    attrs = score_candidate_attributes(
+                        data,
+                        cumulative_energy,
+                        trace_energy,
+                        time_axis,
+                        candidate_times,
+                        params.scan.time_window_half_width_s,
+                    )
+                    for name, value in attrs.items():
+                        attribute_volumes[name][ix, iy, iz] = value
+                    score_volume_unweighted[ix, iy, iz] = combine_attribute_scores(attrs, attribute_weights)
+                elif params.scan.score_method == "normalized_energy_stack":
                     score_volume_unweighted[ix, iy, iz] = _score_candidate_normalized_fast(
                         cumulative_energy,
                         trace_energy,
@@ -183,13 +205,17 @@ def run_multishot_scan(
 
     depth_weights = rayleigh_depth_weight(depth_grid, penetration_depth_m)
     score_volume_depth_weighted = score_volume_unweighted * depth_weights[None, None, :]
-    score_volume_active = score_volume_depth_weighted if params.scan.use_depth_weight else score_volume_unweighted
-    score_volume_kind = "depth_weighted" if params.scan.use_depth_weight else "unweighted"
+    if params.scan.active_score_kind == "depth_weighted":
+        score_volume_active = score_volume_depth_weighted
+        score_volume_kind = "depth_weighted"
+    else:
+        score_volume_active = score_volume_unweighted
+        score_volume_kind = "multi_attribute_unweighted" if params.scan.score_mode == "multi_attribute" else "unweighted"
 
     truth = np.array([params.anomaly.x0_m, params.anomaly.y0_m, params.anomaly.depth_m], dtype=float)
     unweighted_best = _best_from_volume(score_volume_unweighted, x_grid, y_grid, depth_grid, truth)
     weighted_best = _best_from_volume(score_volume_depth_weighted, x_grid, y_grid, depth_grid, truth)
-    active_best = weighted_best if params.scan.use_depth_weight else unweighted_best
+    active_best = weighted_best if params.scan.active_score_kind == "depth_weighted" else unweighted_best
     raw_location = unweighted_best["best_location"]
     weighted_location = weighted_best["best_location"]
     raw_weighted_vector = np.array(
@@ -218,6 +244,7 @@ def run_multishot_scan(
         "score_volume_unweighted": score_volume_unweighted,
         "score_volume_raw": score_volume_unweighted,
         "score_volume_depth_weighted": score_volume_depth_weighted,
+        "attribute_score_volumes": attribute_volumes,
         "depth_weights": depth_weights,
         "depth_weight_enabled": params.scan.use_depth_weight,
         "penetration_depth_m": penetration_depth_m,

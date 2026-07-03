@@ -1,4 +1,4 @@
-"""Stage 2 基础多炮扫描定位 pipeline。"""
+"""Stage 4A 预处理、多属性扫描定位与诊断图件 pipeline。"""
 
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ from src.features.direct_wave_mute import mute_direct_wave
 from src.localization.multishot_scan import run_multishot_scan
 from src.localization.scan_grid import build_scan_grid
 from src.model.velocity_model import build_velocity_model
+from src.preprocessing.preprocessing_pipeline import run_preprocessing_pipeline
 from src.utils.metadata import build_metadata, save_json
 from src.utils.path_manager import ensure_output_subdirs
 from src.visualization.plot_physical_diagnostics import (
@@ -20,6 +21,7 @@ from src.visualization.plot_physical_diagnostics import (
     plot_rayleigh_depth_sensitivity,
     plot_source_anomaly_receiver_path_section,
 )
+from src.visualization.plot_preprocessing import plot_preprocessing_comparison
 from src.visualization.plot_scan import (
     plot_best_location_map,
     plot_raw_vs_weighted_best_location,
@@ -55,6 +57,15 @@ def _write_scan_report(params: SimpleNamespace, output_path: Path, scan_result: 
 - depth weighting：`{params.scan.use_depth_weight}`
 - Rayleigh 波长估计：`{params.derived.estimated_wavelength_m:.3f}` m
 - Rayleigh 穿透深度近似：`{scan_result["penetration_depth_m"]:.3f}` m
+
+## 预处理
+
+- preprocess_enabled：`{params.preprocessing.enabled}`
+- bandpass：`{params.preprocessing.bandpass_enabled}`，`{params.preprocessing.bandpass_low_hz}`-`{params.preprocessing.bandpass_high_hz}` Hz
+- AGC：`{params.preprocessing.agc_enabled}`
+- envelope：`{params.preprocessing.envelope_enabled}`
+- trace_normalization：`{params.preprocessing.trace_normalization}`
+- FK filter：`{params.preprocessing.fk_filter_enabled}`
 
 ## 结果
 
@@ -112,7 +123,8 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
         wavefield_info = forward_result.get("wavefield_info", {})
 
     direct_times = predict_direct_arrival_times(params, source_xyz, receiver_xyz, velocity_model)
-    scan_data = synthetic_data
+    processed_data, preprocessing_info = run_preprocessing_pipeline(synthetic_data, params)
+    scan_data = processed_data
     if params.scan.direct_mute_enabled:
         scan_data = mute_direct_wave(
             scan_data,
@@ -139,10 +151,13 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
         np.save(paths["arrays"] / "arr_score_volume_unweighted.npy", scan_result["score_volume_unweighted"])
         np.save(paths["arrays"] / "arr_score_volume_raw.npy", scan_result["score_volume_raw"])
         np.save(paths["arrays"] / "arr_score_volume_depth_weighted.npy", scan_result["score_volume_depth_weighted"])
+        for name, volume in scan_result.get("attribute_score_volumes", {}).items():
+            np.save(paths["arrays"] / f"arr_{name}.npy", volume)
         np.save(paths["arrays"] / "arr_scan_x_grid.npy", params.derived.scan_x_grid)
         np.save(paths["arrays"] / "arr_scan_y_grid.npy", params.derived.scan_y_grid)
         np.save(paths["arrays"] / "arr_scan_depth_grid.npy", params.derived.scan_depth_grid)
         np.save(paths["arrays"] / "arr_direct_times.npy", direct_times)
+        np.save(paths["arrays"] / "arr_processed_data.npy", processed_data)
 
     if params.output.save_figures:
         plot_scan_x_depth_slice(
@@ -150,6 +165,13 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
             scan_result["normalized_score_volume"],
             scan_result["best_location"],
             paths["figures"] / "fig_scan_x_depth_slice.png",
+        )
+        plot_preprocessing_comparison(
+            params,
+            synthetic_data,
+            processed_data,
+            paths["figures"] / "fig_preprocessing_comparison.png",
+            shot_index=min(params.output.wavefield_shot_index, synthetic_data.shape[0] - 1),
         )
         plot_scan_x_y_slice(
             params,
@@ -213,19 +235,21 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
             "depth_sensitivity_figure": str(paths["figures"] / "fig_rayleigh_depth_sensitivity.png"),
             "raw_vs_weighted_best_location_figure": str(paths["figures"] / "fig_raw_vs_weighted_best_location.png"),
             "raw_vs_weighted_x_depth_slice_figure": str(paths["figures"] / "fig_raw_vs_weighted_x_depth_slice.png"),
+            "preprocessing_comparison_figure": str(paths["figures"] / "fig_preprocessing_comparison.png"),
         },
     )
     save_json(paths["metadata"] / "meta_run.json", metadata)
 
     scan_log = (
-        "Stage 2 scan pipeline completed.\n"
+        "Stage 4A scan pipeline completed.\n"
         f"Score method: {params.scan.score_method}\n"
         f"Best location: {scan_result['best_location']}\n"
         f"Truth error: {scan_result['truth_error']}\n"
+        f"Preprocessing: {preprocessing_info}\n"
         "Warning: y-depth coupling may exist in single-sided DAS-like geometry.\n"
     )
     (paths["logs"] / "log_scan.txt").write_text(scan_log, encoding="utf-8")
 
-    result = {"direct_times": direct_times, "scan_data": scan_data}
+    result = {"direct_times": direct_times, "scan_data": scan_data, "processed_data": processed_data, "preprocessing_info": preprocessing_info}
     result.update(scan_result)
     return result
