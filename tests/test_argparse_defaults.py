@@ -22,9 +22,17 @@ def test_argparse_defaults_can_parse():
     assert params.scan.use_depth_weight is True
     assert params.scan.rayleigh_penetration_factor == 1.0
     assert params.task.wavelet_dominant_frequency_hz == 30.0
+    assert params.output.export_latest_stable is True
+    assert params.output.latest_stable_dirname == "latest_stable"
+    assert params.confidence.threshold_ratio == 0.9
+    assert params.confidence.neighborhood_radius == 1
+    assert params.confidence.consistency_warning_cv_threshold == 0.8
+    assert params.confidence.coupling_warning_span_y_m == 4.0
+    assert params.confidence.coupling_warning_span_depth_m == 2.0
     assert params.derived.scan_grid_point_count > 0
     assert params.derived.estimated_wavelength_m == params.velocity.rayleigh_velocity_mps / params.task.wavelet_dominant_frequency_hz
     assert params.derived.rayleigh_penetration_depth_m == params.derived.estimated_wavelength_m
+    assert params.derived.latest_stable_dir.endswith("latest_stable")
 
 
 def test_stage2_visualization_parameter_validation():
@@ -34,6 +42,13 @@ def test_stage2_visualization_parameter_validation():
         ["--wavefield-grid-ny", "9"],
         ["--wavelet-dominant-frequency-hz", "0"],
         ["--rayleigh-penetration-factor", "0"],
+        ["--confidence-threshold-ratio", "0"],
+        ["--confidence-threshold-ratio", "1.5"],
+        ["--confidence-neighborhood-radius", "-1"],
+        ["--consistency-warning-cv-threshold", "0"],
+        ["--coupling-warning-span-y-m", "0"],
+        ["--coupling-warning-span-depth-m", "0"],
+        ["--latest-stable-dirname", "bad/name"],
     ):
         try:
             args_to_params(parse_arguments(bad_args))

@@ -4,7 +4,7 @@
 
 项目面向道路地下空洞、脱空、松散区、管沟、管线周边扰动、弱夹层和破碎带等浅层异常体。典型几何为单侧 DAS-like 接收：光纤沿道路方向布设，近似位于 `y = 0`；震源线位于道路另一侧或道路边缘，近似位于 `y = W`；异常体位于道路下方 `(x0, y0, h)`。
 
-## 当前 Stage 2 已实现
+## 当前 Stage 3 已实现
 
 - `main.py` 统一 argparse 参数中心。
 - DAS-like point receiver approximation。
@@ -17,6 +17,8 @@
 - 基础 x-y-h 多炮扫描定位。
 - `score_volume` 输出和扫描切片图。
 - 等效散射路径剖面图、Rayleigh 深度敏感性图、绕射走时曲线自检图。
+- 基础置信度诊断：peak sharpness、score contrast、multi-shot consistency、y-depth coupling warning 和 high/medium/low 规则型标志。
+- `outputs/latest_stable/` 精选稳定成果导出，便于每轮人工快速检查。
 
 ## 如何运行
 
@@ -45,6 +47,19 @@ outputs/<run_name>_<timestamp>/
 ├── logs/
 └── metadata/
 ```
+
+`full_pipeline` 默认还会刷新固定目录：
+
+```text
+outputs/latest_stable/
+├── figures/
+├── animations/
+├── reports/
+├── metadata/
+└── summary.md
+```
+
+`latest_stable` 只保留最值得人工检查的精选图件、报告和 metadata；时间戳运行目录仍保留完整本地结果。大型数组、批量快照和中间产物默认不提交到 Git。
 
 文件名前缀：
 
@@ -89,6 +104,26 @@ arrays/arr_scan_x_grid.npy
 arrays/arr_scan_y_grid.npy
 arrays/arr_scan_depth_grid.npy
 ```
+
+## 基础置信度诊断
+
+Stage 3 在扫描结果之后增加规则型基础诊断：
+
+- `peak_sharpness`：最高峰相对局部背景是否尖锐；
+- `score_contrast` 和 `score_percentile`：最高分相对全局得分体是否突出；
+- `multi-shot consistency`：最佳点处各炮贡献是否均衡；
+- `y-depth coupling warning`：检查单侧 DAS-like 几何下 y-depth 高分区是否拉长；
+- `low_confidence_flag`：输出 `high / medium / low` 三档科研诊断标签。
+
+输出文件：
+
+```text
+arrays/arr_confidence_metrics.json
+figures/fig_confidence_diagnostics.png
+reports/report_confidence.md
+```
+
+这些指标不是概率置信度，不是完整不确定性评价，也不能作为工程确诊结论。
 
 ## 物理自检图
 

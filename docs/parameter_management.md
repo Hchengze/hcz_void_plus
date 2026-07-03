@@ -44,6 +44,23 @@
 - `--rayleigh-penetration-factor`
 - `--wavelet-dominant-frequency-hz`
 
+## Stage 3 新增参数
+
+稳定成果导出：
+
+- `--export-latest-stable`
+- `--latest-stable-dirname`
+
+基础置信度诊断：
+
+- `--confidence-threshold-ratio`
+- `--confidence-neighborhood-radius`
+- `--consistency-warning-cv-threshold`
+- `--coupling-warning-span-y-m`
+- `--coupling-warning-span-depth-m`
+
+这些参数仍然全部由 `main.py` 的 argparse 定义、派生和校验。`src/confidence`、`src/utils/stable_export.py` 和 pipeline 只接收解析后的 `params`，不维护第二套局部参数。
+
 ## 派生参数
 
 `params.derived` 新增：
@@ -55,5 +72,6 @@
 - `scan_grid_point_count`
 - `estimated_wavelength_m`
 - `rayleigh_penetration_depth_m`
+- `latest_stable_dir`
 
 扫描网格总点数在 `main.py` 中校验，避免本地运行失控。

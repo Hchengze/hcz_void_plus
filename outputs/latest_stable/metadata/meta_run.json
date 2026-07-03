@@ -1,0 +1,207 @@
+{
+  "project": "hcz_void_plus",
+  "stage": "Stage 3 confidence diagnostics and stable output export",
+  "data_shape": {
+    "order": "shot × time × channel",
+    "shape": [
+      9,
+      801,
+      121
+    ]
+  },
+  "approximation": {
+    "forward": "kinematic approximation",
+    "das_like": "DAS-like response approximation",
+    "receiver": "point_receiver approximation",
+    "velocity_model": "uniform effective Rayleigh velocity",
+    "wavefield_snapshot_type": "kinematic_surface_response_snapshot",
+    "surface_response_type": "kinematic_surface_response",
+    "is_true_elastic_wavefield": false,
+    "is_true_wave_equation_snapshot": false,
+    "rayleigh_depth_sensitivity_included": true
+  },
+  "physics": {
+    "rayleigh_depth_sensitivity_enabled": true,
+    "wavelet_dominant_frequency_hz": 30.0,
+    "estimated_wavelength_m": 8.666666666666666,
+    "penetration_depth_m": 8.666666666666666,
+    "depth_weight_formula": "exp(-depth / penetration_depth)",
+    "note": "这是 Rayleigh 波深度敏感性的简化权重，不是严格 Rayleigh 模态深度核。"
+  },
+  "visualization": {
+    "language": "zh",
+    "save_wavefield_snapshots": true,
+    "save_wavefield_animation": true,
+    "font_info": {
+      "font_available": true,
+      "font_name": "Microsoft YaHei",
+      "warning": null
+    },
+    "wavefield_info": {
+      "snapshot_count": 8,
+      "snapshot_files": [
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage3_run_20260703_134954\\snapshots\\snap_pseudo_wavefield_t007.png"
+      ],
+      "animation": {
+        "success": true,
+        "path": "outputs\\stage3_run_20260703_134954\\animations\\anim_pseudo_wavefield.gif",
+        "reason": null
+      }
+    }
+  },
+  "scan": {
+    "enabled": true,
+    "score_method": "diffraction_energy_stack",
+    "use_depth_weight": true,
+    "grid_shape": [
+      81,
+      17,
+      16
+    ],
+    "grid_point_count": 22032,
+    "best_location": {
+      "x_m": 60.0,
+      "y_m": 6.0,
+      "depth_m": 0.5
+    },
+    "best_score": 0.014282221251920899,
+    "truth_error": {
+      "dx_m": 0.0,
+      "dy_m": -3.0,
+      "ddepth_m": -2.5,
+      "distance_m": 3.905124837953327
+    },
+    "score_volume_raw_saved": true,
+    "score_volume_depth_weighted_saved": true
+  },
+  "diagnostics": {
+    "diffraction_travel_time_curve_figure": "outputs\\stage3_run_20260703_134954\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage3_run_20260703_134954\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage3_run_20260703_134954\\figures\\fig_rayleigh_depth_sensitivity.png"
+  },
+  "confidence": {
+    "peak_sharpness": 1.267805470143464,
+    "score_contrast": 17.40276005710644,
+    "score_percentile": 100.0,
+    "multi_shot_consistency_mean": 0.015130427800159793,
+    "multi_shot_consistency_std": 0.004724951320559756,
+    "multi_shot_consistency_cv": 0.31228140955207195,
+    "y_depth_coupling_warning": false,
+    "low_confidence_flag": "medium"
+  },
+  "output": {
+    "naming_prefix_rule": "compact",
+    "subdirectories": [
+      "arrays",
+      "figures",
+      "snapshots",
+      "animations",
+      "reports",
+      "logs",
+      "metadata"
+    ],
+    "latest_stable_exported": true,
+    "latest_stable_path": "outputs\\latest_stable"
+  },
+  "git": {
+    "commit_id": "cef827a",
+    "push_attempted": true,
+    "push_success": false
+  },
+  "limitations": [
+    "不是完整 DAS 仪器模拟。",
+    "不是完整三维弹性波全波场模拟。",
+    "gauge length 当前进入参数和 metadata，但 point_receiver 模式下不参与波形计算。",
+    "运动学伪波场快照只是传播示意，不是真实弹性波方程数值模拟。",
+    "运动学地表响应图不是地下点源真实波场，只是 Rayleigh 波走时控制的地表响应示意。",
+    "Rayleigh 深度敏感性权重不是严格模态深度核。",
+    "基础扫描 best_location 不能作为工程确诊结论。",
+    "结果用于科研算法原型验证，不能作为工程确诊结论。"
+  ],
+  "geometry": {
+    "coordinate_system": {
+      "x": "沿道路和光纤方向，单位 m",
+      "y": "横穿道路方向，单位 m",
+      "z": "深度方向，向下为正，单位 m"
+    },
+    "n_shot": 9,
+    "n_channel": 121,
+    "nt": 801,
+    "fiber_y_m": 0.0,
+    "source_y_m": 18.0,
+    "road_width_m": 18.0,
+    "source_line_on_opposite_side": true,
+    "receiver_line_y_unique": [
+      0.0
+    ],
+    "source_line_y_unique": [
+      18.0
+    ],
+    "pseudo_wavefield_plane": "x-y surface plane, z=0",
+    "anomaly_depth_used_as_z": true,
+    "anomaly_depth_used_as_y": false,
+    "anomaly_projection_xy_m": {
+      "x_m": 60.0,
+      "y_m": 9.0,
+      "depth_m": 3.0
+    },
+    "warnings": []
+  },
+  "scatter_points": {
+    "mode": "center_and_boundary",
+    "xyz_m": [
+      [
+        60.0,
+        9.0,
+        3.0
+      ],
+      [
+        61.5,
+        9.0,
+        3.0
+      ],
+      [
+        58.5,
+        9.0,
+        3.0
+      ],
+      [
+        60.0,
+        10.5,
+        3.0
+      ],
+      [
+        60.0,
+        7.5,
+        3.0
+      ],
+      [
+        60.0,
+        9.0,
+        4.5
+      ],
+      [
+        60.0,
+        9.0,
+        2.25
+      ]
+    ],
+    "weights": [
+      0.1142857142857143,
+      0.1142857142857143,
+      0.1142857142857143,
+      0.1142857142857143,
+      0.1142857142857143,
+      0.1142857142857143,
+      0.1142857142857143
+    ],
+    "note": "多个散射点是运动学等效散射近似，不是真实边界散射模拟。"
+  }
+}

@@ -1,5 +1,8 @@
-# 本项目的运行输出会随每次实验增长，默认不纳入版本库。
-outputs/
+# 本项目的时间戳运行输出会随每次实验增长，默认不纳入版本库。
+# outputs/latest_stable 是每轮精选稳定成果，用于提交到 GitHub 供人工检查。
+outputs/*
+!outputs/latest_stable/
+!outputs/latest_stable/**
 
 # 现有外部参考资料和第三方工具代码体量较大，本轮不纳入 Stage 1 代码提交。
 reference/*.pdf

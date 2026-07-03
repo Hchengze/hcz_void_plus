@@ -88,6 +88,9 @@ def build_metadata(
     wavefield_info: dict[str, Any] | None = None,
     scan_result: dict[str, Any] | None = None,
     diagnostics_info: dict[str, Any] | None = None,
+    confidence_info: dict[str, Any] | None = None,
+    output_info: dict[str, Any] | None = None,
+    git_info: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """构建本次实验 metadata。
 
@@ -98,7 +101,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 2B pseudo-wavefield geometry layout self-check",
+        "stage": "Stage 3 confidence diagnostics and stable output export",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -146,9 +149,26 @@ def build_metadata(
             "path_section_figure": None,
             "depth_sensitivity_figure": None,
         },
+        "confidence": {
+            "peak_sharpness": None,
+            "score_contrast": None,
+            "score_percentile": None,
+            "multi_shot_consistency_mean": None,
+            "multi_shot_consistency_std": None,
+            "multi_shot_consistency_cv": None,
+            "y_depth_coupling_warning": None,
+            "low_confidence_flag": None,
+        },
         "output": {
             "naming_prefix_rule": params.output.prefix_style,
             "subdirectories": ["arrays", "figures", "snapshots", "animations", "reports", "logs", "metadata"],
+            "latest_stable_exported": False,
+            "latest_stable_path": None,
+        },
+        "git": {
+            "commit_id": None,
+            "push_attempted": False,
+            "push_success": False,
         },
         "limitations": [
             "不是完整 DAS 仪器模拟。",
@@ -186,4 +206,21 @@ def build_metadata(
         metadata["scan"]["score_volume_depth_weighted_saved"] = True
     if diagnostics_info is not None:
         metadata["diagnostics"].update(diagnostics_info)
+    if confidence_info is not None:
+        metadata["confidence"].update(
+            {
+                "peak_sharpness": confidence_info["peak"]["peak_sharpness"],
+                "score_contrast": confidence_info["contrast"]["score_contrast"],
+                "score_percentile": confidence_info["contrast"]["score_percentile"],
+                "multi_shot_consistency_mean": confidence_info["multi_shot_consistency"]["mean"],
+                "multi_shot_consistency_std": confidence_info["multi_shot_consistency"]["std"],
+                "multi_shot_consistency_cv": confidence_info["multi_shot_consistency"]["coefficient_of_variation"],
+                "y_depth_coupling_warning": confidence_info["y_depth_coupling"]["warning"],
+                "low_confidence_flag": confidence_info["low_confidence_flag"],
+            }
+        )
+    if output_info is not None:
+        metadata["output"].update(output_info)
+    if git_info is not None:
+        metadata["git"].update(git_info)
     return metadata

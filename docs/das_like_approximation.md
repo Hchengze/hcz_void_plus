@@ -2,7 +2,7 @@
 
 当前结果必须称为 `DAS-like response approximation`。
 
-Stage 2 仍然只实现 `point_receiver approximation`：每个光纤通道被近似为一个点式接收器，输出数据形状为：
+Stage 3 仍然只实现 `point_receiver approximation`：每个光纤通道被近似为一个点式接收器，输出数据形状为：
 
 ```text
 shot × time × channel
@@ -22,3 +22,5 @@ shot × time × channel
 ## 与 Rayleigh 地表响应图的关系
 
 运动学地表响应示意图只显示 x-y 表面的相对响应趋势，不是 DAS 仪器响应，也不是光纤应变率的严格模拟。真实 DAS 响应还需要考虑 gauge length、轴向应变、耦合条件和解调过程。
+
+基础置信度诊断同样建立在该 DAS-like 点式接收近似之上，因此只能评价当前运动学数据和扫描属性的内部稳定性，不能替代真实 DAS 数据质量评价或工程诊断。

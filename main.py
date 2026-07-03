@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage2_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage3_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -141,6 +141,17 @@ def build_arg_parser() -> argparse.ArgumentParser:
     output.add_argument("--wavefield-shot-index", type=int, default=0, help="用于伪波场展示的炮点索引，从 0 开始。")
     output.add_argument("--output-prefix-style", default="compact", choices=["compact"], help="输出文件前缀规则，Stage 2 使用 compact。")
     output.add_argument(
+        "--export-latest-stable",
+        type=str_to_bool,
+        default=True,
+        help="full_pipeline 结束后是否导出 outputs/latest_stable 精选成果，便于人工快速检查。",
+    )
+    output.add_argument(
+        "--latest-stable-dirname",
+        default="latest_stable",
+        help="稳定成果固定目录名，默认在 output_root_dir 下生成 outputs/latest_stable。",
+    )
+    output.add_argument(
         "--max-shot-figures",
         type=int,
         default=None,
@@ -173,6 +184,38 @@ def build_arg_parser() -> argparse.ArgumentParser:
     task = parser.add_argument_group("task 任务控制参数组")
     task.add_argument("--wavelet-frequency-hz", type=float, default=35.0, help="Ricker 子波主频，单位 Hz。")
     task.add_argument("--wavelet-dominant-frequency-hz", type=float, default=30.0, help="用于 Rayleigh 波深度敏感性估计的主频，单位 Hz。")
+
+    confidence = parser.add_argument_group("confidence 基础置信度诊断参数组")
+    confidence.add_argument(
+        "--confidence-threshold-ratio",
+        type=float,
+        default=0.9,
+        help="高分区阈值比例，例如 0.9 表示统计 >=0.9*best_score 的候选点。",
+    )
+    confidence.add_argument(
+        "--confidence-neighborhood-radius",
+        type=int,
+        default=1,
+        help="peak sharpness 局部邻域半径，单位为扫描网格索引。",
+    )
+    confidence.add_argument(
+        "--consistency-warning-cv-threshold",
+        type=float,
+        default=0.8,
+        help="多炮贡献变异系数超过该值时提示一致性较差。",
+    )
+    confidence.add_argument(
+        "--coupling-warning-span-y-m",
+        type=float,
+        default=4.0,
+        help="高分区 y 方向跨度超过该阈值时，参与 y-depth 耦合风险判断，单位 m。",
+    )
+    confidence.add_argument(
+        "--coupling-warning-span-depth-m",
+        type=float,
+        default=2.0,
+        help="高分区 depth 方向跨度超过该阈值时，参与 y-depth 耦合风险判断，单位 m。",
+    )
 
     return parser
 
@@ -243,6 +286,8 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             wavefield_animation_fps=args.wavefield_animation_fps,
             wavefield_shot_index=args.wavefield_shot_index,
             prefix_style=args.output_prefix_style,
+            export_latest_stable=args.export_latest_stable,
+            latest_stable_dirname=args.latest_stable_dirname,
         ),
         scan=_namespace(
             enabled=args.scan_enabled,
@@ -265,6 +310,13 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
         task=_namespace(
             wavelet_frequency_hz=args.wavelet_frequency_hz,
             wavelet_dominant_frequency_hz=args.wavelet_dominant_frequency_hz,
+        ),
+        confidence=_namespace(
+            threshold_ratio=args.confidence_threshold_ratio,
+            neighborhood_radius=args.confidence_neighborhood_radius,
+            consistency_warning_cv_threshold=args.consistency_warning_cv_threshold,
+            coupling_warning_span_y_m=args.coupling_warning_span_y_m,
+            coupling_warning_span_depth_m=args.coupling_warning_span_depth_m,
         ),
         derived=_namespace(),
     )
@@ -328,6 +380,12 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         raise ValueError(
             f"wavefield_animation_fps 错误：当前值为 {params.output.wavefield_animation_fps}，合理条件是 > 0。"
         )
+    if not params.output.latest_stable_dirname.strip():
+        raise ValueError("latest_stable_dirname 错误：目录名不能为空。")
+    if "/" in params.output.latest_stable_dirname or "\\" in params.output.latest_stable_dirname:
+        raise ValueError(
+            f"latest_stable_dirname 错误：当前值为 {params.output.latest_stable_dirname}，合理条件是不包含路径分隔符。"
+        )
     if params.scan.x_step_m <= 0:
         raise ValueError(f"scan_x_step_m 错误：当前值为 {params.scan.x_step_m}，合理条件是 > 0。")
     if params.scan.y_step_m <= 0:
@@ -364,6 +422,28 @@ def validate_raw_params(params: SimpleNamespace) -> None:
     if params.task.wavelet_dominant_frequency_hz <= 0:
         raise ValueError(
             f"wavelet_dominant_frequency_hz 错误：当前值为 {params.task.wavelet_dominant_frequency_hz}，合理条件是 > 0。"
+        )
+    if not (0.0 < params.confidence.threshold_ratio <= 1.0):
+        raise ValueError(
+            f"confidence_threshold_ratio 错误：当前值为 {params.confidence.threshold_ratio}，合理条件是 0 < ratio <= 1。"
+        )
+    if params.confidence.neighborhood_radius < 0:
+        raise ValueError(
+            f"confidence_neighborhood_radius 错误：当前值为 {params.confidence.neighborhood_radius}，合理条件是 >= 0。"
+        )
+    if params.confidence.consistency_warning_cv_threshold <= 0:
+        raise ValueError(
+            "consistency_warning_cv_threshold 错误："
+            f"当前值为 {params.confidence.consistency_warning_cv_threshold}，合理条件是 > 0。"
+        )
+    if params.confidence.coupling_warning_span_y_m <= 0:
+        raise ValueError(
+            f"coupling_warning_span_y_m 错误：当前值为 {params.confidence.coupling_warning_span_y_m}，合理条件是 > 0。"
+        )
+    if params.confidence.coupling_warning_span_depth_m <= 0:
+        raise ValueError(
+            "coupling_warning_span_depth_m 错误："
+            f"当前值为 {params.confidence.coupling_warning_span_depth_m}，合理条件是 > 0。"
         )
 
 
@@ -428,6 +508,7 @@ def resolve_derived_params(params: SimpleNamespace) -> None:
     params.derived.rayleigh_penetration_depth_m = (
         params.scan.rayleigh_penetration_factor * params.derived.estimated_wavelength_m
     )
+    params.derived.latest_stable_dir = str(Path(params.output.root_dir) / params.output.latest_stable_dirname)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_run_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "_" for ch in params.project.run_name)
@@ -472,7 +553,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 2 参数摘要 ===")
+    print("=== hcz_void_plus Stage 3 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")

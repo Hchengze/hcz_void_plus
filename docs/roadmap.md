@@ -15,9 +15,19 @@
 - x-y-h 多炮扫描；
 - score volume 和基础定位图。
 
+## Stage 3
+
+基础置信度指标 + 稳定成果输出管理：
+
+- peak sharpness、score contrast、multi-shot consistency；
+- y-depth coupling warning 和 high/medium/low 规则型诊断；
+- `fig_confidence_diagnostics.png` 与 `report_confidence.md`；
+- `outputs/latest_stable/` 精选成果目录；
+- 时间戳完整输出与 Git 精选输出分离。
+
 ## 后续阶段
 
-- 完整置信度体系；
+- 更完整的概率置信度体系和不确定性表达；
 - 鲁棒性参数扫描；
 - DAS gauge length 真实响应；
 - 分层速度模型；

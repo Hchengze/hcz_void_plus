@@ -10,7 +10,7 @@
 - `y`：横穿道路方向。
 - `z / h`：深度方向，向下为正。
 
-## Stage 2 模型
+## Stage 3 模型
 
 - 正演：运动学直达波 + 运动学等效散射/绕射波。
 - 子波：Ricker 子波。
@@ -18,7 +18,10 @@
 - 地表响应：基于 Rayleigh 波走时控制的 `kinematic_surface_response_snapshot`。
 - 扫描：基于理论散射走时的局部能量聚焦。
 - 深度敏感性：使用 `exp(-h / penetration_depth)` 作为 Rayleigh 波浅层敏感性的简化近似，其中 `penetration_depth = rayleigh_penetration_factor * wavelength`。
+- 基础置信度：基于 score volume 形态、多炮贡献一致性和 y-depth 高分区跨度的规则型诊断。
 
 ## 限制
 
 当前不是完整三维弹性波全波场模拟。地表响应示意图和 GIF 不是真实弹性波方程数值模拟。空洞、脱空和松散区不会简单等价为地下各向同性点源；多个散射点只是快速运动学近似，用于构造绕射走时和定位属性。Rayleigh 深度敏感性权重不是严格模态深度核。
+
+Stage 3 的 confidence flag 不是概率置信度，也不是工程确诊；它只帮助用户判断当前候选定位结果是否值得进一步人工检查。

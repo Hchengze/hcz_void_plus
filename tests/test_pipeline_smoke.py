@@ -141,9 +141,22 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_source_anomaly_receiver_path_section.png").exists()
     assert (output_dir / "figures" / "fig_rayleigh_depth_sensitivity.png").exists()
     assert (output_dir / "figures" / "fig_diffraction_travel_time_curves.png").exists()
+    assert (output_dir / "figures" / "fig_confidence_diagnostics.png").exists()
+    assert (output_dir / "reports" / "report_confidence.md").exists()
+    assert (output_dir / "arrays" / "arr_confidence_metrics.json").exists()
+    latest_stable = tmp_path / "latest_stable"
+    assert latest_stable.exists()
+    assert (latest_stable / "summary.md").exists()
+    assert (latest_stable / "figures" / "fig_geometry_layout_check.png").exists()
+    assert (latest_stable / "figures" / "fig_confidence_diagnostics.png").exists()
+    assert (latest_stable / "reports" / "report_full_pipeline.md").exists()
+    assert (latest_stable / "reports" / "report_confidence.md").exists()
+    assert (latest_stable / "metadata" / "meta_run.json").exists()
     metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
     assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
     assert metadata["scan"]["use_depth_weight"] is True
     assert metadata["scan"]["score_volume_raw_saved"] is True
     assert metadata["scan"]["score_volume_depth_weighted_saved"] is True
     assert metadata["diagnostics"]["diffraction_travel_time_curve_figure"]
+    assert metadata["confidence"]["peak_sharpness"] is not None
+    assert metadata["output"]["latest_stable_exported"] is True

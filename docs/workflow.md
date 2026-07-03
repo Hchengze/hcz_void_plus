@@ -1,6 +1,6 @@
 # Workflow
 
-Stage 2 运行流程：
+Stage 3 运行流程：
 
 1. `main.py` 解析所有命令行参数。
 2. `main.py` 校验原始参数。
@@ -13,9 +13,14 @@ Stage 2 运行流程：
 9. scan pipeline 沿走时时间窗提取局部能量，生成 `score_volume`。
 10. scan pipeline 可选加入 Rayleigh 简化深度敏感性权重，保存 raw 和 depth-weighted score volume。
 11. scan pipeline 输出 best_location、truth_error、扫描切片图、路径剖面、深度敏感性图、绕射走时曲线和中文报告。
+12. full_pipeline 对 score volume 和最佳候选点执行基础置信度诊断。
+13. full_pipeline 输出 `arr_confidence_metrics.json`、`fig_confidence_diagnostics.png` 和 `report_confidence.md`。
+14. full_pipeline 默认刷新 `outputs/latest_stable/`，只保留精选图件、报告、metadata 和 `summary.md`，供人工快速检查。
 
-`full_pipeline` 会完成正演、伪波场、扫描和综合报告。
+`full_pipeline` 会完成正演、地表响应示意、扫描、基础置信度诊断、综合报告和 latest_stable 精选导出。
 
 所有结果仍然必须标注 `kinematic approximation` 和 `DAS-like response approximation`。
 
 地表响应图不能称为真实波场快照；它只是 Rayleigh 波走时控制的地表响应示意。绕射走时曲线图是判断当前基础扫描是否合理的核心 QC 图件。
+
+Stage 3 的 confidence flag 只是规则型科研诊断标签，不是概率置信度，也不是工程确诊结论。
