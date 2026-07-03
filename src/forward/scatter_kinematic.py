@@ -1,0 +1,62 @@
+"""异常体等效散射/绕射波运动学模拟。"""
+
+from __future__ import annotations
+
+from types import SimpleNamespace
+
+import numpy as np
+
+from src.forward.wavelet import shifted_ricker
+from src.geometry.distance import source_scatter_receiver_path_distance
+from src.model.velocity_model import UniformVelocityModel
+
+
+def simulate_scatter_wave(
+    params: SimpleNamespace,
+    source_xyz: np.ndarray,
+    receiver_xyz: np.ndarray,
+    scatter_xyz: np.ndarray,
+    scatter_weight: np.ndarray,
+    velocity_model: UniformVelocityModel,
+) -> np.ndarray:
+    """生成异常体等效散射/绕射波记录。
+
+    物理意义：
+        异常体被离散为一个或多个等效散射点。每条 source-scatter-receiver
+        路径按 t_scatter = t0 + d(source, scatter)/v_eff + d(scatter, receiver)/v_eff
+        计算到时，并叠加 Ricker 子波。
+
+    输入参数：
+        params：统一参数对象；
+        source_xyz：shape = (n_shot, 3)，单位 m；
+        receiver_xyz：shape = (n_channel, 3)，单位 m；
+        scatter_xyz：shape = (n_scatter, 3)，单位 m；
+        scatter_weight：shape = (n_scatter,)，无量纲相对散射强度；
+        velocity_model：均匀等效瑞雷波速度模型。
+
+    输出形状：
+        data，shape = (n_shot, n_time, n_channel)，即 shot × time × channel。
+
+    近似条件和限制：
+        多散射点只是运动学等效散射近似，不是真实边界散射、模式转换或完整
+        三维弹性全波场。几何扩散采用 1/sqrt(path+1) 的简化振幅衰减。
+    """
+
+    time_axis = params.derived.time_axis
+    n_shot = source_xyz.shape[0]
+    n_time = params.derived.nt
+    n_channel = receiver_xyz.shape[0]
+    velocity = velocity_model.get_velocity()
+    path_distance = source_scatter_receiver_path_distance(source_xyz, scatter_xyz, receiver_xyz)
+    data = np.zeros((n_shot, n_time, n_channel), dtype=float)
+
+    for i_shot in range(n_shot):
+        for i_scatter in range(scatter_xyz.shape[0]):
+            for i_channel in range(n_channel):
+                path = path_distance[i_shot, i_scatter, i_channel]
+                arrival = params.time.t0_s + path / velocity
+                amplitude = scatter_weight[i_scatter] / np.sqrt(path + 1.0)
+                data[i_shot, :, i_channel] += amplitude * shifted_ricker(
+                    time_axis, arrival, params.task.wavelet_frequency_hz
+                )
+    return data

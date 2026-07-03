@@ -1,0 +1,90 @@
+"""多炮 DAS-like 运动学正演合成。"""
+
+from __future__ import annotations
+
+from types import SimpleNamespace
+
+import numpy as np
+
+from src.das_like.das_response_level import apply_das_like_response
+from src.forward.direct_wave import simulate_direct_wave
+from src.forward.scatter_kinematic import simulate_scatter_wave
+from src.model.velocity_model import UniformVelocityModel
+
+
+def add_gaussian_noise(data: np.ndarray, snr_db: float, rng: np.random.Generator) -> np.ndarray:
+    """按目标信噪比加入高斯白噪声。
+
+    物理意义：
+        用简化随机噪声表示交通、环境振动和仪器噪声的一部分影响。
+
+    输入参数：
+        data：shape = (n_shot, n_time, n_channel)；
+        snr_db：目标信噪比，单位 dB；
+        rng：由统一 random_seed 构造的随机数生成器。
+
+    输出形状：
+        noisy_data，与 data 相同。
+
+    近似条件和限制：
+        这里不是城市交通噪声的真实统计模型，只是用于算法闭环和可复现实验的
+        高斯噪声近似。
+    """
+
+    signal_rms = float(np.sqrt(np.mean(data * data)))
+    if signal_rms == 0.0:
+        return data.copy()
+    noise_rms = signal_rms / (10.0 ** (snr_db / 20.0))
+    noise = rng.normal(loc=0.0, scale=noise_rms, size=data.shape)
+    return data + noise
+
+
+def synthesize_multishot_forward(
+    params: SimpleNamespace,
+    source_xyz: np.ndarray,
+    receiver_xyz: np.ndarray,
+    scatter_xyz: np.ndarray,
+    scatter_weight: np.ndarray,
+    velocity_model: UniformVelocityModel,
+) -> dict[str, np.ndarray]:
+    """合成多炮 DAS-like 运动学正演数据。
+
+    物理意义：
+        将直达瑞雷波和异常体等效散射/绕射波相加，再根据 DAS-like 接收层级
+        得到最终合成记录。
+
+    输入参数：
+        params：统一参数对象；
+        source_xyz：shape = (n_shot, 3)，单位 m；
+        receiver_xyz：shape = (n_channel, 3)，单位 m；
+        scatter_xyz：shape = (n_scatter, 3)，单位 m；
+        scatter_weight：shape = (n_scatter,)，无量纲；
+        velocity_model：均匀等效瑞雷波速度模型。
+
+    输出：
+        dict，包含 direct_data、scatter_data、synthetic_data，所有数组 shape 都为
+        (n_shot, n_time, n_channel)，即 shot × time × channel。
+
+    近似条件和限制：
+        当前是 kinematic approximation 和 DAS-like response approximation；
+        不宣称完整 DAS 仪器模拟，也不宣称完整三维弹性波全波场模拟。
+    """
+
+    direct_data = simulate_direct_wave(params, source_xyz, receiver_xyz, velocity_model)
+    scatter_data = simulate_scatter_wave(
+        params, source_xyz, receiver_xyz, scatter_xyz, scatter_weight, velocity_model
+    )
+    combined = direct_data + scatter_data
+    das_like_data = apply_das_like_response(combined, params)
+
+    if params.noise.enabled:
+        rng = np.random.default_rng(params.project.random_seed)
+        synthetic_data = add_gaussian_noise(das_like_data, params.noise.snr_db, rng)
+    else:
+        synthetic_data = das_like_data
+
+    return {
+        "direct_data": direct_data,
+        "scatter_data": scatter_data,
+        "synthetic_data": synthetic_data,
+    }

@@ -1,0 +1,17 @@
+# 本项目的运行输出会随每次实验增长，默认不纳入版本库。
+outputs/
+
+# 现有外部参考资料和第三方工具代码体量较大，本轮不纳入 Stage 1 代码提交。
+reference/*.pdf
+tools_code/*
+!tools_code/.gitkeep
+
+# Python 临时文件。
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 本地编辑器和临时目录。
+.tmp_pytest/
+.idea/
+.vscode/
