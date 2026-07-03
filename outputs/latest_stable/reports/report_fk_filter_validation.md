@@ -4,8 +4,8 @@
 
 - strict FK applicable: `True`
 - warning: 无
-- direct wave reduction ratio: `0.06738`
-- diffraction preservation ratio: `1.008`
+- direct wave reduction ratio: `0.03166`
+- diffraction preservation ratio: `0.9797`
 - shape preserved: `True`
 
 ## 解释

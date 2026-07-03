@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import numpy as np
 
-from src.geometry.distance import source_scatter_receiver_path_distance
-from src.model.velocity_model import UniformVelocityModel
+from src.model.velocity_model import KinematicVelocityModel, compute_scatter_travel_time
 
 
 def compute_candidate_diffraction_times(
     candidate_xyz: np.ndarray,
     source_xyz: np.ndarray,
     receiver_xyz: np.ndarray,
-    velocity_model: UniformVelocityModel,
+    velocity_model: KinematicVelocityModel,
     t0_s: float = 0.0,
 ) -> np.ndarray:
     """计算候选点的 source-candidate-receiver 理论散射走时。
@@ -30,5 +29,7 @@ def compute_candidate_diffraction_times(
     """
 
     candidate = np.asarray(candidate_xyz, dtype=float).reshape(1, 3)
-    path_distance = source_scatter_receiver_path_distance(source_xyz, candidate, receiver_xyz)[:, 0, :]
-    return t0_s + path_distance / velocity_model.get_velocity()
+    # Stage 5A 起，候选绕射走时统一走 velocity_model 接口。均匀模型会退化为
+    # source-candidate-receiver 路径距离 / v；分层和横向非均匀模型则按路径采样积分。
+    travel_time = compute_scatter_travel_time(source_xyz, candidate, receiver_xyz, velocity_model)[:, 0, :]
+    return t0_s + travel_time

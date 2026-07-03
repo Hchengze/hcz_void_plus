@@ -8,7 +8,7 @@ import numpy as np
 
 from src.forward.wavelet import shifted_ricker
 from src.geometry.distance import source_scatter_receiver_path_distance
-from src.model.velocity_model import UniformVelocityModel
+from src.model.velocity_model import KinematicVelocityModel, compute_scatter_travel_time
 
 
 def simulate_scatter_wave(
@@ -17,7 +17,7 @@ def simulate_scatter_wave(
     receiver_xyz: np.ndarray,
     scatter_xyz: np.ndarray,
     scatter_weight: np.ndarray,
-    velocity_model: UniformVelocityModel,
+    velocity_model: KinematicVelocityModel,
 ) -> np.ndarray:
     """生成异常体等效散射/绕射波记录。
 
@@ -46,15 +46,18 @@ def simulate_scatter_wave(
     n_shot = source_xyz.shape[0]
     n_time = params.derived.nt
     n_channel = receiver_xyz.shape[0]
-    velocity = velocity_model.get_velocity()
     path_distance = source_scatter_receiver_path_distance(source_xyz, scatter_xyz, receiver_xyz)
+    travel_times = compute_scatter_travel_time(source_xyz, scatter_xyz, receiver_xyz, velocity_model)
     data = np.zeros((n_shot, n_time, n_channel), dtype=float)
 
     for i_shot in range(n_shot):
         for i_scatter in range(scatter_xyz.shape[0]):
             for i_channel in range(n_channel):
                 path = path_distance[i_shot, i_scatter, i_channel]
-                arrival = params.time.t0_s + path / velocity
+                # 散射波走时通过 source->scatter 与 scatter->receiver 两段路径分别积分。
+                # 对 layered / heterogeneous 模型，异常体深度和局部低速会改变该走时；
+                # 但路径仍是直线段，因此仍属于运动学近似。
+                arrival = params.time.t0_s + travel_times[i_shot, i_scatter, i_channel]
                 amplitude = scatter_weight[i_scatter] / np.sqrt(path + 1.0)
                 data[i_shot, :, i_channel] += amplitude * shifted_ricker(
                     time_axis, arrival, params.task.wavelet_frequency_hz

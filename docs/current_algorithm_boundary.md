@@ -1,0 +1,36 @@
+# 当前算法边界
+
+## 必须坚持的边界
+
+1. 当前是 `DAS-like response approximation`。
+2. 当前是 `kinematic approximation`。
+3. 当前分层/非均匀速度模型是 `straight-ray kinematic approximation`。
+4. 当前不是 3D elastic wavefield。
+5. 当前不是真实 DAS 仪器响应。
+6. 当前异常体是 `equivalent scatter representation`，不是真实边界散射。
+7. 当前三维几何是 `source_xyz / receiver_xyz / candidate_xyz` 运动学几何。
+8. 当前结果是科研候选区，不是工程确诊。
+
+## 速度模型边界
+
+Stage 5A 支持 `uniform / layered / lateral_gradient / localized_low_velocity_zone / layered_with_anomaly_perturbation`。
+
+这些模型只改变运动学走时积分：
+
+```text
+travel_time = integral(ds / v(x, y, z))
+```
+
+路径仍是直线段，不做 Snell 射线弯曲，不做弹性波传播，不做速度反演。
+
+## 结果解释边界
+
+单侧线状 DAS-like 几何下，y 和 depth 的可分辨性天然有限。推荐结果应优先表达为：
+
+- 三维高分候选区；
+- y/depth 不确定性区间；
+- high-score connected components；
+- velocity model ablation；
+- model mismatch 风险。
+
+不能把 `best_location` 写成工程确诊点。

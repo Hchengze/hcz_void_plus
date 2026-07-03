@@ -1,176 +1,113 @@
 # hcz_void_plus
 
-城市道路既有通信光纤 DAS 空洞探测科研级算法原型平台。
+城市道路既有通信光纤 DAS-like 三维空洞探测科研级算法原型平台。
 
-项目面向道路地下空洞、脱空、松散区、管沟、管线周边扰动、弱夹层和破碎带等浅层异常体。典型几何为单侧 DAS-like 接收：光纤沿道路方向布设，近似位于 `y = 0`；震源线位于道路另一侧或道路边缘，近似位于 `y = W`；异常体位于道路下方 `(x0, y0, h)`。
+本项目面向城市道路浅层空洞、脱空、松散区、管沟、管线周边扰动、弱夹层和破碎带等异常体。当前系统不是可安装发布软件，也不是工程确诊系统，而是本地可运行、可调试、可持续扩展的科研算法工程。
 
-## 当前 Stage 4A 已实现
+## 当前最新阶段
 
-- `main.py` 统一 argparse 参数中心。
-- DAS-like point receiver approximation。
-- uniform effective Rayleigh velocity。
-- 运动学直达波 + 等效散射/绕射波多炮正演。
-- 中文几何图、中文炮集图、中文报告。
-- 运动学地表响应示意图和传播示意 GIF。
-- Rayleigh 波简化深度敏感性权重。
-- 直达波到时预测、直达波 mute、局部能量属性。
-- 基础 x-y-h 多炮扫描定位。
-- `score_volume` 输出和扫描切片图。
-- 等效散射路径剖面图、Rayleigh 深度敏感性图、绕射走时曲线自检图。
-- 基础置信度诊断：peak sharpness、score contrast、multi-shot consistency、y-depth coupling warning 和 high/medium/low 规则型标志。
-- Stage 3B 扫描稳健化：raw score 与 depth-weighted score 分离，显式输出 raw_best、weighted_best 和二者差异。
-- Stage 3B 新增 warning：深度边界、宽 y 高分区、raw/weighted 分歧、浅部偏置。
-- Stage 3C 推荐位置规则：不再把 depth-weighted best 自动当主推荐点，输出 `recommended_location`、推荐类型和理由。
-- Stage 3C 三维高分区不确定性：输出 x/y/depth 跨度、等效不确定性盒和候选体统计。
-- Stage 3C 轻量 score_method 对比：`diffraction_energy_stack` 与 `normalized_energy_stack`。
-- Stage 4A reference 审计接入：新增 `docs/reference_inventory.md`、`docs/reference_algorithm_admission.md` 和 `docs/reference_backed_algorithm_plan.md`，把文献、旧代码和参考算法纳入开发闭环。
-- Stage 4A 三维观测几何泛化：`receiver_xyz` 和 `source_xyz` 支持默认直线、CSV 点集和震源网格，后续正演、走时、扫描和可视化均使用三维坐标。
-- Stage 4A 三维异常体形状：支持 `sphere/ellipsoid/box/cylinder/pipe_trench` 的等效散射点表达，强调这是运动学等效表示，不是真实边界散射。
-- Stage 4A 预处理增强：新增 bandpass、AGC、包络、道归一化和简化 f-k 速度扇区滤波接口。
-- Stage 4A 定位增强：从单一能量堆叠扩展为 `multi_attribute`，组合 energy、normalized energy、matched wavelet 和 semblance 属性。
-- Stage 4A depth prior 不再默认决定主结果，默认主 score 为不加深度权重的多属性结果，depth weighting 只作为辅助诊断和敏感性分析。
-- 直达波 mute 默认改为 `taper`，保留 `hard/subtract/none`。
-- 新增 `normalized_energy_stack` 作为可选扫描得分方法。
-- `outputs/latest_stable/` 精选稳定成果导出，便于每轮人工快速检查。
+当前主线推进到 **Stage 5A：项目收口清理 + 稳定算法成果沉淀到 code + 分层/非均匀介质正演与定位升级**。
+
+Stage 5A 前的结论中，部分 Stage 2/Stage 3/Stage 4 表述只代表历史阶段。当前主线请优先阅读：
+
+- `README.md`
+- `docs/current_status.md`
+- `docs/current_algorithm_boundary.md`
+- `code/current_3d_algorithm/`
+- `outputs/latest_stable/summary.md`
+
+## code/ 与 src/ 的区别
+
+- `code/current_3d_algorithm/`：当前最新稳定算法成果区。这里沉淀最值得保留的三维算法主线、稳定 API 和推荐流程。
+- `src/`：研发区。这里包含正演、预处理、定位、置信度、消融实验和后续探索模块，不代表所有内容都是当前推荐算法。
+
+`code/current_3d_algorithm/` 不复制第三方无许可证代码，也不维护第二套参数。它通过稳定 API 调用 `src/` 中经过测试的实现。
+
+## 当前稳定算法主线
+
+1. 三维几何：`source_xyz / receiver_xyz / candidate_xyz`。
+2. DAS-like 点式接收近似：当前仍不是完整 DAS 仪器响应。
+3. 运动学正演：直达 Rayleigh-like 事件 + equivalent scatter response。
+4. 异常体：`sphere / ellipsoid / box / cylinder / pipe_trench` 的等效散射点表达。
+5. 推荐预处理：`bandpass + trace_normalization + taper direct mute`。
+6. 主定位：`multi_attribute_unweighted`，不让 depth weighting 默认主导定位。
+7. 不确定性表达：`3D high-score region`、连通域、推荐位置类型和 depth/y 区间。
+8. 稳定输出：`outputs/latest_stable/` 存放每轮最值得人工检查的精选图件、报告和 metadata。
+
+## 速度模型升级
+
+Stage 5A 起，默认速度模型从 `uniform` 升级为 `layered`：
+
+```bash
+--velocity-model-type layered
+```
+
+当前支持：
+
+- `uniform`：均匀等效 Rayleigh 速度，用作基线对比；
+- `layered`：路面结构层、基层和土体层的分层等效 Rayleigh 速度；
+- `lateral_gradient`：沿 x/y 的横向速度渐变；
+- `localized_low_velocity_zone`：局部低速区；
+- `layered_with_anomaly_perturbation`：分层背景叠加异常附近低速扰动。
+
+这些模型通过直线路径采样积分计算走时，即 `straight-ray kinematic approximation`。它们比单一均匀速度更接近近地表情形，但仍不是 3D elastic wavefield、不是射线弯曲模拟，也不是速度反演。
 
 ## 如何运行
 
-当前本机环境可使用：
-
 ```bash
 D:\HczApp\Anaconda\envs\mywork\python.exe -m pytest
-D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task debug
-D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task forward --max-shot-gather-figures 2 --wavefield-snapshot-count 8
 D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task full_pipeline --max-shot-gather-figures 2 --wavefield-snapshot-count 8
 ```
 
-如果系统 PATH 中有 Python，也可以把前缀替换为 `python`。
+也可以运行当前稳定算法入口：
 
-## 输出目录
+```bash
+python code/current_3d_algorithm/run_current_3d.py
+```
 
-每次运行会创建：
+所有参数仍由根目录 `main.py` 的 argparse 管理，不创建 `config/` 或 `para/`。
+
+## 输出在哪里
+
+完整运行结果：
 
 ```text
 outputs/<run_name>_<timestamp>/
-├── arrays/
-├── figures/
-├── snapshots/
-├── animations/
-├── reports/
-├── logs/
-└── metadata/
 ```
 
-`full_pipeline` 默认还会刷新固定目录：
+精选稳定结果：
 
 ```text
 outputs/latest_stable/
-├── figures/
-├── animations/
-├── reports/
-├── metadata/
-└── summary.md
 ```
 
-`latest_stable` 只保留最值得人工检查的精选图件、报告和 metadata；时间戳运行目录仍保留完整本地结果。大型数组、批量快照和中间产物默认不提交到 Git。
+Stage 5A 重点新增图件和报告：
 
-文件名前缀：
+- `fig_velocity_model_comparison.png`
+- `fig_layered_velocity_profile.png`
+- `fig_velocity_model_travel_time_residuals.png`
+- `fig_model_mismatch_error_summary.png`
+- `report_velocity_model_ablation.md`
+- `report_model_mismatch.md`
 
-- `arr_`：数组，例如 `arr_synthetic_data.npy`、`arr_score_volume.npy`
-- `fig_`：普通静态图，例如 `fig_geometry.png`
-- `snap_`：运动学伪波场快照
-- `anim_`：传播示意 GIF
-- `report_`：Markdown 报告
-- `meta_`：元数据
-- `log_`：日志
-- `params_`：参数快照
+## 当前最可信的结果表达
 
-## 控制输出数量
+当前结果应表达为三维候选体和不确定性区间，而不是工程确诊点。对于单侧或准单侧 DAS-like 观测几何，y-depth 耦合仍是核心风险。即使 x 方向聚焦较稳定，y 和 depth 也必须结合高分区跨度、连通域、模型错配和速度模型消融共同解释。
 
-```bash
---max-shot-gather-figures 2
---wavefield-snapshot-count 8
---save-wavefield-snapshots false
---save-wavefield-animation false
-```
+## 当前仍然存在的问题
 
-默认只输出少量炮集图和有限数量伪波场帧，不会保存所有炮或所有时间帧。
+- 当前是 `DAS-like response approximation`。
+- 当前是 `kinematic approximation`。
+- 分层/非均匀速度是 `straight-ray kinematic approximation`。
+- 当前不是完整 DAS 仪器响应。
+- 当前不是 3D elastic wavefield。
+- 当前异常体是 `equivalent scatter representation`，不是真实边界散射。
+- 当前结果是科研候选区，不是工程确诊。
+- 真实道路三维场景中，速度模型不确定性、观测几何和 y-depth 耦合仍是核心风险。
 
-## 基础扫描定位
+## 下一步方向
 
-Stage 2 的扫描方法是 `diffraction_energy_stack`：
-
-1. 构建候选异常体位置 `x-y-h` 网格；
-2. 计算 `source -> candidate -> receiver` 理论散射走时；
-3. 在 DAS-like 数据中沿对应走时时间窗提取局部能量；
-4. 对所有 shot 和 channel 求平均形成 raw score volume；
-5. 可选乘以 Rayleigh 简化深度权重 `exp(-h / penetration_depth)`；
-6. 最高得分位置作为科研级候选 `best_location`。
-
-`score_volume` 保存于：
-
-```text
-arrays/arr_score_volume.npy
-arrays/arr_score_volume_unweighted.npy
-arrays/arr_score_volume_active.npy
-arrays/arr_score_volume_raw.npy
-arrays/arr_score_volume_depth_weighted.npy
-arrays/arr_scan_x_grid.npy
-arrays/arr_scan_y_grid.npy
-arrays/arr_scan_depth_grid.npy
-```
-
-## 基础置信度诊断
-
-Stage 3 在扫描结果之后增加规则型基础诊断：
-
-- `peak_sharpness`：最高峰相对局部背景是否尖锐；
-- `score_contrast` 和 `score_percentile`：最高分相对全局得分体是否突出；
-- `multi-shot consistency`：最佳点处各炮贡献是否均衡；
-- `y-depth coupling warning`：检查单侧 DAS-like 几何下 y-depth 高分区是否拉长；
-- `low_confidence_flag`：输出 `high / medium / low` 三档科研诊断标签。
-- `best_depth_at_boundary_warning`：主 best 深度贴近扫描上下边界时触发；
-- `wide_y_high_score_zone_warning`：best_x 附近 y 方向高分区过宽时触发；
-- `raw_weighted_divergence_warning`：raw_best 与 weighted_best 三维位置差异过大时触发；
-- `shallow_bias_warning`：depth weighting 将 weighted_best 明显推向浅部时触发。
-
-输出文件：
-
-```text
-arrays/arr_confidence_metrics.json
-figures/fig_confidence_diagnostics.png
-figures/fig_raw_vs_weighted_best_location.png
-figures/fig_raw_vs_weighted_x_depth_slice.png
-figures/fig_y_high_score_width_check.png
-figures/fig_score_method_depth_comparison.png
-figures/fig_3d_high_score_uncertainty_summary.png
-figures/fig_x_y_depth_uncertainty_slices.png
-reports/report_confidence.md
-reports/report_score_method_comparison.md
-```
-
-这些指标不是概率置信度，不是完整不确定性评价，也不能作为工程确诊结论。
-
-Stage 3C 的 `recommended_location` 是科研候选表达。若 depth-weighted best 贴边且 unweighted/weighted 分歧明显，系统会推荐不确定性区间，而不是把 weighted best 写成确定点。
-
-## 物理自检图
-
-- `fig_source_anomaly_receiver_path_section.png`：等效散射路径剖面示意，不是真实射线路径。
-- `fig_rayleigh_depth_sensitivity.png`：Rayleigh 波深度敏感性近似示意。
-- `fig_diffraction_travel_time_curves.png`：炮集上叠加直达波、真值绕射曲线和最佳点绕射曲线。
-
-Rayleigh-wave diffraction 类思路的重点是绕射走时曲线和直达面波压制后的残余绕射能量，x-y 地表响应图只用于解释几何和传播趋势。
-
-## 当前近似和限制
-
-- 当前结果必须称为 `DAS-like response approximation`。
-- 当前正演、伪波场和扫描都属于 `kinematic approximation`。
-- 当前快照应称为 `kinematic_surface_response_snapshot` 或运动学地表响应示意图，不是弹性波方程数值模拟。
-- GIF 是地表响应传播示意动图，不是真实全波场模拟。
-- 当前速度模型为 `uniform effective Rayleigh velocity`。
-- Rayleigh 深度敏感性权重不是严格模态深度核，只是波长量级的经验衰减。
-- 当前 DAS-like 响应是点式接收近似，尚未实现真实 gauge length 响应。
-- `best_location` 是运动学局部能量聚焦结果，不能作为工程确诊结论。
-- 单侧 DAS-like 几何下，横向 y 和埋深 h 可能耦合。
-
-后续阶段再做完整置信度、鲁棒性参数扫描、DAS gauge length、分层速度和局部全波场验证。
+1. 用更多三维观测几何实验优化 source 方位覆盖。
+2. 继续增强 layered / heterogeneous velocity 的可解释性和参数敏感性。
+3. 引入局部全波场小模型验证，但仍与主流程的运动学算法保持边界清晰。
+4. 在真实或半真实数据上验证预处理、multi-attribute score 和模型错配诊断是否稳定。

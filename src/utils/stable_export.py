@@ -42,6 +42,10 @@ SELECTED_FIGURES = [
     "fig_multi_attribute_ablation.png",
     "fig_3d_high_score_components.png",
     "fig_recommendation_decision_flow.png",
+    "fig_velocity_model_comparison.png",
+    "fig_layered_velocity_profile.png",
+    "fig_velocity_model_travel_time_residuals.png",
+    "fig_model_mismatch_error_summary.png",
 ]
 
 SELECTED_REPORTS = [
@@ -56,6 +60,8 @@ SELECTED_REPORTS = [
     "report_frequency_shift_attribute.md",
     "report_geometry_ablation.md",
     "report_multi_attribute_ablation.md",
+    "report_velocity_model_ablation.md",
+    "report_model_mismatch.md",
 ]
 
 
@@ -125,10 +131,13 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     score_method_comparison = summary_info.get("score_method_comparison") or {}
     depth_prior_sensitivity = summary_info.get("depth_prior_sensitivity") or {}
     stage4b_validation = summary_info.get("stage4b_validation") or {}
+    stage5a_validation = summary_info.get("stage5a_validation") or {}
     preprocessing_ablation = stage4b_validation.get("preprocessing_ablation") or {}
     fk_validation = stage4b_validation.get("fk_filter_validation") or {}
     multi_attribute_ablation = stage4b_validation.get("multi_attribute_ablation") or {}
     geometry_ablation = stage4b_validation.get("geometry_ablation") or {}
+    velocity_model_ablation = stage5a_validation.get("velocity_model_ablation") or {}
+    model_mismatch = stage5a_validation.get("model_mismatch") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
@@ -168,6 +177,10 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- figures/fig_multi_attribute_ablation.png",
             "- figures/fig_3d_high_score_components.png",
             "- figures/fig_recommendation_decision_flow.png",
+            "- figures/fig_velocity_model_comparison.png",
+            "- figures/fig_layered_velocity_profile.png",
+            "- figures/fig_velocity_model_travel_time_residuals.png",
+            "- figures/fig_model_mismatch_error_summary.png",
             "- animations/anim_pseudo_wavefield.gif",
             "- reports/report_full_pipeline.md",
             "- reports/report_confidence.md",
@@ -180,6 +193,8 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
             "- reports/report_frequency_shift_attribute.md",
             "- reports/report_geometry_ablation.md",
             "- reports/report_multi_attribute_ablation.md",
+            "- reports/report_velocity_model_ablation.md",
+            "- reports/report_model_mismatch.md",
         ]
     )
     content = f"""# latest_stable 稳定成果摘要
@@ -187,7 +202,7 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 ## 本轮信息
 
 - commit id：`{summary_info.get("commit_id", "unknown")}`
-- 任务名称：`{summary_info.get("task_name", "Stage 3")}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5A")}`
 - 运行时间：`{summary_info.get("run_time", datetime.now().isoformat(timespec="seconds"))}`
 - 来源目录：`{summary_info.get("source_run_dir", "")}`
 
@@ -240,6 +255,18 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - geometry best truth-error case：`{_format_optional(geometry_ablation.get("best_truth_error_case"))}`
 - high-score component count：`{_format_optional(high_region.get("high_score_component_count"))}`
 - multi-region warning：`{_format_optional(high_region.get("multi_region_warning"))}`
+
+## Stage 5A 稳定算法与速度模型升级
+
+- stable code area：`code/current_3d_algorithm/`
+- default velocity model：`layered`
+- velocity ablation best truth-error case：`{_format_optional(velocity_model_ablation.get("best_truth_error_case"))}`
+- velocity ablation best depth case：`{_format_optional(velocity_model_ablation.get("best_depth_case"))}`
+- largest travel-time residual case：`{_format_optional(velocity_model_ablation.get("largest_travel_time_residual_case"))}`
+- model mismatch safest case：`{_format_optional(model_mismatch.get("safest_case"))}`
+- model mismatch riskiest case：`{_format_optional(model_mismatch.get("riskiest_case"))}`
+- minimum recommended velocity model：`{_format_optional(model_mismatch.get("minimum_recommended_velocity_model"))}`
+- note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
 ## 基础置信度指标
 

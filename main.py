@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage4b_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5a_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -100,8 +100,57 @@ def build_arg_parser() -> argparse.ArgumentParser:
     time.add_argument("--time-t0-s", type=float, default=0.02, help="震源激发和记录参考零时之间的等效延迟，单位 s。")
 
     velocity = parser.add_argument_group("velocity 速度模型参数组")
-    velocity.add_argument("--velocity-model-type", default="uniform", choices=["uniform"], help="当前阶段仅实现 uniform。")
-    velocity.add_argument("--rayleigh-velocity-mps", type=float, default=260.0, help="等效瑞雷波速度，单位 m/s。")
+    velocity.add_argument(
+        "--velocity-model-type",
+        default="layered",
+        choices=[
+            "uniform",
+            "layered",
+            "lateral_gradient",
+            "localized_low_velocity_zone",
+            "layered_with_anomaly_perturbation",
+        ],
+        help="Stage 5A 默认使用 layered；uniform 仅作为基线对比。",
+    )
+    velocity.add_argument("--rayleigh-velocity-mps", type=float, default=260.0, help="代表性等效瑞雷波速度，单位 m/s。")
+    velocity.add_argument(
+        "--layer-depths-m",
+        default="0.3,1.0,3.0,8.0",
+        help="分层模型各层底界深度，逗号分隔，单位 m。",
+    )
+    velocity.add_argument(
+        "--layer-rayleigh-velocities-mps",
+        default="120,180,260,350",
+        help="分层模型各层等效 Rayleigh 速度，逗号分隔，单位 m/s。",
+    )
+    velocity.add_argument(
+        "--lateral-gradient-x-mps-per-m",
+        type=float,
+        default=0.0,
+        help="横向非均匀模型 x 方向速度梯度，单位 (m/s)/m。",
+    )
+    velocity.add_argument(
+        "--lateral-gradient-y-mps-per-m",
+        type=float,
+        default=0.0,
+        help="横向非均匀模型 y 方向速度梯度，单位 (m/s)/m。",
+    )
+    velocity.add_argument(
+        "--low-velocity-zone-enabled",
+        type=str_to_bool,
+        default=False,
+        help="是否启用局部低速区；localized_low_velocity_zone 类型下会参与走时。",
+    )
+    velocity.add_argument("--low-velocity-zone-x0-m", type=float, default=None, help="局部低速区中心 x；默认等于异常体 x0。")
+    velocity.add_argument("--low-velocity-zone-y0-m", type=float, default=None, help="局部低速区中心 y；默认等于异常体 y0。")
+    velocity.add_argument(
+        "--low-velocity-zone-depth-m",
+        type=float,
+        default=None,
+        help="局部低速区中心深度；默认等于异常体 depth。",
+    )
+    velocity.add_argument("--low-velocity-zone-radius-m", type=float, default=3.0, help="局部低速区半径，单位 m。")
+    velocity.add_argument("--low-velocity-factor", type=float, default=0.7, help="低速区速度折减因子，0-1。")
 
     anomaly = parser.add_argument_group("anomaly 异常体参数组")
     anomaly.add_argument("--anomaly-type", default="cavity", choices=["cavity"], help="异常体类型；当前支持 cavity。")
@@ -230,6 +279,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=True,
         help="full_pipeline 中是否运行三维观测几何消融实验。",
     )
+    scan.add_argument(
+        "--velocity-ablation-enabled",
+        type=str_to_bool,
+        default=True,
+        help="full_pipeline 中是否运行 uniform/layered/heterogeneous 速度模型消融实验。",
+    )
 
     preprocess = parser.add_argument_group("preprocessing 预处理参数组")
     preprocess.add_argument("--preprocess-enabled", type=str_to_bool, default=True, help="扫描前是否执行预处理流水线。")
@@ -342,7 +397,28 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             points_csv=args.source_points_csv,
         ),
         time=_namespace(dt_s=args.time_dt_s, record_length_s=args.time_record_length_s, t0_s=args.time_t0_s),
-        velocity=_namespace(model_type=args.velocity_model_type, rayleigh_velocity_mps=args.rayleigh_velocity_mps),
+        velocity=_namespace(
+            model_type=args.velocity_model_type,
+            rayleigh_velocity_mps=args.rayleigh_velocity_mps,
+            layer_depths_m=[float(item.strip()) for item in args.layer_depths_m.split(",") if item.strip()],
+            layer_rayleigh_velocities_mps=[
+                float(item.strip()) for item in args.layer_rayleigh_velocities_mps.split(",") if item.strip()
+            ],
+            lateral_gradient_x_mps_per_m=args.lateral_gradient_x_mps_per_m,
+            lateral_gradient_y_mps_per_m=args.lateral_gradient_y_mps_per_m,
+            low_velocity_zone_enabled=args.low_velocity_zone_enabled,
+            low_velocity_zone_x0_m=args.low_velocity_zone_x0_m
+            if args.low_velocity_zone_x0_m is not None
+            else args.anomaly_x0_m,
+            low_velocity_zone_y0_m=args.low_velocity_zone_y0_m
+            if args.low_velocity_zone_y0_m is not None
+            else args.anomaly_y0_m,
+            low_velocity_zone_depth_m=args.low_velocity_zone_depth_m
+            if args.low_velocity_zone_depth_m is not None
+            else args.anomaly_depth_m,
+            low_velocity_zone_radius_m=args.low_velocity_zone_radius_m,
+            low_velocity_factor=args.low_velocity_factor,
+        ),
         anomaly=_namespace(
             anomaly_type=args.anomaly_type,
             x0_m=args.anomaly_x0_m,
@@ -413,6 +489,7 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             depth_prior_factor_list=[item.strip() for item in args.depth_prior_factor_list.split(",") if item.strip()],
             multi_attribute_ablation_enabled=args.multi_attribute_ablation_enabled,
             geometry_ablation_enabled=args.geometry_ablation_enabled,
+            velocity_ablation_enabled=args.velocity_ablation_enabled,
         ),
         preprocessing=_namespace(
             enabled=args.preprocess_enabled,
@@ -474,6 +551,33 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         )
     if params.velocity.rayleigh_velocity_mps <= 0:
         raise ValueError(f"rayleigh_velocity_mps 错误：当前值为 {params.velocity.rayleigh_velocity_mps}，合理条件是速度 > 0。")
+    if len(params.velocity.layer_depths_m) != len(params.velocity.layer_rayleigh_velocities_mps):
+        raise ValueError(
+            "layer_depths_m 与 layer_rayleigh_velocities_mps 错误：二者数量必须一致，"
+            f"当前分别为 {len(params.velocity.layer_depths_m)} 和 {len(params.velocity.layer_rayleigh_velocities_mps)}。"
+        )
+    if len(params.velocity.layer_depths_m) < 1:
+        raise ValueError("layer_depths_m 错误：至少需要一层速度。")
+    if any(value <= 0 for value in params.velocity.layer_depths_m):
+        raise ValueError(f"layer_depths_m 错误：当前值为 {params.velocity.layer_depths_m}，所有层底深度必须 > 0。")
+    if any(
+        params.velocity.layer_depths_m[index] <= params.velocity.layer_depths_m[index - 1]
+        for index in range(1, len(params.velocity.layer_depths_m))
+    ):
+        raise ValueError(f"layer_depths_m 错误：当前值为 {params.velocity.layer_depths_m}，必须严格递增。")
+    if any(value <= 0 for value in params.velocity.layer_rayleigh_velocities_mps):
+        raise ValueError(
+            "layer_rayleigh_velocities_mps 错误："
+            f"当前值为 {params.velocity.layer_rayleigh_velocities_mps}，所有速度必须 > 0。"
+        )
+    if params.velocity.low_velocity_zone_radius_m <= 0:
+        raise ValueError(
+            f"low_velocity_zone_radius_m 错误：当前值为 {params.velocity.low_velocity_zone_radius_m}，合理条件是 > 0。"
+        )
+    if not (0.05 <= params.velocity.low_velocity_factor <= 1.0):
+        raise ValueError(
+            f"low_velocity_factor 错误：当前值为 {params.velocity.low_velocity_factor}，合理条件是 0.05 <= factor <= 1.0。"
+        )
     if params.anomaly.depth_m <= 0:
         raise ValueError(f"anomaly_depth_m 错误：当前值为 {params.anomaly.depth_m}，合理条件是异常体深度 > 0。")
     if params.anomaly.size_x_m <= 0 or params.anomaly.size_y_m <= 0 or params.anomaly.size_z_m <= 0:
@@ -725,7 +829,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 4B 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5A 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")
@@ -733,6 +837,7 @@ def print_params_summary(params: SimpleNamespace) -> None:
     print(f"shots: {params.source.shot_count}, source_y={params.source.y_m} m")
     print(f"time: nt={params.derived.nt}, dt={params.time.dt_s} s")
     print(f"scan grid: {params.derived.scan_shape}, points={params.derived.scan_grid_point_count}")
+    print(f"velocity model: {params.velocity.model_type}")
     print(
         "rayleigh depth sensitivity: "
         f"wavelength={params.derived.estimated_wavelength_m:.3f} m, "

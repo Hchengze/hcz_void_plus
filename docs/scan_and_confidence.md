@@ -99,3 +99,6 @@ score_volume_active >= confidence_threshold_ratio * best_score
 Rayleigh-wave diffraction 类方法更核心的是绕射走时曲线，以及直达面波压制后的残余绕射能量。`fig_diffraction_travel_time_curves.png` 用于检查真值和 best_location 的理论绕射曲线是否与炮集中的能量事件大致对应。
 
 后续仍需要做更完整的置信度体系、鲁棒性参数扫描、速度模型敏感性分析和局部全波场验证。
+# 历史阶段提示
+
+本文件包含 Stage 3/Stage 4 的扫描和规则型置信度说明，不代表当前完整主线。Stage 5A 已新增 layered/heterogeneous velocity、velocity model ablation 和 model mismatch。当前主线请以 `README.md`、`docs/current_status.md`、`docs/current_algorithm_boundary.md` 和 `code/current_3d_algorithm/` 为准。

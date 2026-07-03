@@ -25,7 +25,12 @@ def test_argparse_defaults_can_parse():
     assert params.scan.score_method_list == ["diffraction_energy_stack", "normalized_energy_stack"]
     assert params.scan.multi_attribute_ablation_enabled is True
     assert params.scan.geometry_ablation_enabled is True
+    assert params.scan.velocity_ablation_enabled is True
     assert params.scan.rayleigh_penetration_factor == 1.0
+    assert params.velocity.model_type == "layered"
+    assert params.velocity.layer_depths_m == [0.3, 1.0, 3.0, 8.0]
+    assert params.velocity.layer_rayleigh_velocities_mps == [120.0, 180.0, 260.0, 350.0]
+    assert params.velocity.low_velocity_factor == 0.7
     assert params.preprocessing.ablation_enabled is True
     assert params.task.wavelet_dominant_frequency_hz == 30.0
     assert params.output.export_latest_stable is True

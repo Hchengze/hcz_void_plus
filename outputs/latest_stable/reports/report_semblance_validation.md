@@ -1,10 +1,10 @@
 # semblance score 验证报告
 
-- best: x=60.0, y=8.0, h=3.5, error=1.118033988749895
-- y_span_m: `2.0`
-- depth_span_m: `5.0`
-- high_score_component_count: `1`
-- multi_region_warning: `False`
+- best: x=172.0, y=4.0, h=1.5, error=112.12158578971312
+- y_span_m: `16.0`
+- depth_span_m: `0.0`
+- high_score_component_count: `2`
+- multi_region_warning: `True`
 
 semblance 衡量沿理论绕射曲线对齐后的多炮多道波形一致性。
 

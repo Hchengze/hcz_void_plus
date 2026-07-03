@@ -103,7 +103,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 4B reference-backed validation and 3D geometry diagnostics",
+        "stage": "Stage 5A stable 3D algorithm consolidation and layered velocity modeling",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -112,7 +112,9 @@ def build_metadata(
             "forward": "kinematic approximation",
             "das_like": "DAS-like response approximation",
             "receiver": "point_receiver approximation",
-            "velocity_model": "uniform effective Rayleigh velocity",
+            "velocity_model": params.velocity.model_type,
+            "velocity_model_family": "uniform/layered/lateral_gradient/localized_low_velocity_zone",
+            "velocity_approximation": "straight-ray kinematic approximation",
             "wavefield_snapshot_type": "kinematic_surface_response_snapshot",
             "surface_response_type": "kinematic_surface_response",
             "is_true_elastic_wavefield": False,
@@ -125,6 +127,9 @@ def build_metadata(
             "estimated_wavelength_m": params.derived.estimated_wavelength_m,
             "penetration_depth_m": params.derived.rayleigh_penetration_depth_m,
             "depth_weight_formula": "exp(-depth / penetration_depth)",
+            "velocity_model_type": params.velocity.model_type,
+            "layer_depths_m": params.velocity.layer_depths_m,
+            "layer_rayleigh_velocities_mps": params.velocity.layer_rayleigh_velocities_mps,
             "note": "这是 Rayleigh 波深度敏感性的简化权重，不是严格 Rayleigh 模态深度核。",
         },
         "visualization": {
@@ -210,6 +215,7 @@ def build_metadata(
             "Rayleigh 深度敏感性权重不是严格模态深度核。",
             "基础扫描 best_location 不能作为工程确诊结论。",
             "结果用于科研算法原型验证，不能作为工程确诊结论。",
+            "分层/非均匀速度采用 straight-ray kinematic approximation，不是射线弯曲、弹性波场或速度反演。",
         ],
         "geometry": {
             "coordinate_system": {

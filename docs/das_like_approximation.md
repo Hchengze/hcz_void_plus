@@ -26,3 +26,6 @@ shot × time × channel
 基础置信度诊断同样建立在该 DAS-like 点式接收近似之上，因此只能评价当前运动学数据和扫描属性的内部稳定性，不能替代真实 DAS 数据质量评价或工程诊断。
 
 Stage 3B 中 raw_best 与 weighted_best 的差异主要反映运动学扫描属性和 Rayleigh 深度先验之间的张力，并不代表 DAS 仪器响应本身已经被精确建模。真实 DAS gauge length、轴向应变和耦合条件仍待后续阶段实现。
+# 历史阶段提示
+
+本文件包含 Stage 3/Stage 4 的 DAS-like 近似说明，不代表当前完整主线。当前主线请以 `README.md`、`docs/current_status.md`、`docs/current_algorithm_boundary.md` 和 `code/current_3d_algorithm/` 为准。

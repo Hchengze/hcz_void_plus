@@ -1,4 +1,4 @@
-"""Stage 4A 正演、三维几何诊断与中文可视化 pipeline。"""
+"""Stage 5A 正演、三维几何诊断、速度模型与中文可视化 pipeline。"""
 
 from __future__ import annotations
 
@@ -50,7 +50,8 @@ def _write_forward_report(
 - task：`{params.project.task}`
 - 数据形状：`{tuple(synthetic_data.shape)}`，维度顺序为 `shot × time × channel`
 - DAS-like 接收级别：`{params.das_like.response_level}`
-- 速度模型：`uniform effective Rayleigh velocity = {params.velocity.rayleigh_velocity_mps} m/s`
+- 速度模型：`{params.velocity.model_type}`，代表速度 `{params.velocity.rayleigh_velocity_mps} m/s`
+- 速度近似：`straight-ray kinematic approximation`，不是 3D elastic wavefield
 - 中文字体：`{font_text}`
 
 ## 当前近似条件
@@ -143,7 +144,7 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         source_xyz,
         scatter_xyz,
         scatter_weight,
-        velocity_model.get_velocity(),
+        velocity_model,
         paths["snapshots"],
     )
     animation_info = save_pseudo_wavefield_animation(
@@ -151,7 +152,7 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         source_xyz,
         scatter_xyz,
         scatter_weight,
-        velocity_model.get_velocity(),
+        velocity_model,
         paths["animations"] / "anim_pseudo_wavefield.gif",
     )
     wavefield_info = {
@@ -176,7 +177,7 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         )
 
     log_text = (
-        "Stage 4A forward pipeline completed.\n"
+        "Stage 5A forward pipeline completed.\n"
         "Approximation: kinematic approximation + DAS-like response approximation.\n"
         "Surface response: kinematic_surface_response_snapshot, not true elastic wave equation snapshot.\n"
         f"Output directory: {paths['root']}\n"

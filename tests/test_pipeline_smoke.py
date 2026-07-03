@@ -159,6 +159,10 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_multi_attribute_ablation.png").exists()
     assert (output_dir / "figures" / "fig_3d_high_score_components.png").exists()
     assert (output_dir / "figures" / "fig_recommendation_decision_flow.png").exists()
+    assert (output_dir / "figures" / "fig_velocity_model_comparison.png").exists()
+    assert (output_dir / "figures" / "fig_layered_velocity_profile.png").exists()
+    assert (output_dir / "figures" / "fig_velocity_model_travel_time_residuals.png").exists()
+    assert (output_dir / "figures" / "fig_model_mismatch_error_summary.png").exists()
     assert (output_dir / "reports" / "report_confidence.md").exists()
     assert (output_dir / "reports" / "report_preprocessing_ablation.md").exists()
     assert (output_dir / "reports" / "report_fk_filter_validation.md").exists()
@@ -167,6 +171,8 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "reports" / "report_frequency_shift_attribute.md").exists()
     assert (output_dir / "reports" / "report_geometry_ablation.md").exists()
     assert (output_dir / "reports" / "report_multi_attribute_ablation.md").exists()
+    assert (output_dir / "reports" / "report_velocity_model_ablation.md").exists()
+    assert (output_dir / "reports" / "report_model_mismatch.md").exists()
     assert (output_dir / "arrays" / "arr_confidence_metrics.json").exists()
     latest_stable = tmp_path / "latest_stable"
     assert latest_stable.exists()
@@ -190,6 +196,10 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "figures" / "fig_multi_attribute_ablation.png").exists()
     assert (latest_stable / "figures" / "fig_3d_high_score_components.png").exists()
     assert (latest_stable / "figures" / "fig_recommendation_decision_flow.png").exists()
+    assert (latest_stable / "figures" / "fig_velocity_model_comparison.png").exists()
+    assert (latest_stable / "figures" / "fig_layered_velocity_profile.png").exists()
+    assert (latest_stable / "figures" / "fig_velocity_model_travel_time_residuals.png").exists()
+    assert (latest_stable / "figures" / "fig_model_mismatch_error_summary.png").exists()
     assert (latest_stable / "reports" / "report_full_pipeline.md").exists()
     assert (latest_stable / "reports" / "report_confidence.md").exists()
     assert (latest_stable / "reports" / "report_score_method_comparison.md").exists()
@@ -200,6 +210,8 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "reports" / "report_frequency_shift_attribute.md").exists()
     assert (latest_stable / "reports" / "report_geometry_ablation.md").exists()
     assert (latest_stable / "reports" / "report_multi_attribute_ablation.md").exists()
+    assert (latest_stable / "reports" / "report_velocity_model_ablation.md").exists()
+    assert (latest_stable / "reports" / "report_model_mismatch.md").exists()
     assert (latest_stable / "metadata" / "meta_run.json").exists()
     metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
     assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
@@ -221,6 +233,8 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["stage4b_validation"]["fk_filter_validation"] is not None
     assert metadata["stage4b_validation"]["multi_attribute_ablation"] is not None
     assert metadata["stage4b_validation"]["geometry_ablation"] is not None
+    assert metadata["stage5a_validation"]["velocity_model_ablation"] is not None
+    assert metadata["stage5a_validation"]["model_mismatch"] is not None
     summary_text = (latest_stable / "summary.md").read_text(encoding="utf-8")
     assert "unweighted_best" in summary_text
     assert "weighted_best" in summary_text
@@ -228,4 +242,6 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert "recommended_location" in summary_text
     assert "3D high-score span" in summary_text
     assert "Stage 4B" in summary_text
+    assert "Stage 5A" in summary_text
+    assert "velocity ablation" in summary_text
     assert "multi_attribute improved over energy" in summary_text

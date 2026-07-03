@@ -135,3 +135,73 @@ def write_geometry_ablation_report(path: Path, result: dict[str, Any]) -> None:
     )
     path.write_text("\n".join(lines), encoding="utf-8")
 
+
+def write_velocity_model_ablation_report(path: Path, result: dict[str, Any]) -> None:
+    """写出速度模型消融报告。
+
+    报告重点不是宣布某个模型“真实”，而是说明分层/非均匀运动学速度如何改变
+    绕射走时、定位误差和三维高分区跨度。
+    """
+
+    lines = [
+        "# 速度模型消融报告",
+        "",
+        "本报告比较 uniform、layered、lateral gradient、localized low velocity zone 等等效 Rayleigh 速度模型。",
+        "所有结果仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。",
+        "",
+        "| velocity model | best | error_m | y_span_m | depth_span_m | residual_rms_ms | flag |",
+        "|---|---|---:|---:|---:|---:|---|",
+    ]
+    for name, item in result["cases"].items():
+        lines.append(
+            "| "
+            f"{name} | {_location_text(item)} | {item['truth_error']['distance_m']:.4g} | "
+            f"{item['y_span_m']:.4g} | {item['depth_span_m']:.4g} | "
+            f"{1000.0 * item['travel_time_residual_to_uniform_rms_s']:.4g} | {item['confidence_flag']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## 结论",
+            "",
+            f"- 真值误差最小模型：`{result['best_truth_error_case']}`。",
+            f"- 深度误差最小模型：`{result['best_depth_case']}`。",
+            f"- 相对 uniform 走时残差最大模型：`{result['largest_travel_time_residual_case']}`。",
+            "- 如果 layered 与 uniform 的走时残差不可忽略，真实数据反演不应继续只依赖 uniform 速度。",
+            "- 局部低速带可能导致定位偏移，也可能被误解释为空洞响应，因此必须在报告中作为风险列出。",
+        ]
+    )
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_model_mismatch_report(path: Path, result: dict[str, Any]) -> None:
+    """写出正演/扫描速度模型错配报告。"""
+
+    lines = [
+        "# 正演模型与扫描模型错配报告",
+        "",
+        "真实道路介质与反演速度假设通常不一致。本报告用轻量三维运动学实验检查这种错配对定位的影响。",
+        "",
+        "| case | forward model | scan model | best | error_m | y_span_m | depth_span_m | flag |",
+        "|---|---|---|---|---:|---:|---:|---|",
+    ]
+    for name, item in result["cases"].items():
+        lines.append(
+            "| "
+            f"{name} | {item['forward_model_type']} | {item['scan_model_type']} | {_location_text(item)} | "
+            f"{item['truth_error']['distance_m']:.4g} | {item['y_span_m']:.4g} | "
+            f"{item['depth_span_m']:.4g} | {item['low_confidence_flag']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## 风险解释",
+            "",
+            f"- 误差最小案例：`{result['safest_case']}`。",
+            f"- 误差最大案例：`{result['riskiest_case']}`。",
+            f"- 当前最低推荐速度模型：`{result['minimum_recommended_velocity_model']}`。",
+            "- 如果真实为 layered 但扫描仍用 uniform，depth 与 y-depth 耦合可能出现系统偏差。",
+            "- 本报告只用于科研算法风险诊断，不能作为工程确诊或速度结构反演结论。",
+        ]
+    )
+    path.write_text("\n".join(lines), encoding="utf-8")

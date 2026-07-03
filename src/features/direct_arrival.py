@@ -6,15 +6,14 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from src.geometry.distance import source_receiver_distance
-from src.model.velocity_model import UniformVelocityModel
+from src.model.velocity_model import KinematicVelocityModel, compute_kinematic_travel_time
 
 
 def predict_direct_arrival_times(
     params: SimpleNamespace,
     source_xyz: np.ndarray,
     receiver_xyz: np.ndarray,
-    velocity_model: UniformVelocityModel,
+    velocity_model: KinematicVelocityModel,
 ) -> np.ndarray:
     """预测直达瑞雷波到时。
 
@@ -34,5 +33,9 @@ def predict_direct_arrival_times(
         这是运动学预测，不包含真实道路分层、频散或复杂面波传播。
     """
 
-    distance = source_receiver_distance(source_xyz, receiver_xyz)
-    return params.time.t0_s + distance / velocity_model.get_velocity()
+    travel_time = compute_kinematic_travel_time(
+        source_xyz[:, None, :],
+        receiver_xyz[None, :, :],
+        velocity_model,
+    )
+    return params.time.t0_s + travel_time

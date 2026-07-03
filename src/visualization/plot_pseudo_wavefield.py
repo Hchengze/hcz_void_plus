@@ -24,6 +24,7 @@ from matplotlib.patches import Rectangle
 import numpy as np
 
 from src.forward.wavelet import ricker
+from src.model.velocity_model import KinematicVelocityModel, compute_kinematic_travel_time
 from src.physics.rayleigh import estimate_penetration_depth, rayleigh_depth_weight
 from src.visualization.plot_style import setup_chinese_matplotlib
 
@@ -55,7 +56,7 @@ def compute_kinematic_pseudo_wavefield_frame(
     source_xyz: np.ndarray,
     scatter_xyz: np.ndarray,
     scatter_weight: np.ndarray,
-    velocity_mps: float,
+    velocity_model: KinematicVelocityModel,
     frame_time_s: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """计算单帧运动学伪波场。
@@ -83,8 +84,9 @@ def compute_kinematic_pseudo_wavefield_frame(
     grid_x, grid_y, grid_z = build_pseudo_wavefield_surface_grid(params)
 
     shot = source_xyz[params.output.wavefield_shot_index]
+    grid_xyz = np.stack([grid_x, grid_y, grid_z], axis=-1)
     direct_distance = np.sqrt((grid_x - shot[0]) ** 2 + (grid_y - shot[1]) ** 2 + (grid_z - shot[2]) ** 2)
-    direct_arrival = params.time.t0_s + direct_distance / velocity_mps
+    direct_arrival = params.time.t0_s + compute_kinematic_travel_time(shot, grid_xyz, velocity_model)
     amplitude = ricker(frame_time_s - direct_arrival, params.task.wavelet_frequency_hz) / np.sqrt(direct_distance + 1.0)
 
     penetration_depth_m = estimate_penetration_depth(params)
@@ -95,7 +97,9 @@ def compute_kinematic_pseudo_wavefield_frame(
         source_to_scatter = np.linalg.norm(shot - scatter)
         scatter_to_grid = np.sqrt((grid_x - scatter[0]) ** 2 + (grid_y - scatter[1]) ** 2 + (grid_z - scatter[2]) ** 2)
         path = source_to_scatter + scatter_to_grid
-        scatter_arrival = params.time.t0_s + path / velocity_mps
+        scatter_arrival = params.time.t0_s + compute_kinematic_travel_time(
+            shot, scatter, velocity_model
+        ) + compute_kinematic_travel_time(scatter, grid_xyz, velocity_model)
         amplitude += (
             weight
             * depth_decay
@@ -156,7 +160,7 @@ def plot_pseudo_wavefield_snapshot(
     source_xyz: np.ndarray,
     scatter_xyz: np.ndarray,
     scatter_weight: np.ndarray,
-    velocity_mps: float,
+    velocity_model: KinematicVelocityModel,
     frame_time_s: float,
     output_path: Path,
 ) -> None:
@@ -164,7 +168,7 @@ def plot_pseudo_wavefield_snapshot(
 
     setup_chinese_matplotlib()
     grid_x, grid_y, amplitude = compute_kinematic_pseudo_wavefield_frame(
-        params, source_xyz, scatter_xyz, scatter_weight, velocity_mps, frame_time_s
+        params, source_xyz, scatter_xyz, scatter_weight, velocity_model, frame_time_s
     )
     clip = np.percentile(np.abs(amplitude), 99.0)
     if clip == 0:
@@ -205,7 +209,7 @@ def save_pseudo_wavefield_snapshots(
     source_xyz: np.ndarray,
     scatter_xyz: np.ndarray,
     scatter_weight: np.ndarray,
-    velocity_mps: float,
+    velocity_model: KinematicVelocityModel,
     output_dir: Path,
 ) -> list[Path]:
     """保存一组运动学伪波场快照。"""
@@ -216,7 +220,7 @@ def save_pseudo_wavefield_snapshots(
     output_paths: list[Path] = []
     for index, frame_time_s in enumerate(_snapshot_times(params)):
         path = output_dir / f"snap_pseudo_wavefield_t{index:03d}.png"
-        plot_pseudo_wavefield_snapshot(params, source_xyz, scatter_xyz, scatter_weight, velocity_mps, frame_time_s, path)
+        plot_pseudo_wavefield_snapshot(params, source_xyz, scatter_xyz, scatter_weight, velocity_model, frame_time_s, path)
         output_paths.append(path)
     return output_paths
 
@@ -226,7 +230,7 @@ def save_pseudo_wavefield_animation(
     source_xyz: np.ndarray,
     scatter_xyz: np.ndarray,
     scatter_weight: np.ndarray,
-    velocity_mps: float,
+    velocity_model: KinematicVelocityModel,
     output_path: Path,
 ) -> dict[str, object]:
     """尝试保存运动学伪波场 GIF。
@@ -245,7 +249,7 @@ def save_pseudo_wavefield_animation(
         ax.clear()
         frame_time_s = float(times[frame_index])
         grid_x, grid_y, amplitude = compute_kinematic_pseudo_wavefield_frame(
-            params, source_xyz, scatter_xyz, scatter_weight, velocity_mps, frame_time_s
+            params, source_xyz, scatter_xyz, scatter_weight, velocity_model, frame_time_s
         )
         clip = np.percentile(np.abs(amplitude), 99.0)
         if clip == 0:

@@ -2,10 +2,10 @@
 
 ## 本轮信息
 
-- commit id：`8ccfcaf`
-- 任务名称：`Stage 4B Reference-backed 算法有效性验证 + 三维几何破局 + 代码可审计性修复`
-- 运行时间：`2026-07-03T19:32:42`
-- 来源目录：`outputs\stage4b_run_20260703_193225`
+- commit id：`98ea235`
+- 任务名称：`Stage 5A 项目收口清理 + 稳定算法沉淀 + 分层/非均匀速度模型`
+- 运行时间：`2026-07-03T20:56:40`
+- 来源目录：`outputs\stage5a_run_20260703_205610`
 
 ## 当前近似条件
 
@@ -22,17 +22,17 @@
 ## unweighted 与 weighted best 对比
 
 - unweighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
-- weighted_best：x=`60.0` m，y=`10.0` m，h=`0.5` m
-- unweighted -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`-2.0` m，三维距离=`2.0` m
+- weighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
+- unweighted -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`0.0` m，三维距离=`0.0` m
 
 ## 推荐位置与不确定性
 
 - recommended_location_type：`uncertainty_interval`
-- recommended_location：`{'x_m': 60.0, 'y_m': 10.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 60.0], 'y_interval_m': [6.0, 14.0], 'depth_interval_m': [0.5, 5.5], 'component_boxes': [{'point_count': 24, 'x_min_m': 60.0, 'x_max_m': 60.0, 'y_min_m': 6.0, 'y_max_m': 14.0, 'depth_min_m': 0.5, 'depth_max_m': 5.5, 'x_span_m': 0.0, 'y_span_m': 8.0, 'depth_span_m': 5.0}]}`
+- recommended_location：`{'x_m': 60.0, 'y_m': 10.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 60.0], 'y_interval_m': [8.0, 12.0], 'depth_interval_m': [2.5, 2.5], 'component_boxes': [{'point_count': 3, 'x_min_m': 60.0, 'x_max_m': 60.0, 'y_min_m': 8.0, 'y_max_m': 12.0, 'depth_min_m': 2.5, 'depth_max_m': 2.5, 'x_span_m': 0.0, 'y_span_m': 4.0, 'depth_span_m': 0.0}]}`
 - recommended_reason：weighted_best 受到深度权重影响，或触发边界、宽 y、unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。
-- depth uncertainty interval：`[0.5, 5.5]` m
-- 3D high-score span：x=`0.0` m，y=`8.0` m，depth=`5.0` m
-- high-score point count：`24`
+- depth uncertainty interval：`[2.5, 2.5]` m
+- 3D high-score span：x=`0.0` m，y=`4.0` m，depth=`0.0` m
+- high-score point count：`3`
 
 ## score method 对比
 
@@ -45,30 +45,42 @@
 
 ## Stage 4B 算法有效性验证
 
-- preprocessing best truth-error case：`bandpass_trace_normalization_taper_direct_mute`
+- preprocessing best truth-error case：`none`
 - preprocessing narrowest y-depth case：`bandpass_trace_normalization_taper_direct_mute`
-- FK direct wave reduction ratio：`0.0673824082550083`
-- FK diffraction preservation ratio：`1.008050635677625`
+- FK direct wave reduction ratio：`0.0316551481300289`
+- FK diffraction preservation ratio：`0.9796773553296154`
 - multi_attribute improved over energy：`False`
 - multi_attribute best group：`energy_only`
-- geometry best y-resolution case：`geometry_case_C_two_side_sources`
+- geometry best y-resolution case：`geometry_case_A_single_side_line`
 - geometry best depth-stability case：`geometry_case_A_single_side_line`
 - geometry best truth-error case：`geometry_case_A_single_side_line`
 - high-score component count：`1`
 - multi-region warning：`False`
 
+## Stage 5A 稳定算法与速度模型升级
+
+- stable code area：`code/current_3d_algorithm/`
+- default velocity model：`layered`
+- velocity ablation best truth-error case：`uniform`
+- velocity ablation best depth case：`uniform`
+- largest travel-time residual case：`layered_with_anomaly_perturbation`
+- model mismatch safest case：`uniform_forward_uniform_scan`
+- model mismatch riskiest case：`layered_forward_uniform_scan`
+- minimum recommended velocity model：`layered`
+- note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
+
 ## 基础置信度指标
 
-- peak sharpness：`1.4339687136174144`
-- score contrast：`5.424023491123463`
+- peak sharpness：`2.0599457066651934`
+- score contrast：`8.187699231656023`
 - score percentile：`100.0`
-- multi-shot consistency CV：`0.27029897624035154`
-- y-depth coupling warning：`True`
+- multi-shot consistency CV：`0.12786256485343217`
+- y-depth coupling warning：`False`
 - best depth boundary warning：`False`
 - wide y high-score zone warning：`True`
-- raw/weighted divergence warning：`True`
-- shallow bias warning：`True`
-- low confidence flag：`low`
+- raw/weighted divergence warning：`False`
+- shallow bias warning：`False`
+- low confidence flag：`medium-low`
 
 ## 推荐人工重点查看
 
@@ -104,6 +116,10 @@
 - figures/fig_multi_attribute_ablation.png
 - figures/fig_3d_high_score_components.png
 - figures/fig_recommendation_decision_flow.png
+- figures/fig_velocity_model_comparison.png
+- figures/fig_layered_velocity_profile.png
+- figures/fig_velocity_model_travel_time_residuals.png
+- figures/fig_model_mismatch_error_summary.png
 - animations/anim_pseudo_wavefield.gif
 - reports/report_full_pipeline.md
 - reports/report_confidence.md
@@ -116,10 +132,12 @@
 - reports/report_frequency_shift_attribute.md
 - reports/report_geometry_ablation.md
 - reports/report_multi_attribute_ablation.md
+- reports/report_velocity_model_ablation.md
+- reports/report_model_mismatch.md
 
 ## 导出记录
 
-- 已复制精选文件数量：`46`
+- 已复制精选文件数量：`52`
 - 缺失精选文件数量：`0`
 
 ## 当前限制

@@ -30,15 +30,19 @@ from src.visualization.plot_uncertainty import (
 from src.validation.common import summarize_volume
 from src.validation.fk_filter_validation import run_fk_filter_validation
 from src.validation.geometry_ablation import run_geometry_ablation
+from src.validation.model_mismatch import run_model_mismatch_experiment
 from src.validation.multi_attribute_ablation import run_multi_attribute_ablation
 from src.validation.preprocessing_ablation import run_preprocessing_ablation
 from src.validation.reports import (
     write_attribute_validation_report,
     write_fk_filter_validation_report,
     write_geometry_ablation_report,
+    write_model_mismatch_report,
     write_multi_attribute_ablation_report,
     write_preprocessing_ablation_report,
+    write_velocity_model_ablation_report,
 )
+from src.validation.velocity_model_ablation import run_velocity_model_ablation
 from src.visualization.plot_stage4b import (
     plot_3d_high_score_components,
     plot_fk_filter_effect_on_gather,
@@ -51,6 +55,12 @@ from src.visualization.plot_stage4b import (
     plot_preprocessing_ablation_summary,
     plot_recommendation_decision_flow,
     plot_semblance_score_volume_slice,
+)
+from src.visualization.plot_stage5a import (
+    plot_layered_velocity_profile,
+    plot_model_mismatch_error_summary,
+    plot_velocity_model_comparison,
+    plot_velocity_model_travel_time_residuals,
 )
 
 
@@ -102,7 +112,8 @@ def _write_full_pipeline_report(
 
 - forward：`kinematic approximation`
 - DAS-like：`DAS-like response approximation`
-- velocity：`uniform effective Rayleigh velocity`
+- velocity：`{params.velocity.model_type}`，支持 uniform / layered / lateral gradient / localized low velocity zone
+- velocity approximation：`straight-ray kinematic approximation`，不是弹性波速度反演
 - surface response：`kinematic_surface_response_snapshot`，只是 Rayleigh 波走时控制的地表响应示意，不是真实弹性波模拟
 - Rayleigh depth sensitivity：`exp(-h / penetration_depth)` 简化权重，不是严格模态深度核
 
@@ -135,6 +146,10 @@ def _write_full_pipeline_report(
 ## Stage 4B 有效性验证
 
 本轮额外输出预处理消融、FK 滤波验证、matched wavelet、semblance、frequency shift、多属性消融、三维几何消融、三维高分区连通域和推荐决策流程图。若这些验证没有改善 y/depth 不确定性，报告必须解释为“接口已建立，效果待验证”，不能把候选点写成工程确诊。
+
+## Stage 5A 速度模型升级
+
+本轮新增 layered / lateral_gradient / localized_low_velocity_zone / layered_with_anomaly_perturbation 速度模型，并输出 velocity model ablation 与 model mismatch 报告。分层和非均匀速度会改变绕射走时曲线与扫描结果，但当前仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
 ## 风险提示
 
@@ -213,6 +228,7 @@ def _build_final_metadata(
     score_method_comparison: dict[str, Any] | None,
     depth_prior_sensitivity: dict[str, Any] | None,
     stage4b_validation: dict[str, Any] | None,
+    stage5a_validation: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -261,6 +277,12 @@ def _build_final_metadata(
             "multi_attribute_ablation_figure": str(paths["figures"] / "fig_multi_attribute_ablation.png"),
             "3d_high_score_components_figure": str(paths["figures"] / "fig_3d_high_score_components.png"),
             "recommendation_decision_flow_figure": str(paths["figures"] / "fig_recommendation_decision_flow.png"),
+            "velocity_model_comparison_figure": str(paths["figures"] / "fig_velocity_model_comparison.png"),
+            "layered_velocity_profile_figure": str(paths["figures"] / "fig_layered_velocity_profile.png"),
+            "velocity_model_travel_time_residuals_figure": str(
+                paths["figures"] / "fig_velocity_model_travel_time_residuals.png"
+            ),
+            "model_mismatch_error_summary_figure": str(paths["figures"] / "fig_model_mismatch_error_summary.png"),
         },
         confidence_info=confidence_metrics,
         score_method_comparison=score_method_comparison,
@@ -269,6 +291,7 @@ def _build_final_metadata(
         git_info=git_info,
     )
     metadata["stage4b_validation"] = stage4b_validation or {}
+    metadata["stage5a_validation"] = stage5a_validation or {}
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -295,6 +318,8 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     fk_validation: dict[str, Any] | None = None
     multi_attribute_ablation: dict[str, Any] | None = None
     geometry_ablation: dict[str, Any] | None = None
+    velocity_model_ablation: dict[str, Any] | None = None
+    model_mismatch: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -525,6 +550,42 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             if params.output.save_report:
                 write_geometry_ablation_report(paths["reports"] / "report_geometry_ablation.md", geometry_ablation)
 
+        if params.scan.velocity_ablation_enabled:
+            velocity_model_ablation = run_velocity_model_ablation(
+                params,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["scatter_xyz"],
+                forward_result["scatter_weight"],
+            )
+            model_mismatch = run_model_mismatch_experiment(
+                params,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["scatter_xyz"],
+                forward_result["scatter_weight"],
+            )
+            if params.output.save_figures:
+                plot_layered_velocity_profile(params, paths["figures"] / "fig_layered_velocity_profile.png")
+                plot_velocity_model_comparison(
+                    velocity_model_ablation,
+                    paths["figures"] / "fig_velocity_model_comparison.png",
+                )
+                plot_velocity_model_travel_time_residuals(
+                    velocity_model_ablation,
+                    paths["figures"] / "fig_velocity_model_travel_time_residuals.png",
+                )
+                plot_model_mismatch_error_summary(
+                    model_mismatch,
+                    paths["figures"] / "fig_model_mismatch_error_summary.png",
+                )
+            if params.output.save_report:
+                write_velocity_model_ablation_report(
+                    paths["reports"] / "report_velocity_model_ablation.md",
+                    velocity_model_ablation,
+                )
+                write_model_mismatch_report(paths["reports"] / "report_model_mismatch.md", model_mismatch)
+
         _write_full_pipeline_report(
             params,
             forward_result["paths"]["reports"] / "report_full_pipeline.md",
@@ -546,6 +607,10 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             },
             "geometry_ablation": geometry_ablation,
         }
+        stage5a_validation = {
+            "velocity_model_ablation": velocity_model_ablation,
+            "model_mismatch": model_mismatch,
+        }
         _build_final_metadata(
             params,
             forward_result,
@@ -554,13 +619,14 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             score_method_comparison,
             depth_prior_sensitivity,
             stage4b_validation,
+            stage5a_validation,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 4B Reference-backed 算法有效性验证 + 三维几何破局 + 代码可审计性修复",
+                "task_name": "Stage 5A 项目收口清理 + 稳定算法沉淀 + 分层/非均匀速度模型",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
                 "best_location": scan_result["best_location"],
@@ -573,6 +639,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "score_method_comparison": score_method_comparison,
                 "depth_prior_sensitivity": depth_prior_sensitivity,
                 "stage4b_validation": stage4b_validation,
+                "stage5a_validation": stage5a_validation,
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],
@@ -594,5 +661,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["fk_validation"] = fk_validation
     result["multi_attribute_ablation"] = multi_attribute_ablation
     result["geometry_ablation"] = geometry_ablation
+    result["velocity_model_ablation"] = velocity_model_ablation
+    result["model_mismatch"] = model_mismatch
     result["stable_export_info"] = stable_export_info
     return result

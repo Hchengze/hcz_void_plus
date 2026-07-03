@@ -84,3 +84,6 @@ Stage 3B 扫描稳健化：
 - `latest_stable_dir`
 
 扫描网格总点数在 `main.py` 中校验，避免本地运行失控。
+# 当前主线提示
+
+`main.py` 仍是唯一 argparse 参数入口；Stage 5A 新增分层/非均匀速度参数，但仍不创建 `config/` 或 `para/`。历史 Stage 3/4 参数说明保留为演进记录，当前主线请结合 `README.md` 和 `docs/current_status.md` 阅读。

@@ -16,4 +16,12 @@
 ## 当前结论
 
 Stage 4B 的目标不是证明所有参考算法都已经有效，而是把每个算法点变成可运行、可测试、可出图、可报告的闭环。若某个算法点在当前默认三维场景中没有改善结果，报告必须诚实记录“接口已建立，效果待验证”。
+# Stage 5A 增补：速度模型算法矩阵
+
+| reference item | 算法点 | 物理目的 | 本项目实现函数 | 对应测试 | 对应输出图 | 是否改善结果 | 当前限制 |
+|---|---|---|---|---|---|---|---|
+| 近地表分层介质常识 | layered effective Rayleigh velocity | 表达路面、基层、土体层速度差异 | `src.model.layered_velocity.LayeredVelocityModel` | `tests/test_layered_velocity_model.py` | `fig_layered_velocity_profile.png` | Stage 5A 起纳入验证 | straight-ray，不做射线弯曲 |
+| 横向非均匀道路介质 | lateral velocity gradient | 表达回填和沿线速度缓变 | `src.model.heterogeneous_velocity.LateralGradientVelocityModel` | `tests/test_heterogeneous_velocity_model.py` | `fig_velocity_model_comparison.png` | 用于风险诊断 | 线性梯度近似 |
+| 局部低速扰动 | localized low velocity zone | 检查低速带是否诱发定位偏移 | `LocalizedLowVelocityZoneModel` | `tests/test_heterogeneous_velocity_model.py` | `fig_model_mismatch_error_summary.png` | 用于错配风险诊断 | 不产生真实散射，只改走时 |
+| 模型错配 | forward/scan velocity mismatch | 评估真实介质与反演假设不一致的风险 | `src.validation.model_mismatch.run_model_mismatch_experiment` | `tests/test_model_mismatch.py` | `fig_model_mismatch_error_summary.png` | Stage 5A 新增 | 小规模轻量实验 |
 

@@ -30,3 +30,14 @@
 当前不是完整三维弹性波全波场模拟。地表响应示意图和 GIF 不是真实弹性波方程数值模拟。空洞、脱空和松散区不会简单等价为地下各向同性点源；多个散射点只是快速运动学近似，用于构造绕射走时和定位属性。Rayleigh 深度敏感性权重不是严格模态深度核。
 
 Stage 3 的 confidence flag 不是概率置信度，也不是工程确诊；它只帮助用户判断当前候选定位结果是否值得进一步人工检查。
+# Stage 5A 当前模型假设提示
+
+本文件若包含早期 uniform-only 表述，应理解为历史阶段说明。当前 Stage 5A 已支持 `uniform / layered / lateral_gradient / localized_low_velocity_zone / layered_with_anomaly_perturbation`。
+
+分层/非均匀速度通过 straight-ray kinematic approximation 进入正演和扫描：
+
+```text
+travel_time = integral(ds / v(x, y, z))
+```
+
+该近似不做 Snell 射线弯曲，不是 3D elastic wavefield，也不是速度反演。

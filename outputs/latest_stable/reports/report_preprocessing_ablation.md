@@ -4,16 +4,16 @@
 
 | case | best | y_span_m | depth_span_m | diffraction_ratio | direct_residual | flag |
 |---|---|---:|---:|---:|---:|---|
-| none | x=60.0, y=12.0, h=0.5, error=3.905124837953327 | 12 | 4 | 0.5383 | 0.9247 | low |
-| bandpass | x=60.0, y=12.0, h=0.5, error=3.905124837953327 | 12 | 4 | 0.5379 | 0.9238 | low |
-| bandpass_trace_normalization | x=60.0, y=12.0, h=0.5, error=3.905124837953327 | 12 | 4 | 0.519 | 0.9157 | low |
-| bandpass_trace_normalization_taper_direct_mute | x=60.0, y=10.0, h=2.5, error=1.118033988749895 | 8 | 5 | 0.6247 | 0.6236 | low |
-| bandpass_trace_normalization_fk_filter | x=60.0, y=8.0, h=0.5, error=2.692582403567252 | 12 | 4 | 0.5468 | 0.8198 | low |
-| bandpass_trace_normalization_envelope | x=60.0, y=10.0, h=0.5, error=2.692582403567252 | 10 | 4 | 0.5237 | 0.9138 | low |
+| none | x=60.0, y=8.0, h=2.5, error=1.118033988749895 | 8 | 0 | 0.1964 | 0.8795 | low |
+| bandpass | x=60.0, y=8.0, h=2.5, error=1.118033988749895 | 8 | 0 | 0.196 | 0.8785 | low |
+| bandpass_trace_normalization | x=60.0, y=8.0, h=2.5, error=1.118033988749895 | 6 | 0 | 0.1958 | 0.8444 | low |
+| bandpass_trace_normalization_taper_direct_mute | x=60.0, y=10.0, h=2.5, error=1.118033988749895 | 4 | 0 | 0.5364 | 0.4243 | low |
+| bandpass_trace_normalization_fk_filter | x=60.0, y=8.0, h=2.5, error=1.118033988749895 | 6 | 0 | 0.184 | 0.824 | low |
+| bandpass_trace_normalization_envelope | x=60.0, y=10.0, h=2.5, error=1.118033988749895 | 6 | 0 | 0.1985 | 0.8412 | low |
 
 ## 结论
 
-- 最小真值误差组合：`bandpass_trace_normalization_taper_direct_mute`。
+- 最小真值误差组合：`none`。
 - y/depth 跨度最小组合：`bandpass_trace_normalization_taper_direct_mute`。
 - 若某组合降低 direct_residual 但同时降低 diffraction_ratio，应视为可能误伤有效绕射。
 - 当前仍是 kinematic approximation 与 DAS-like response approximation，不能作为工程确诊。

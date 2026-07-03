@@ -1,8 +1,8 @@
 # matched wavelet score 验证报告
 
-- best: x=60.0, y=8.0, h=1.5, error=1.8027756377319946
-- y_span_m: `2.0`
-- depth_span_m: `4.0`
+- best: x=60.0, y=10.0, h=3.5, error=1.118033988749895
+- y_span_m: `8.0`
+- depth_span_m: `0.0`
 - high_score_component_count: `1`
 - multi_region_warning: `False`
 

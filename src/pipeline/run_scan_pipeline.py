@@ -1,4 +1,4 @@
-"""Stage 4A 预处理、多属性扫描定位与诊断图件 pipeline。"""
+"""Stage 5A 预处理、多属性扫描定位、速度模型与诊断图件 pipeline。"""
 
 from __future__ import annotations
 
@@ -249,7 +249,7 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
     save_json(paths["metadata"] / "meta_run.json", metadata)
 
     scan_log = (
-        "Stage 4A scan pipeline completed.\n"
+        "Stage 5A scan pipeline completed.\n"
         f"Score method: {params.scan.score_method}\n"
         f"Best location: {scan_result['best_location']}\n"
         f"Truth error: {scan_result['truth_error']}\n"

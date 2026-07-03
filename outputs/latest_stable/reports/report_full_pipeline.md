@@ -6,7 +6,8 @@
 
 - forward：`kinematic approximation`
 - DAS-like：`DAS-like response approximation`
-- velocity：`uniform effective Rayleigh velocity`
+- velocity：`layered`，支持 uniform / layered / lateral gradient / localized low velocity zone
+- velocity approximation：`straight-ray kinematic approximation`，不是弹性波速度反演
 - surface response：`kinematic_surface_response_snapshot`，只是 Rayleigh 波走时控制的地表响应示意，不是真实弹性波模拟
 - Rayleigh depth sensitivity：`exp(-h / penetration_depth)` 简化权重，不是严格模态深度核
 
@@ -24,36 +25,40 @@
 ## raw 与 weighted best 对比
 
 - unweighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
-- weighted_best：x=`60.0` m，y=`10.0` m，h=`0.5` m
-- unweighted -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`-2.0` m，三维距离=`2.0` m
-- depth_prior_bias_warning：`True`
+- weighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
+- unweighted -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`0.0` m，三维距离=`0.0` m
+- depth_prior_bias_warning：`False`
 
 ## 推荐位置与三维不确定性
 
 - recommended_location_type：`uncertainty_interval`
-- recommended_location：`{'x_m': 60.0, 'y_m': 10.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 60.0], 'y_interval_m': [6.0, 14.0], 'depth_interval_m': [0.5, 5.5], 'component_boxes': [{'point_count': 24, 'x_min_m': 60.0, 'x_max_m': 60.0, 'y_min_m': 6.0, 'y_max_m': 14.0, 'depth_min_m': 0.5, 'depth_max_m': 5.5, 'x_span_m': 0.0, 'y_span_m': 8.0, 'depth_span_m': 5.0}]}`
+- recommended_location：`{'x_m': 60.0, 'y_m': 10.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 60.0], 'y_interval_m': [8.0, 12.0], 'depth_interval_m': [2.5, 2.5], 'component_boxes': [{'point_count': 3, 'x_min_m': 60.0, 'x_max_m': 60.0, 'y_min_m': 8.0, 'y_max_m': 12.0, 'depth_min_m': 2.5, 'depth_max_m': 2.5, 'x_span_m': 0.0, 'y_span_m': 4.0, 'depth_span_m': 0.0}]}`
 - recommended_reason：weighted_best 受到深度权重影响，或触发边界、宽 y、unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。
-- depth uncertainty interval：`[0.5, 5.5]` m
-- 3D high-score span：x=`0.0` m，y=`8.0` m，depth=`5.0` m
+- depth uncertainty interval：`[2.5, 2.5]` m
+- 3D high-score span：x=`0.0` m，y=`4.0` m，depth=`0.0` m
 
 ## 基础置信度分析
 
-- peak sharpness：`1.434`
-- score contrast：`5.424`
+- peak sharpness：`2.06`
+- score contrast：`8.188`
 - score percentile：`100.00%`
-- multi-shot consistency CV：`0.2703`
-- y-depth coupling warning：`True`
+- multi-shot consistency CV：`0.1279`
+- y-depth coupling warning：`False`
 - best_depth_at_boundary_warning：`False`
 - wide_y_high_score_zone_warning：`True`
-- raw_weighted_divergence_warning：`True`
-- shallow_bias_warning：`True`
-- confidence flag：`low`
+- raw_weighted_divergence_warning：`False`
+- shallow_bias_warning：`False`
+- confidence flag：`medium-low`
 
 这些指标只是规则型科研诊断，用于帮助人工判断结果是否稳定，不能作为工程确诊。
 
 ## Stage 4B 有效性验证
 
 本轮额外输出预处理消融、FK 滤波验证、matched wavelet、semblance、frequency shift、多属性消融、三维几何消融、三维高分区连通域和推荐决策流程图。若这些验证没有改善 y/depth 不确定性，报告必须解释为“接口已建立，效果待验证”，不能把候选点写成工程确诊。
+
+## Stage 5A 速度模型升级
+
+本轮新增 layered / lateral_gradient / localized_low_velocity_zone / layered_with_anomaly_perturbation 速度模型，并输出 velocity model ablation 与 model mismatch 报告。分层和非均匀速度会改变绕射走时曲线与扫描结果，但当前仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
 ## 风险提示
 

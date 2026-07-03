@@ -4,8 +4,8 @@
 
 | score_method | unweighted_best | weighted_best | unweighted_error_m | weighted_error_m | weighted_depth_at_boundary |
 |---|---|---|---:|---:|---|
-| diffraction_energy_stack | x=60.0, y=10.0, h=2.5 | x=60.0, y=10.0, h=0.5 | 1.118 | 2.693 | True |
-| normalized_energy_stack | x=60.0, y=10.0, h=2.5 | x=60.0, y=10.0, h=0.5 | 1.118 | 2.693 | True |
+| diffraction_energy_stack | x=60.0, y=10.0, h=2.5 | x=60.0, y=10.0, h=2.5 | 1.118 | 1.118 | False |
+| normalized_energy_stack | x=60.0, y=10.0, h=2.5 | x=60.0, y=10.0, h=2.5 | 1.118 | 1.118 | False |
 
 ## 深度稳定性参考
 
