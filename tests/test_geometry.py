@@ -34,3 +34,29 @@ def test_geometry_shapes_and_distances_are_reasonable():
 
     assert scatter_path.shape == (2, 1, 12)
     assert np.all(scatter_path[:, 0, :] >= direct)
+
+
+def test_default_single_sided_geometry_lines_are_on_opposite_road_sides():
+    params = args_to_params(
+        parse_arguments(
+            [
+                "--road-width-m",
+                "18",
+                "--fiber-channel-count",
+                "20",
+                "--source-shot-count",
+                "3",
+                "--gauge-length-m",
+                "4",
+            ]
+        )
+    )
+    receiver_xyz = generate_receiver_xyz(params)
+    source_xyz = generate_source_xyz(params)
+
+    assert params.source.y_m == params.road.width_m
+    assert np.all(receiver_xyz[:, 1] == params.fiber.y_m)
+    assert np.all(source_xyz[:, 1] == params.source.y_m)
+    assert params.fiber.y_m == 0.0
+    assert params.source.y_m != params.fiber.y_m
+    assert 0.0 <= params.anomaly.y0_m <= params.road.width_m

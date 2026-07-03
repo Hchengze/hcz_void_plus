@@ -16,7 +16,7 @@ from src.utils.metadata import build_metadata, save_json
 from src.utils.path_manager import ensure_output_subdirs
 from src.utils.random_seed import set_random_seed
 from src.visualization.plot_gather import plot_shot_gather
-from src.visualization.plot_geometry import plot_geometry
+from src.visualization.plot_geometry import plot_geometry, plot_geometry_layout_check
 from src.visualization.plot_pseudo_wavefield import (
     save_pseudo_wavefield_animation,
     save_pseudo_wavefield_snapshots,
@@ -60,6 +60,15 @@ def _write_forward_report(
 - 位置：x=`{params.anomaly.x0_m}` m，y=`{params.anomaly.y0_m}` m，h=`{params.anomaly.depth_m}` m
 - 等效散射点数量：`{scatter_xyz.shape[0]}`
 - 说明：多个散射点表示异常体形状是运动学等效散射近似，不是真实边界散射模拟。
+
+## 几何自检
+
+- DAS 光纤测线位于 y = `{params.fiber.y_m}` m。
+- 震源测线位于 y = W = `{params.source.y_m}` m。
+- 道路区域为 `0 <= y <= {params.road.width_m}` m。
+- 异常体平面投影位于 x = `{params.anomaly.x0_m}` m，y = `{params.anomaly.y0_m}` m，埋深 h = `{params.anomaly.depth_m}` m。
+- 当前伪波场快照为 x-y 表面平面运动学示意图，grid_z = 0。
+- 异常体深度只参与三维路径距离计算，不作为 y 坐标显示。
 
 ## 输出
 
@@ -108,6 +117,13 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
 
     if params.output.save_figures:
         plot_geometry(params, receiver_xyz, source_xyz, scatter_xyz, paths["figures"] / "fig_geometry.png")
+        plot_geometry_layout_check(
+            params,
+            receiver_xyz,
+            source_xyz,
+            scatter_xyz,
+            paths["figures"] / "fig_geometry_layout_check.png",
+        )
         n_fig = min(params.output.max_shot_gather_figures, params.source.shot_count)
         for shot_index in range(n_fig):
             plot_shot_gather(params, synthetic_data, shot_index, paths["figures"] / f"fig_shot_gather_{shot_index:03d}.png")

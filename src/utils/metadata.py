@@ -11,12 +11,7 @@ import numpy as np
 
 
 def to_serializable(obj: Any) -> Any:
-    """将 params、numpy 数组和 Path 转换为 JSON 可保存对象。
-
-    物理意义：
-        科研结果必须可追溯。params_snapshot.json 需要包含默认参数、命令行覆盖
-        参数和派生参数，因此要把 numpy 数组等对象转换为普通列表。
-    """
+    """将 params、numpy 数组和 Path 转换为 JSON 可保存对象。"""
 
     if isinstance(obj, SimpleNamespace):
         return {key: to_serializable(value) for key, value in vars(obj).items()}
@@ -40,6 +35,50 @@ def save_json(path: Path, payload: Any) -> None:
         json.dump(to_serializable(payload), handle, ensure_ascii=False, indent=2)
 
 
+def _geometry_self_check(params: SimpleNamespace) -> dict[str, Any]:
+    """生成道路 x-y 平面几何自检信息。
+
+    自检目标：
+        1. 确认 DAS 光纤测线位于 fiber_y_m；
+        2. 确认震源测线位于 source_y_m，默认等于 road_width_m；
+        3. 确认伪波场快照是 x-y surface plane, z=0；
+        4. 确认 anomaly_depth_m 只作为 z/depth 使用，不作为 y 坐标。
+    """
+
+    receiver_y_unique = np.unique(np.round(params.derived.receiver_xyz[:, 1], decimals=9)).tolist()
+    source_y_unique = np.unique(np.round(params.derived.source_xyz[:, 1], decimals=9)).tolist()
+    tol = 1.0e-9
+    source_line_on_opposite_side = (
+        abs(params.fiber.y_m - 0.0) <= tol
+        and abs(params.source.y_m - params.road.width_m) <= tol
+        and abs(params.source.y_m - params.fiber.y_m) > tol
+    )
+
+    warnings = []
+    if not source_line_on_opposite_side:
+        warnings.append("source_y_m 与 fiber_y_m 未呈现默认道路两侧几何，请检查自定义采集参数。")
+    if not (0.0 <= params.anomaly.y0_m <= params.road.width_m):
+        warnings.append("异常体 y 坐标不在道路区域 0<=y<=W 内。")
+
+    return {
+        "fiber_y_m": params.fiber.y_m,
+        "source_y_m": params.source.y_m,
+        "road_width_m": params.road.width_m,
+        "source_line_on_opposite_side": source_line_on_opposite_side,
+        "receiver_line_y_unique": receiver_y_unique,
+        "source_line_y_unique": source_y_unique,
+        "pseudo_wavefield_plane": "x-y surface plane, z=0",
+        "anomaly_depth_used_as_z": True,
+        "anomaly_depth_used_as_y": False,
+        "anomaly_projection_xy_m": {
+            "x_m": params.anomaly.x0_m,
+            "y_m": params.anomaly.y0_m,
+            "depth_m": params.anomaly.depth_m,
+        },
+        "warnings": warnings,
+    }
+
+
 def build_metadata(
     params: SimpleNamespace,
     synthetic_data: np.ndarray,
@@ -51,16 +90,14 @@ def build_metadata(
 ) -> dict[str, Any]:
     """构建本次实验 metadata。
 
-    metadata 必须诚实说明：
-        当前是 kinematic approximation；
-        当前是 DAS-like response approximation；
-        当前速度模型为 uniform effective Rayleigh velocity；
-        当前结果不能作为工程确诊结论。
+    metadata 必须诚实说明当前是 kinematic approximation 和 DAS-like response
+    approximation。Stage 2B 额外写入伪波场几何自检信息，明确快照是 x-y 表面
+    平面，异常体深度 h 只参与三维路径距离。
     """
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 2 Chinese visualization and basic scan localization",
+        "stage": "Stage 2B pseudo-wavefield geometry layout self-check",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -110,6 +147,7 @@ def build_metadata(
             "n_shot": params.source.shot_count,
             "n_channel": params.fiber.channel_count,
             "nt": params.derived.nt,
+            **_geometry_self_check(params),
         },
         "scatter_points": {
             "mode": params.anomaly.scatter_point_mode,
