@@ -6,7 +6,12 @@ from typing import Any
 
 import numpy as np
 
-from src.forward.elastic2d.das_response import build_elastic_das_response, compute_gauge_length_strain
+from src.forward.elastic2d.das_response import (
+    accumulate_displacement_like,
+    build_elastic_das_response,
+    compute_gauge_length_strain,
+    compute_pairwise_gauge_strain,
+)
 from src.forward.elastic2d.elastic_fdtd import run_elastic2d_prototype
 from src.forward.elastic2d.validation import make_elastic2d_validation_params
 from src.validation.common import clone_params
@@ -88,4 +93,66 @@ def run_elastic2d_das_component_response(params) -> dict[str, Any]:
         "gauge_void_residual_rms": _rms(residual_strain),
         "status": "component_and_gauge_length_checked",
         "note": "当前 DAS-like strain 是 surface vx 的有限差分近似，不是真实 DAS 仪器响应。",
+    }
+
+
+def run_elastic2d_das_nonzero_check(params) -> dict[str, Any]:
+    """检查 DAS-like gauge strain 为零/很弱的原因。
+
+    该诊断同时比较 vx、vz、ux-like 位移累积量、速度型 gauge strain 和位移型 gauge
+    strain。若所有 gauge 指标仍接近零，报告必须禁止把 gauge strain 默认纳入定位。
+    """
+
+    source_types = ["vertical_force", "horizontal_force"]
+    gauge_lengths = [0.5, 1.0, 2.0, 4.0]
+    cases: dict[str, dict[str, Any]] = {}
+    threshold = 1.0e-18
+    for source_type in source_types:
+        trial_params = clone_params(params)
+        trial_params.forward.elastic2d_source_type = source_type
+        trial = make_elastic2d_validation_params(trial_params)
+        result = run_elastic2d_prototype(trial, with_void=False)
+        dt = float(result.time_axis_s[1] - result.time_axis_s[0]) if len(result.time_axis_s) > 1 else params.time.dt_s
+        ux_like = accumulate_displacement_like(result.surface_vx_gather, dt)
+        for gauge_length in gauge_lengths:
+            velocity_pair = compute_pairwise_gauge_strain(result.surface_vx_gather, result.grid.dx_m, gauge_length)
+            displacement_pair = compute_pairwise_gauge_strain(ux_like, result.grid.dx_m, gauge_length)
+            name = f"{source_type}_g{gauge_length}"
+            cases[name] = {
+                "source_type": source_type,
+                "gauge_length_m": gauge_length,
+                "vx_rms": _rms(result.surface_vx_gather),
+                "vz_rms": _rms(result.surface_vz_gather),
+                "ux_like_rms": _rms(ux_like),
+                "velocity_gauge_strain_rms": _rms(velocity_pair["strain"]),
+                "displacement_gauge_strain_rms": _rms(displacement_pair["strain"]),
+                "gauge_samples": velocity_pair["gauge_samples"],
+                "pair_count": velocity_pair["pair_count"],
+                "receiver_spacing_m": velocity_pair["receiver_spacing_m"],
+            }
+    best_velocity = max(cases, key=lambda key: cases[key]["velocity_gauge_strain_rms"])
+    best_displacement = max(cases, key=lambda key: cases[key]["displacement_gauge_strain_rms"])
+    best_metric = max(
+        cases[best_velocity]["velocity_gauge_strain_rms"],
+        cases[best_displacement]["displacement_gauge_strain_rms"],
+    )
+    if best_metric <= threshold:
+        reason = "gauge strain 仍接近零，可能是 surface vx 极弱、pair 差分抵消或 collocated-grid 表面响应不足。"
+    elif cases[best_velocity]["vx_rms"] <= threshold:
+        reason = "surface vx 极弱，gauge 响应不应进入默认定位。"
+    else:
+        reason = "gauge strain 非零，但仍只属于 DAS-like validation，不是真实 DAS 仪器响应。"
+    return {
+        "cases": cases,
+        "best_velocity_gauge_case": best_velocity,
+        "best_displacement_gauge_case": best_displacement,
+        "best_velocity_gauge_rms": cases[best_velocity]["velocity_gauge_strain_rms"],
+        "best_displacement_gauge_rms": cases[best_displacement]["displacement_gauge_strain_rms"],
+        "das_gauge_nonzero_status": "nonzero" if best_metric > threshold else "zero_or_too_weak",
+        # 即使本轮诊断能得到非零 gauge strain，它仍没有通过真实 DAS gauge length、
+        # 光纤方向、仪器响应和 elastic2d 数值格式校准，因此默认定位仍禁止使用。
+        "default_localization_should_use_gauge_strain": False,
+        "diagnosis": reason,
+        "threshold": threshold,
+        "note": "即使 gauge strain 非零，也必须经过真实 DAS gauge/方向/仪器响应校准后才能用于主定位。",
     }

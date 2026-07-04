@@ -13,6 +13,9 @@
 ## 结论边界
 
 - layered_kinematic 曲线可解释部分主要到时，但不能解释完整振幅、频率、尾波和多路径。
+- 低解释比例可能来自 Rayleigh-like 拾取未通过、body wave / boundary reflection 占主导，或 collocated-grid/free-surface 原型仍不稳定。
+- 这说明当前 kinematic localization 不能直接用 elastic residual 的全波形能量来评价迁移能力。
+- matched wavelet、frequency shift、semblance 等定位属性暂不应基于该 elastic residual 强行调参。
 - x-y-h 三维定位仍可继续使用 kinematic 主线做快速候选区扫描。
 - 深度、横向 y、振幅和频率解释必须等 elastic validation 更成熟后再推进。
 - 当前结果是科研候选区，不是工程确诊。

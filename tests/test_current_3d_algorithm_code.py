@@ -17,14 +17,16 @@ def test_current_3d_algorithm_directory_exists():
 
 def test_stable_api_reports_current_algorithm_line():
     summary = get_current_algorithm_summary()
-    assert summary["stage"] == "Stage 5D"
+    assert summary["stage"] == "Stage 5E"
     assert summary["velocity_default"] == "layered"
     assert summary["main_localization"] == "multi_attribute_unweighted"
     assert summary["stable_forward_engine"] == "layered_kinematic"
     assert "elastic2d_prototype" in summary["available_validation_forward"]
-    assert summary["planned_physics_forward"] == "elastic2d accuracy/stability hardening + 2.5D multi-section validation"
+    assert summary["planned_physics_forward"] == "elastic2d accuracy/stability hardening before 2.5D multi-section validation"
     assert summary["velocity_model_audit"] == "direct/scatter/scan travel-time must use the velocity_model interface"
     assert summary["latest_stable_policy"] == "curated outputs only after figure self-check"
+    assert summary["scientific_latest_stable_policy"]
+    assert summary["ready_for_2p5d"] is False
     assert summary["not_engineering_diagnosis"] is True
 
 

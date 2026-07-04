@@ -27,16 +27,17 @@ def get_current_algorithm_summary() -> dict[str, Any]:
     }
 
     return {
-        "stage": "Stage 5D",
+        "stage": "Stage 5E",
         "stable_area": "code/current_3d_algorithm",
         "research_area": "src",
         "geometry": "3D source_xyz / receiver_xyz / candidate_xyz",
         "forward": "layered_kinematic straight-ray kinematic approximation",
         "stable_forward_engine": "layered_kinematic",
         "available_validation_forward": ["acoustic2d_prototype", "elastic2d_prototype"],
-        "planned_physics_forward": "elastic2d accuracy/stability hardening + 2.5D multi-section validation",
+        "planned_physics_forward": "elastic2d accuracy/stability hardening before 2.5D multi-section validation",
         "velocity_model_audit": "direct/scatter/scan travel-time must use the velocity_model interface",
         "latest_stable_policy": "curated outputs only after figure self-check",
+        "scientific_latest_stable_policy": "reports and figures must not claim Rayleigh/DAS success when diagnostics fail",
         "stage5d_diagnostics": [
             "repository_health_report",
             "figure_self_check_report",
@@ -47,6 +48,16 @@ def get_current_algorithm_summary() -> dict[str, Any]:
             "elastic2d_das_component_response",
             "elastic_vs_kinematic_energy_partition",
         ],
+        "stage5e_diagnostics": [
+            "scientific_figure_self_check",
+            "elastic2d_numerical_sensitivity",
+            "velocity_model_physics_bridge",
+            "das_gauge_nonzero_check",
+            "staggered_grid_layout_plan",
+        ],
+        "rayleigh_like_stage5d_status": "not_detected",
+        "das_gauge_stage5d_status": "zero_or_too_weak",
+        "ready_for_2p5d": False,
         "forward_roadmap": forward_roadmap,
         "velocity_default": "layered",
         "velocity_models": [

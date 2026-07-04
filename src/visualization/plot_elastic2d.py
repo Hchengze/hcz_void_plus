@@ -281,3 +281,121 @@ def plot_elastic_vs_kinematic_energy_partition(result: dict[str, Any], output_pa
     ax.set_title(f"elastic vs kinematic energy partition, shift={result['best_time_shift_ms']:.2f} ms")
     ax.grid(axis="y", alpha=0.25)
     _save(fig, output_path)
+
+
+def plot_stage5e_status_badge(summary: dict[str, Any], output_path: Path) -> None:
+    """绘制 Stage 5E 当前状态徽章图。"""
+
+    setup_chinese_matplotlib()
+    fig, ax = plt.subplots(figsize=(7.0, 4.0), dpi=150)
+    ax.axis("off")
+    rayleigh = summary.get("rayleigh_like_event_detected")
+    gauge = summary.get("das_gauge_nonzero_status")
+    ready = summary.get("elastic2d_ready_for_2p5d")
+    ax.text(0.5, 0.78, "Stage 5E Status", ha="center", va="center", fontsize=20, fontweight="bold")
+    ax.text(
+        0.5,
+        0.52,
+        "active forward: layered_kinematic\n"
+        "elastic2d: validation prototype\n"
+        f"Rayleigh-like detected: {rayleigh}\n"
+        f"DAS gauge status: {gauge}\n"
+        f"ready for 2.5D: {ready}",
+        ha="center",
+        va="center",
+        fontsize=12,
+    )
+    ax.text(
+        0.5,
+        0.12,
+        "未通过 Rayleigh/free-surface 基础验证前，不建议进入 2.5D 或局部 3D elastic。",
+        ha="center",
+        va="center",
+        fontsize=10,
+        color="#e15759",
+    )
+    _save(fig, output_path)
+
+
+def plot_elastic2d_numerical_sensitivity_summary(result: dict[str, Any], output_path: Path) -> None:
+    """绘制 elastic2d 数值敏感性汇总。"""
+
+    setup_chinese_matplotlib()
+    names = list(result["cases"].keys())
+    velocities = [result["cases"][name]["estimated_surface_velocity_mps"] for name in names]
+    detected = [result["cases"][name]["rayleigh_like_event_detected"] for name in names]
+    fig, ax = plt.subplots(figsize=(10.5, 4.8), dpi=150)
+    colors = ["#59a14f" if flag else "#e15759" for flag in detected]
+    ax.bar(np.arange(len(names)), velocities, color=colors)
+    best = result["best_case_metrics"]
+    lo, hi = best["expected_rayleigh_like_range_mps"]
+    ax.axhspan(lo, hi, color="#59a14f", alpha=0.15, label="expected Rayleigh-like range")
+    ax.set_xticks(np.arange(len(names)))
+    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_ylabel("estimated surface velocity / (m/s)")
+    ax.set_title(f"elastic2d numerical sensitivity, best={result['best_case']}")
+    ax.legend()
+    ax.grid(axis="y", alpha=0.25)
+    _save(fig, output_path)
+
+
+def plot_elastic2d_rayleigh_pick_case_comparison(result: dict[str, Any], output_path: Path) -> None:
+    """比较各 case 的 body leakage 与 boundary reflection。"""
+
+    setup_chinese_matplotlib()
+    names = list(result["cases"].keys())
+    body = [result["cases"][name]["body_wave_leakage_indicator"] for name in names]
+    boundary = [result["cases"][name]["boundary_reflection_indicator"] for name in names]
+    x = np.arange(len(names))
+    fig, ax = plt.subplots(figsize=(10.5, 4.6), dpi=150)
+    ax.plot(x, body, marker="o", label="body/near-source leakage")
+    ax.plot(x, boundary, marker="s", label="late boundary/coda")
+    ax.set_xticks(x)
+    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_ylim(0.0, 1.0)
+    ax.set_ylabel("energy ratio")
+    ax.set_title("Rayleigh pick case diagnostics")
+    ax.legend()
+    ax.grid(alpha=0.25)
+    _save(fig, output_path)
+
+
+def plot_elastic2d_das_response_nonzero_check(result: dict[str, Any], output_path: Path) -> None:
+    """绘制 DAS-like gauge 非零检查。"""
+
+    setup_chinese_matplotlib()
+    names = list(result["cases"].keys())
+    velocity = [result["cases"][name]["velocity_gauge_strain_rms"] for name in names]
+    displacement = [result["cases"][name]["displacement_gauge_strain_rms"] for name in names]
+    x = np.arange(len(names))
+    fig, ax = plt.subplots(figsize=(10.5, 4.6), dpi=150)
+    ax.plot(x, velocity, marker="o", label="velocity gauge strain")
+    ax.plot(x, displacement, marker="s", label="ux-like gauge strain")
+    ax.set_yscale("symlog", linthresh=1.0e-20)
+    ax.set_xticks(x)
+    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_ylabel("RMS")
+    ax.set_title(f"DAS-like gauge nonzero check: {result['das_gauge_nonzero_status']}")
+    ax.legend()
+    ax.grid(alpha=0.25)
+    _save(fig, output_path)
+
+
+def plot_elastic2d_das_force_direction_comparison(result: dict[str, Any], output_path: Path) -> None:
+    """按 source direction 汇总 DAS-like gauge 响应。"""
+
+    setup_chinese_matplotlib()
+    grouped: dict[str, float] = {}
+    for item in result["cases"].values():
+        grouped[item["source_type"]] = max(
+            grouped.get(item["source_type"], 0.0),
+            item["velocity_gauge_strain_rms"],
+            item["displacement_gauge_strain_rms"],
+        )
+    fig, ax = plt.subplots(figsize=(6.4, 4.0), dpi=150)
+    ax.bar(list(grouped.keys()), list(grouped.values()), color=["#4e79a7", "#f28e2b"])
+    ax.set_yscale("symlog", linthresh=1.0e-20)
+    ax.set_ylabel("best gauge RMS")
+    ax.set_title("DAS-like force direction comparison")
+    ax.grid(axis="y", alpha=0.25)
+    _save(fig, output_path)

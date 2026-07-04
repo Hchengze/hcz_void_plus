@@ -1,6 +1,6 @@
 """检查关键文本文件的换行和可审计性。
 
-Stage 5D 不再根据 GitHub raw 页面观感判断文件是否“一行化”。本工具直接读取
+Stage 5D/5E 不再根据 GitHub raw 页面观感判断文件是否“一行化”。本工具直接读取
 本地字节，统计 LF、CRLF、CR-only 和最长行，给出可重复的文本健康报告。
 """
 
@@ -89,7 +89,7 @@ def collect_text_health(paths: list[Path]) -> list[TextHealth]:
 
 
 def default_paths(repo_root: Path) -> list[Path]:
-    """返回 Stage 5D 必查文件列表。"""
+    """返回 Stage 5E 必查文件列表。"""
 
     paths = [repo_root / pattern for pattern in DEFAULT_CHECK_PATTERNS]
     reports_dir = repo_root / "outputs" / "latest_stable" / "reports"

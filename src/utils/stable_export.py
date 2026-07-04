@@ -10,12 +10,16 @@ from pathlib import Path
 from typing import Any
 
 from src.utils.latest_stable_manifest import (
-    STAGE5D_FIGURE_SPECS,
+    STAGE5E_FIGURE_SPECS,
     build_figure_metadata,
     specs_by_category,
 )
 from src.validation.figure_self_check import run_figure_self_check, write_figure_self_check_report
 from src.validation.repository_health import build_repository_health_report, write_repository_health_report
+from src.validation.scientific_figure_self_check import (
+    run_scientific_figure_self_check,
+    write_scientific_figure_self_check_report,
+)
 
 
 CURATED_FIGURES = specs_by_category()
@@ -26,6 +30,7 @@ CURATED_REPORTS = {
         "report_confidence.md",
         "report_repository_health.md",
         "report_figure_self_check.md",
+        "report_scientific_figure_self_check.md",
     ],
     "forward": [
         "report_forward_engine_ablation.md",
@@ -34,6 +39,7 @@ CURATED_REPORTS = {
         "report_elastic2d_void_scattering.md",
         "report_elastic2d_das_response.md",
         "report_elastic_vs_kinematic.md",
+        "report_elastic2d_numerical_sensitivity.md",
     ],
     "localization": [
         "report_multi_attribute_ablation.md",
@@ -45,6 +51,7 @@ CURATED_REPORTS = {
         "report_model_mismatch.md",
         "report_velocity_model_audit.md",
         "report_velocity_model_visualization.md",
+        "report_velocity_model_physics_bridge.md",
     ],
 }
 
@@ -106,8 +113,27 @@ def _copy_if_exists(src: Path, dst: Path, copied: list[str], missing: list[str])
         missing.append(str(src))
 
 
+def _to_builtin(value: Any) -> Any:
+    """把 numpy 标量/数组递归转成普通 Python 类型，避免 summary 出现 np.float64 表示。"""
+
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        return {key: _to_builtin(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_to_builtin(item) for item in value]
+    if hasattr(value, "tolist"):
+        return value.tolist()
+    if hasattr(value, "item"):
+        try:
+            return value.item()
+        except ValueError:
+            return value
+    return value
+
+
 def _format_optional(value: Any) -> str:
-    return "无" if value is None else str(value)
+    return "无" if value is None else str(_to_builtin(value))
 
 
 def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: list[str], missing: list[str]) -> None:
@@ -143,7 +169,12 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     velocity_model_audit = summary_info.get("velocity_model_audit") or {}
     velocity_model_visualization = summary_info.get("velocity_model_visualization") or {}
     figure_self_check = summary_info.get("figure_self_check") or {}
+    scientific_figure_self_check = summary_info.get("scientific_figure_self_check") or {}
     repository_health = summary_info.get("repository_health") or {}
+    stage5e_validation = summary_info.get("stage5e_validation") or {}
+    elastic2d_numerical_sensitivity = stage5e_validation.get("elastic2d_numerical_sensitivity") or {}
+    velocity_physics_bridge = stage5e_validation.get("velocity_model_physics_bridge") or {}
+    das_nonzero = stage5e_validation.get("elastic2d_das_nonzero_check") or {}
     elastic_void_sensitivity = stage5b_validation.get("elastic2d_void_parameter_sensitivity") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
@@ -156,12 +187,25 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
         if Path(path).resolve().is_relative_to(summary_path.parent.resolve())
         and ("figures" in Path(path).parts or "reports" in Path(path).parts)
     )
+    scientific_recommended = scientific_figure_self_check.get("recommended_figures") or [
+        "figures/core/fig_stage5e_status_badge.png",
+        "figures/core/fig_confidence_diagnostics.png",
+        "figures/diagnostics/fig_velocity_model_active_badge.png",
+        "figures/diagnostics/fig_velocity_model_physics_bridge.png",
+        "figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png",
+        "figures/forward/fig_elastic2d_numerical_sensitivity_summary.png",
+        "figures/forward/fig_elastic2d_rayleigh_pick_case_comparison.png",
+        "figures/forward/fig_elastic2d_das_response_nonzero_check.png",
+        "figures/forward/fig_elastic_vs_kinematic_energy_partition.png",
+        "figures/localization/fig_scan_x_y_slice.png",
+    ]
+    scientific_recommended_text = "\n".join(f"- `{item}`" for item in scientific_recommended[:12])
     content = f"""# latest_stable 稳定成果摘要
 
 ## 本轮信息
 
 - commit id：`{summary_info.get("commit_id", "unknown")}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5D")}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5E")}`
 - 运行时间：`{summary_info.get("run_time", datetime.now().isoformat(timespec="seconds"))}`
 - 来源目录：`{summary_info.get("source_run_dir", "")}`
 
@@ -267,6 +311,24 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - das_gauge_response_best_case：source=`{_format_optional(elastic_das.get("best_source_type_for_gauge"))}`，gauge_length=`{_format_optional(elastic_das.get("best_gauge_length_m"))}` m
 - elastic_vs_kinematic_explained_fraction：`{_format_optional(elastic_vs_kinematic.get("kinematic_curve_explained_fraction"))}`
 
+## Stage 5E 科学图件自检、速度物理桥接与 elastic2d 数值加固
+
+- stage：`Stage 5E`
+- scientific_figure_self_check_status：`{_format_optional(scientific_figure_self_check.get("status"))}`
+- scientific warning count：`{_format_optional(scientific_figure_self_check.get("scientific_warning_count"))}`
+- rayleigh_like_event_best_case：`{_format_optional(elastic2d_numerical_sensitivity.get("best_case"))}`
+- rayleigh_like_event_detected：`{_format_optional(elastic2d_numerical_sensitivity.get("rayleigh_like_event_detected_any") if elastic2d_numerical_sensitivity else elastic_rayleigh.get("rayleigh_like_event_detected"))}`
+- elastic2d_best_numerical_case：`{_format_optional(elastic2d_numerical_sensitivity.get("best_case_metrics"))}`
+- velocity_physics_bridge_status：`{_format_optional(velocity_physics_bridge.get("status"))}`
+- rayleigh_equivalent_vs_elastic_consistency：`{_format_optional(velocity_physics_bridge.get("rayleigh_equivalent_vs_elastic_consistency"))}`
+- das_gauge_nonzero_status：`{_format_optional(das_nonzero.get("das_gauge_nonzero_status"))}`
+- das gauge default localization enabled：`{_format_optional(das_nonzero.get("default_localization_should_use_gauge_strain"))}`
+- elastic2d_ready_for_2p5d：`{_format_optional(elastic2d_numerical_sensitivity.get("elastic2d_ready_for_2p5d"))}`
+
+## Stage 5E 人工优先查看图件
+
+{scientific_recommended_text}
+
 ## 基础置信度指标
 
 - peak sharpness：`{_format_optional(peak.get("peak_sharpness"))}`
@@ -365,11 +427,11 @@ def export_latest_stable_outputs(
     latest_stable_dir = Path(latest_stable_dir)
     output_root_dir = latest_stable_dir.parent
     figure_metadata = build_figure_metadata(
-        stage="Stage 5D",
+        stage="Stage 5E",
         forward_engine=str(summary_info.get("forward_engine_active", "layered_kinematic")),
         velocity_model_type=str(summary_info.get("active_velocity_model_type", "layered")),
     )
-    figure_self_check = run_figure_self_check(run_output_dir, STAGE5D_FIGURE_SPECS, figure_metadata)
+    figure_self_check = run_figure_self_check(run_output_dir, STAGE5E_FIGURE_SPECS, figure_metadata)
     write_figure_self_check_report(
         run_output_dir / "reports" / "report_figure_self_check.md",
         figure_self_check,
@@ -443,6 +505,24 @@ def export_latest_stable_outputs(
     repository_health = build_repository_health_report(Path.cwd(), latest_stable_dir)
     write_repository_health_report(repository_health_path, repository_health)
     copied.append(str(repository_health_path))
+    summary_info["repository_health"] = {
+        "status": repository_health["status"],
+        "figures_root_png_count": repository_health["figures_root_png_count"],
+        "reports_root_md_count": repository_health["reports_root_md_count"],
+    }
+    scientific_check = run_scientific_figure_self_check(latest_stable_dir, summary_info)
+    scientific_path = latest_stable_dir / "reports" / "core" / "report_scientific_figure_self_check.md"
+    write_scientific_figure_self_check_report(scientific_path, scientific_check)
+    copied.append(str(scientific_path))
+    summary_info["scientific_figure_self_check"] = {
+        "status": scientific_check["status"],
+        "checked_figure_count": scientific_check["checked_figure_count"],
+        "scientific_warning_count": scientific_check["scientific_warning_count"],
+        "failure_count": scientific_check["failure_count"],
+        "recommended_figures": scientific_check["recommended_figures"],
+    }
+    repository_health = build_repository_health_report(Path.cwd(), latest_stable_dir)
+    write_repository_health_report(repository_health_path, repository_health)
     summary_info["repository_health"] = {
         "status": repository_health["status"],
         "figures_root_png_count": repository_health["figures_root_png_count"],

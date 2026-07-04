@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage5d_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5e_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -268,6 +268,24 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=float,
         default=1.1,
         help="Rayleigh-like 拾取速度上限，相对 Vs 的比例。",
+    )
+    forward.add_argument(
+        "--elastic2d-sponge-strength-mode",
+        default="medium",
+        choices=["weak", "medium", "strong"],
+        help="elastic2d sponge 吸收强度；仅用于 validation forward。",
+    )
+    forward.add_argument(
+        "--elastic2d-free-surface-mode",
+        default="approximate",
+        choices=["approximate", "stress_zero_variant"],
+        help="elastic2d 顶部自由表面近似模式；不是工业级自由表面格式。",
+    )
+    forward.add_argument(
+        "--elastic2d-receiver-depth-index",
+        default="surface",
+        choices=["surface", "one_grid_below_surface"],
+        help="elastic2d surface gather 接收深度；用于检查拾取是否误受表面数值点影响。",
     )
 
     scan = parser.add_argument_group("scan 扫描定位参数组")
@@ -539,6 +557,9 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             elastic2d_source_depth_m=args.elastic2d_source_depth_m,
             elastic2d_rayleigh_pick_vmin_factor=args.elastic2d_rayleigh_pick_vmin_factor,
             elastic2d_rayleigh_pick_vmax_factor=args.elastic2d_rayleigh_pick_vmax_factor,
+            elastic2d_sponge_strength_mode=args.elastic2d_sponge_strength_mode,
+            elastic2d_free_surface_mode=args.elastic2d_free_surface_mode,
+            elastic2d_receiver_depth_index=args.elastic2d_receiver_depth_index,
         ),
         scan=_namespace(
             enabled=args.scan_enabled,
@@ -954,7 +975,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 5D 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5E 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")

@@ -31,6 +31,9 @@ class Elastic2DResult:
     source_x_m: float
     source_z_m: float
     source_type: str
+    free_surface_mode: str
+    sponge_strength_mode: str
+    receiver_depth_index: str
 
 
 def build_elastic2d_grid_from_params(params: SimpleNamespace) -> Elastic2DGrid:
@@ -114,7 +117,12 @@ def run_elastic2d_prototype(params: SimpleNamespace, with_void: bool = False) ->
     nt = int(np.floor(params.forward.elastic2d_duration_s / dt)) + 1
     time_axis = np.arange(nt, dtype=float) * dt
     source = elastic_ricker_force(time_axis, params.task.wavelet_frequency_hz)
-    damping = build_elastic_sponge(grid.nz, grid.nx)
+    sponge_strength = {
+        "weak": 0.006,
+        "medium": 0.015,
+        "strong": 0.035,
+    }.get(params.forward.elastic2d_sponge_strength_mode, 0.015)
+    damping = build_elastic_sponge(grid.nz, grid.nx, strength=sponge_strength)
     cfl_info = check_elastic_cfl(model.vp_mps, dt, grid.dx_m, grid.dz_m)
 
     vx = np.zeros((grid.nz, grid.nx), dtype=float)
@@ -127,7 +135,9 @@ def run_elastic2d_prototype(params: SimpleNamespace, with_void: bool = False) ->
     # 震源深度由 main.py 参数控制；这里限制在内部网格，避免放到 sponge 或越界点。
     source_iz = int(round(params.forward.elastic2d_source_depth_m / max(grid.dz_m, 1.0e-9)))
     source_iz = min(max(1, source_iz), grid.nz - 3)
-    receiver_iz = 1
+    # surface 表示紧邻自由表面的第一排内部速度点；one_grid_below_surface 用来检查
+    # Rayleigh-like 拾取是否被最表层数值边界条件污染。
+    receiver_iz = 2 if params.forward.elastic2d_receiver_depth_index == "one_grid_below_surface" else 1
     receiver_ix = np.arange(2, grid.nx - 2, dtype=int)
     surface_vx = np.zeros((nt, len(receiver_ix)), dtype=float)
     surface_vz = np.zeros_like(surface_vx)
@@ -160,10 +170,15 @@ def run_elastic2d_prototype(params: SimpleNamespace, with_void: bool = False) ->
         szz += dt * (model.lambda_pa * dvx_dx + (model.lambda_pa + 2.0 * model.mu_pa) * dvz_dz)
         sxz += dt * model.mu_pa * (dvx_dz + dvz_dx)
 
-        # 顶部近似自由表面：法向和切向牵引置零。该处理足以做 Rayleigh-like sanity check，
-        # 但不是严格高阶自由表面边界。
-        szz[0, :] = 0.0
-        sxz[0, :] = 0.0
+        # 顶部近似自由表面：法向和切向牵引置零。stress_zero_variant 会额外约束
+        # 第二排浅层应力，作为 Stage 5E 的最小对照；它仍不是严格 staggered-grid
+        # traction-free 边界，只用于判断当前失败是否对 free-surface 处理敏感。
+        if params.forward.elastic2d_free_surface_mode == "stress_zero_variant":
+            szz[:2, :] = 0.0
+            sxz[:2, :] = 0.0
+        else:
+            szz[0, :] = 0.0
+            sxz[0, :] = 0.0
 
         vx *= damping
         vz *= damping
@@ -192,4 +207,7 @@ def run_elastic2d_prototype(params: SimpleNamespace, with_void: bool = False) ->
         source_x_m=grid.x_m[source_ix],
         source_z_m=grid.z_m[source_iz],
         source_type=params.forward.elastic2d_source_type,
+        free_surface_mode=params.forward.elastic2d_free_surface_mode,
+        sponge_strength_mode=params.forward.elastic2d_sponge_strength_mode,
+        receiver_depth_index=params.forward.elastic2d_receiver_depth_index,
     )

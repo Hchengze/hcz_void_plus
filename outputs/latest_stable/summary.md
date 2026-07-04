@@ -2,10 +2,10 @@
 
 ## 本轮信息
 
-- commit id：`958168f`
-- 任务名称：`Stage 5D elastic2d 加固 + 速度模型主线核验 + 图件自检`
-- 运行时间：`2026-07-04T19:12:23`
-- 来源目录：`outputs\stage5d_run_20260704_191133`
+- commit id：`3310520`
+- 任务名称：`Stage 5E elastic2d 数值格式加固 + 速度模型物理关系澄清 + 科学图件自检`
+- 运行时间：`2026-07-04T22:23:26`
+- 来源目录：`outputs\stage5e_run_20260704_222232`
 
 ## 当前近似条件
 
@@ -77,7 +77,7 @@
 - latest_stable_curated：`True`
 - forward_engine_active：`layered_kinematic`
 - forward_engine_available：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype', 'elastic2d_prototype']`
-- forward_engine_next_required：`elastic2d accuracy/stability hardening + 2.5D multi-section validation`
+- forward_engine_next_required：`elastic2d accuracy/stability hardening before 2.5D multi-section validation`
 - forward_modeling_stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation`
 - validation_forward_available：`['acoustic2d_prototype', 'elastic2d_prototype']`
 - layered_vs_baseline travel-time RMS residual：`57.07585810059442` ms
@@ -95,7 +95,7 @@
 
 - repository_health_status：`pass`
 - figure_self_check_status：`pass`
-- figure_self_check passed/failed：`37` / `0`
+- figure_self_check passed/failed：`45` / `0`
 - active_velocity_model_type：`layered`
 - active_velocity_model_confirmed：`True`
 - velocity_model_used_by_direct：`True`
@@ -108,6 +108,33 @@
 - void_residual_energy_best_case：`vertical_force_r1.5_vs0.2` / `1.1075624099111773e-16`
 - das_gauge_response_best_case：source=`vertical_force`，gauge_length=`0.5` m
 - elastic_vs_kinematic_explained_fraction：`0.00022196748680872161`
+
+## Stage 5E 科学图件自检、速度物理桥接与 elastic2d 数值加固
+
+- stage：`Stage 5E`
+- scientific_figure_self_check_status：`pass`
+- scientific warning count：`0`
+- rayleigh_like_event_best_case：`source_horizontal`
+- rayleigh_like_event_detected：`False`
+- elastic2d_best_numerical_case：`{'name': 'source_horizontal', 'source_type': 'horizontal_force', 'source_depth_m': 0.2, 'sponge_strength': 'medium', 'free_surface_mode': 'approximate', 'receiver_depth_index': 'surface', 'estimated_surface_velocity_mps': 174.99252279465844, 'expected_rayleigh_like_range_mps': [212.5, 245.0], 'rayleigh_like_event_detected': False, 'rayleigh_pick_interpretation': '拾取速度偏慢，可能受边界反射、sponge 衰减或弱表面事件影响。', 'surface_event_energy': 1.752454782962487e-17, 'body_wave_leakage_indicator': 3.400135375364181e-11, 'boundary_reflection_indicator': 0.3443054143959791, 'cfl': 0.35, 'cfl_stable': True, 'max_amplitude': 1.4068548495363135e-08, 'distance_to_expected_center_mps': 53.75747720534156}`
+- velocity_physics_bridge_status：`generated`
+- rayleigh_equivalent_vs_elastic_consistency：`consistent`
+- das_gauge_nonzero_status：`nonzero`
+- das gauge default localization enabled：`False`
+- elastic2d_ready_for_2p5d：`False`
+
+## Stage 5E 人工优先查看图件
+
+- `figures/core/fig_stage5e_status_badge.png`
+- `figures/core/fig_confidence_diagnostics.png`
+- `figures/diagnostics/fig_velocity_model_active_badge.png`
+- `figures/diagnostics/fig_velocity_model_physics_bridge.png`
+- `figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png`
+- `figures/forward/fig_elastic2d_numerical_sensitivity_summary.png`
+- `figures/forward/fig_elastic2d_rayleigh_pick_case_comparison.png`
+- `figures/forward/fig_elastic2d_das_response_nonzero_check.png`
+- `figures/forward/fig_elastic_vs_kinematic_energy_partition.png`
+- `figures/localization/fig_scan_x_y_slice.png`
 
 ## 基础置信度指标
 
@@ -124,6 +151,7 @@
 
 ## 推荐人工重点查看
 
+- figures/core/fig_stage5e_status_badge.png
 - figures/core/fig_geometry_layout_check.png
 - figures/core/fig_shot_gather_000.png
 - figures/core/fig_best_location_map.png
@@ -147,6 +175,10 @@
 - figures/forward/fig_elastic_vs_kinematic_overlay.png
 - figures/forward/fig_elastic_vs_kinematic_residual_energy.png
 - figures/forward/fig_elastic_vs_kinematic_energy_partition.png
+- figures/forward/fig_elastic2d_numerical_sensitivity_summary.png
+- figures/forward/fig_elastic2d_rayleigh_pick_case_comparison.png
+- figures/forward/fig_elastic2d_das_response_nonzero_check.png
+- figures/forward/fig_elastic2d_das_force_direction_comparison.png
 - figures/localization/fig_scan_x_depth_slice.png
 - figures/localization/fig_scan_x_y_slice.png
 - figures/localization/fig_multi_attribute_ablation.png
@@ -161,6 +193,9 @@
 - figures/diagnostics/fig_velocity_sampling_paths_current.png
 - figures/diagnostics/fig_uniform_vs_layered_travel_time_difference.png
 - figures/diagnostics/fig_velocity_model_active_badge.png
+- figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png
+- figures/diagnostics/fig_elastic_vp_vs_rho_model.png
+- figures/diagnostics/fig_velocity_model_physics_bridge.png
 - figures/diagnostics/anim_pseudo_wavefield.gif
 - reports/core/report_full_pipeline.md
 - reports/core/report_confidence.md
@@ -171,18 +206,21 @@
 - reports/forward/report_elastic2d_void_scattering.md
 - reports/forward/report_elastic2d_das_response.md
 - reports/forward/report_elastic_vs_kinematic.md
+- reports/forward/report_elastic2d_numerical_sensitivity.md
 - reports/localization/report_multi_attribute_ablation.md
 - reports/localization/report_geometry_ablation.md
 - reports/diagnostics/report_velocity_model_ablation.md
 - reports/diagnostics/report_model_mismatch.md
 - reports/diagnostics/report_velocity_model_audit.md
 - reports/diagnostics/report_velocity_model_visualization.md
+- reports/diagnostics/report_velocity_model_physics_bridge.md
 - reports/core/report_repository_health.md
+- reports/core/report_scientific_figure_self_check.md
 
 ## 导出记录
 
-- 已复制精选文件数量：`60`
-- 缺失精选文件数量：`1`
+- 已复制精选文件数量：`71`
+- 缺失精选文件数量：`2`
 
 ## 当前限制
 

@@ -381,6 +381,24 @@ def write_elastic2d_das_response_report(path: Path, result: dict[str, Any]) -> N
         f"- best_gauge_length_m：`{result.get('best_gauge_length_m')}`。",
         f"- gauge_void_residual_rms：`{result.get('gauge_void_residual_rms')}`。",
     ]
+    nonzero = result.get("nonzero_check") or {}
+    if nonzero:
+        lines.extend(
+            [
+                "",
+                "## Stage 5E 非零响应检查",
+                "",
+                f"- das_gauge_nonzero_status：`{nonzero.get('das_gauge_nonzero_status')}`。",
+                f"- best_velocity_gauge_case：`{nonzero.get('best_velocity_gauge_case')}`。",
+                f"- best_velocity_gauge_rms：`{nonzero.get('best_velocity_gauge_rms')}`。",
+                f"- best_displacement_gauge_case：`{nonzero.get('best_displacement_gauge_case')}`。",
+                f"- best_displacement_gauge_rms：`{nonzero.get('best_displacement_gauge_rms')}`。",
+                f"- default_localization_should_use_gauge_strain：`{nonzero.get('default_localization_should_use_gauge_strain')}`。",
+                f"- diagnosis：{nonzero.get('diagnosis')}",
+                "",
+                "若 gauge strain 为零或很弱，必须明确禁止默认纳入定位；即使非零，也仍需真实 DAS gauge/方向/仪器响应校准。",
+            ]
+        )
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -403,6 +421,9 @@ def write_elastic_vs_kinematic_report(path: Path, result: dict[str, Any]) -> Non
         "## 结论边界",
         "",
         "- layered_kinematic 曲线可解释部分主要到时，但不能解释完整振幅、频率、尾波和多路径。",
+        "- 低解释比例可能来自 Rayleigh-like 拾取未通过、body wave / boundary reflection 占主导，或 collocated-grid/free-surface 原型仍不稳定。",
+        "- 这说明当前 kinematic localization 不能直接用 elastic residual 的全波形能量来评价迁移能力。",
+        "- matched wavelet、frequency shift、semblance 等定位属性暂不应基于该 elastic residual 强行调参。",
         "- x-y-h 三维定位仍可继续使用 kinematic 主线做快速候选区扫描。",
         "- 深度、横向 y、振幅和频率解释必须等 elastic validation 更成熟后再推进。",
         "- 当前结果是科研候选区，不是工程确诊。",
