@@ -34,7 +34,11 @@ from src.validation.forward_engine_ablation import (
     strip_forward_engine_ablation_arrays,
 )
 from src.validation.elastic2d_rayleigh_validation import run_elastic2d_rayleigh_validation
-from src.validation.elastic2d_void_scattering import run_elastic2d_void_scattering
+from src.validation.elastic2d_das_response import run_elastic2d_das_component_response
+from src.validation.elastic2d_void_scattering import (
+    run_elastic2d_void_parameter_sensitivity,
+    run_elastic2d_void_scattering,
+)
 from src.validation.elastic_vs_kinematic import run_elastic_vs_kinematic
 from src.validation.geometry_ablation import run_geometry_ablation
 from src.validation.model_mismatch import run_model_mismatch_experiment
@@ -54,7 +58,10 @@ from src.validation.reports import (
     write_multi_attribute_ablation_report,
     write_preprocessing_ablation_report,
     write_velocity_model_ablation_report,
+    write_velocity_model_visualization_report,
 )
+from src.validation.repository_health import build_repository_health_report, write_repository_health_report
+from src.validation.velocity_model_audit import run_velocity_model_audit, write_velocity_model_audit_report
 from src.validation.velocity_model_ablation import run_velocity_model_ablation
 from src.visualization.plot_stage4b import (
     plot_3d_high_score_components,
@@ -84,14 +91,27 @@ from src.visualization.plot_stage5b import (
 )
 from src.forward.elastic2d.das_response import build_elastic_das_response
 from src.visualization.plot_elastic2d import (
+    plot_elastic2d_das_component_comparison,
     plot_elastic2d_das_gauge_response,
+    plot_elastic2d_das_gauge_length_sensitivity,
+    plot_elastic2d_rayleigh_pick_diagnostics,
     plot_elastic2d_rayleigh_velocity_check,
     plot_elastic2d_rayleigh_wavefield_snapshots,
     plot_elastic2d_surface_gather,
     plot_elastic2d_void_diffraction_overlay,
+    plot_elastic2d_void_parameter_sensitivity,
+    plot_elastic2d_void_residual_energy_map,
     plot_elastic2d_void_scattering_residual,
+    plot_elastic_vs_kinematic_energy_partition,
     plot_elastic_vs_kinematic_overlay,
     plot_elastic_vs_kinematic_residual_energy,
+)
+from src.visualization.plot_velocity_model import (
+    plot_uniform_vs_layered_travel_time_difference,
+    plot_velocity_model_2d_slice_current,
+    plot_velocity_model_active_badge,
+    plot_velocity_model_profile_current,
+    plot_velocity_sampling_paths_current,
 )
 
 
@@ -268,6 +288,7 @@ def _build_final_metadata(
     stage4b_validation: dict[str, Any] | None,
     stage5a_validation: dict[str, Any] | None,
     stage5b_validation: dict[str, Any] | None,
+    stage5d_validation: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -349,6 +370,37 @@ def _build_final_metadata(
             "elastic_vs_kinematic_residual_energy_figure": str(
                 paths["figures"] / "fig_elastic_vs_kinematic_residual_energy.png"
             ),
+            "velocity_model_profile_current_figure": str(
+                paths["figures"] / "fig_velocity_model_profile_current.png"
+            ),
+            "velocity_model_2d_slice_current_figure": str(
+                paths["figures"] / "fig_velocity_model_2d_slice_current.png"
+            ),
+            "velocity_sampling_paths_current_figure": str(
+                paths["figures"] / "fig_velocity_sampling_paths_current.png"
+            ),
+            "uniform_vs_layered_travel_time_difference_figure": str(
+                paths["figures"] / "fig_uniform_vs_layered_travel_time_difference.png"
+            ),
+            "velocity_model_active_badge_figure": str(paths["figures"] / "fig_velocity_model_active_badge.png"),
+            "elastic2d_rayleigh_pick_diagnostics_figure": str(
+                paths["figures"] / "fig_elastic2d_rayleigh_pick_diagnostics.png"
+            ),
+            "elastic2d_void_parameter_sensitivity_figure": str(
+                paths["figures"] / "fig_elastic2d_void_parameter_sensitivity.png"
+            ),
+            "elastic2d_void_residual_energy_map_figure": str(
+                paths["figures"] / "fig_elastic2d_void_residual_energy_map.png"
+            ),
+            "elastic2d_das_component_comparison_figure": str(
+                paths["figures"] / "fig_elastic2d_das_component_comparison.png"
+            ),
+            "elastic2d_das_gauge_length_sensitivity_figure": str(
+                paths["figures"] / "fig_elastic2d_das_gauge_length_sensitivity.png"
+            ),
+            "elastic_vs_kinematic_energy_partition_figure": str(
+                paths["figures"] / "fig_elastic_vs_kinematic_energy_partition.png"
+            ),
         },
         confidence_info=confidence_metrics,
         score_method_comparison=score_method_comparison,
@@ -356,7 +408,7 @@ def _build_final_metadata(
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "Stage 5C 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d_prototype 只作 validation。",
+            "note": "Stage 5D 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d_prototype 只作 validation，并新增速度模型调用链与图件自检。",
         },
         output_info=output_info,
         git_info=git_info,
@@ -364,6 +416,7 @@ def _build_final_metadata(
     metadata["stage4b_validation"] = stage4b_validation or {}
     metadata["stage5a_validation"] = stage5a_validation or {}
     metadata["stage5b_validation"] = stage5b_validation or {}
+    metadata["stage5d_validation"] = stage5d_validation or {}
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -392,9 +445,13 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     geometry_ablation: dict[str, Any] | None = None
     velocity_model_ablation: dict[str, Any] | None = None
     model_mismatch: dict[str, Any] | None = None
+    velocity_model_audit: dict[str, Any] | None = None
+    velocity_model_visualization: dict[str, Any] | None = None
+    repository_health: dict[str, Any] | None = None
     forward_engine_ablation: dict[str, Any] | None = None
     elastic2d_rayleigh_validation: dict[str, Any] | None = None
     elastic2d_void_scattering: dict[str, Any] | None = None
+    elastic2d_void_parameter_sensitivity: dict[str, Any] | None = None
     elastic2d_das_response: dict[str, Any] | None = None
     elastic_vs_kinematic: dict[str, Any] | None = None
     if params.scan.enabled:
@@ -663,6 +720,61 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 )
                 write_model_mismatch_report(paths["reports"] / "report_model_mismatch.md", model_mismatch)
 
+        velocity_model_audit = run_velocity_model_audit(
+            params,
+            forward_result["source_xyz"],
+            forward_result["receiver_xyz"],
+            forward_result["scatter_xyz"],
+            Path.cwd(),
+        )
+        sampling_summary: dict[str, Any] = {}
+        travel_time_difference_summary: dict[str, Any] = {}
+        if params.output.save_figures:
+            plot_velocity_model_profile_current(
+                params,
+                paths["figures"] / "fig_velocity_model_profile_current.png",
+            )
+            plot_velocity_model_2d_slice_current(
+                params,
+                paths["figures"] / "fig_velocity_model_2d_slice_current.png",
+            )
+            sampling_summary = plot_velocity_sampling_paths_current(
+                params,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["scatter_xyz"],
+                paths["figures"] / "fig_velocity_sampling_paths_current.png",
+            )
+            travel_time_difference_summary = plot_uniform_vs_layered_travel_time_difference(
+                params,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                paths["figures"] / "fig_uniform_vs_layered_travel_time_difference.png",
+            )
+            plot_velocity_model_active_badge(
+                params,
+                velocity_model_audit,
+                paths["figures"] / "fig_velocity_model_active_badge.png",
+            )
+        velocity_model_visualization = {
+            "active_velocity_model_type": params.velocity.model_type,
+            "layer_depths_m": list(params.velocity.layer_depths_m),
+            "layer_rayleigh_velocities_mps": list(params.velocity.layer_rayleigh_velocities_mps),
+            "sampling_path": sampling_summary,
+            "uniform_vs_active_travel_time_difference": travel_time_difference_summary
+            or velocity_model_audit["travel_time_difference"],
+            "status": "generated",
+        }
+        if params.output.save_report:
+            write_velocity_model_audit_report(
+                paths["reports"] / "report_velocity_model_audit.md",
+                velocity_model_audit,
+            )
+            write_velocity_model_visualization_report(
+                paths["reports"] / "report_velocity_model_visualization.md",
+                velocity_model_visualization,
+            )
+
         forward_engine_ablation = run_forward_engine_ablation(
             params,
             forward_result["source_xyz"],
@@ -703,6 +815,8 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
 
         elastic2d_rayleigh_validation = run_elastic2d_rayleigh_validation(params)
         elastic2d_void_scattering = run_elastic2d_void_scattering(params)
+        elastic2d_void_parameter_sensitivity = run_elastic2d_void_parameter_sensitivity(params)
+        elastic2d_void_scattering["parameter_sensitivity"] = elastic2d_void_parameter_sensitivity
         elastic_vs_kinematic = run_elastic_vs_kinematic(params)
         elastic = elastic2d_rayleigh_validation["elastic_result"]
         das = build_elastic_das_response(
@@ -719,6 +833,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             "strain_to_point_rms_ratio": strain_rms / max(point_rms, 1.0e-12),
             "status": "generated_from_elastic2d_surface_velocity",
         }
+        elastic2d_das_response.update(run_elastic2d_das_component_response(params))
         if params.output.save_figures:
             plot_elastic2d_rayleigh_wavefield_snapshots(
                 elastic2d_rayleigh_validation,
@@ -732,6 +847,10 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 elastic2d_rayleigh_validation,
                 paths["figures"] / "fig_elastic2d_rayleigh_velocity_check.png",
             )
+            plot_elastic2d_rayleigh_pick_diagnostics(
+                elastic2d_rayleigh_validation,
+                paths["figures"] / "fig_elastic2d_rayleigh_pick_diagnostics.png",
+            )
             plot_elastic2d_void_scattering_residual(
                 elastic2d_void_scattering,
                 paths["figures"] / "fig_elastic2d_void_scattering_residual.png",
@@ -740,10 +859,26 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 elastic2d_void_scattering,
                 paths["figures"] / "fig_elastic2d_void_diffraction_overlay.png",
             )
+            plot_elastic2d_void_parameter_sensitivity(
+                elastic2d_void_parameter_sensitivity,
+                paths["figures"] / "fig_elastic2d_void_parameter_sensitivity.png",
+            )
+            plot_elastic2d_void_residual_energy_map(
+                elastic2d_void_parameter_sensitivity,
+                paths["figures"] / "fig_elastic2d_void_residual_energy_map.png",
+            )
             plot_elastic2d_das_gauge_response(
                 elastic2d_rayleigh_validation,
                 params.das_like.gauge_length_m,
                 paths["figures"] / "fig_elastic2d_das_gauge_response.png",
+            )
+            plot_elastic2d_das_component_comparison(
+                elastic2d_das_response,
+                paths["figures"] / "fig_elastic2d_das_component_comparison.png",
+            )
+            plot_elastic2d_das_gauge_length_sensitivity(
+                elastic2d_das_response,
+                paths["figures"] / "fig_elastic2d_das_gauge_length_sensitivity.png",
             )
             plot_elastic_vs_kinematic_overlay(
                 elastic_vs_kinematic,
@@ -752,6 +887,10 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             plot_elastic_vs_kinematic_residual_energy(
                 elastic_vs_kinematic,
                 paths["figures"] / "fig_elastic_vs_kinematic_residual_energy.png",
+            )
+            plot_elastic_vs_kinematic_energy_partition(
+                elastic_vs_kinematic,
+                paths["figures"] / "fig_elastic_vs_kinematic_energy_partition.png",
             )
         if params.output.save_report:
             write_elastic2d_rayleigh_validation_report(
@@ -816,6 +955,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                     "kinematic_curve_s",
                 }
             },
+            "elastic2d_void_parameter_sensitivity": elastic2d_void_parameter_sensitivity,
             "elastic2d_das_response": elastic2d_das_response,
             "elastic_vs_kinematic": {
                 key: value
@@ -831,6 +971,27 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 }
             },
         }
+        stage5d_validation = {
+            # Stage 5D 的重点是把速度模型调用链、速度模型图件和 elastic2d 加固指标
+            # 固化成 metadata，而不是只把图复制进 latest_stable。
+            "velocity_model_audit": velocity_model_audit,
+            "velocity_model_visualization": velocity_model_visualization,
+            "elastic2d_void_parameter_sensitivity": elastic2d_void_parameter_sensitivity,
+            "elastic2d_das_component_response": elastic2d_das_response,
+            "elastic_vs_kinematic_metrics": {
+                key: value
+                for key, value in (elastic_vs_kinematic or {}).items()
+                if key
+                in {
+                    "residual_energy_near_kinematic_curve_ratio",
+                    "residual_energy_off_curve_ratio",
+                    "best_time_shift_ms",
+                    "kinematic_curve_explained_fraction",
+                    "elastic_extra_event_fraction",
+                    "main_conclusion",
+                }
+            },
+        }
         _build_final_metadata(
             params,
             forward_result,
@@ -841,20 +1002,22 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             stage4b_validation,
             stage5a_validation,
             stage5b_validation,
+            stage5d_validation,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 5C forward 职责治理 + curated latest_stable + elastic2d validation",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
+                "task_name": "Stage 5D elastic2d 加固 + 速度模型主线核验 + 图件自检",
                 "forward_engine_active": params.forward.engine,
                 "forward_engine_available": [
                     "kinematic_baseline",
                     "layered_kinematic",
                     "acoustic2d_prototype",
+                    "elastic2d_prototype",
                 ],
                 "forward_engine_next_required": "elastic2d accuracy/stability hardening + 2.5D multi-section validation",
                 "forward_modeling_stage": "F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation",
@@ -871,6 +1034,12 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 ),
                 "das_gauge_response_status": (elastic2d_das_response or {}).get("status"),
                 "elastic_vs_kinematic_main_conclusion": (elastic_vs_kinematic or {}).get("main_conclusion"),
+                "active_velocity_model_type": params.velocity.model_type,
+                "active_velocity_model_confirmed": (velocity_model_audit or {}).get(
+                    "active_velocity_model_confirmed"
+                ),
+                "velocity_model_audit": velocity_model_audit,
+                "velocity_model_visualization": velocity_model_visualization,
                 "best_location": scan_result["best_location"],
                 "raw_best_location": scan_result["raw_best_location"],
                 "unweighted_best_location": scan_result["unweighted_best_location"],
@@ -883,6 +1052,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "stage4b_validation": stage4b_validation,
                 "stage5a_validation": stage5a_validation,
                 "stage5b_validation": stage5b_validation,
+                "stage5d_validation": stage5d_validation,
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],
@@ -906,10 +1076,14 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["geometry_ablation"] = geometry_ablation
     result["velocity_model_ablation"] = velocity_model_ablation
     result["model_mismatch"] = model_mismatch
+    result["velocity_model_audit"] = velocity_model_audit
+    result["velocity_model_visualization"] = velocity_model_visualization
     result["forward_engine_ablation"] = forward_engine_ablation
     result["elastic2d_rayleigh_validation"] = elastic2d_rayleigh_validation
     result["elastic2d_void_scattering"] = elastic2d_void_scattering
+    result["elastic2d_void_parameter_sensitivity"] = elastic2d_void_parameter_sensitivity
     result["elastic2d_das_response"] = elastic2d_das_response
     result["elastic_vs_kinematic"] = elastic_vs_kinematic
+    result["stage5d_validation"] = stage5d_validation if "stage5d_validation" in locals() else None
     result["stable_export_info"] = stable_export_info
     return result

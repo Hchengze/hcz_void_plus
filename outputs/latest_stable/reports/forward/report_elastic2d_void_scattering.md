@@ -6,6 +6,8 @@
 - relative_residual_energy：`1.705e-05`。
 - void_residual_visible：`True`。
 - scatter center：x=`4.96` m, z=`2.25` m。
+- parameter sensitivity best case：`vertical_force_r1.5_vs0.2`。
+- parameter sensitivity best residual energy：`1.1075624099111773e-16`。
 
 ## 解释
 

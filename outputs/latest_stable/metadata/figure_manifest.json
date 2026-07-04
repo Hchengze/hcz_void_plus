@@ -1,0 +1,1386 @@
+{
+  "stage": "Stage 5D",
+  "checked_count": 37,
+  "passed_count": 37,
+  "failed_count": 0,
+  "items": [
+    {
+      "filename": "fig_geometry_layout_check.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_geometry_layout_check.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 82802,
+      "width_px": 1500,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_shot_gather_000.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_shot_gather_000.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 334319,
+      "width_px": 1200,
+      "height_px": 750,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_best_location_map.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_best_location_map.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 51038,
+      "width_px": 1350,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_confidence_diagnostics.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_confidence_diagnostics.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 144724,
+      "width_px": 1575,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_forward_roadmap_status.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_forward_roadmap_status.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 146442,
+      "width_px": 1575,
+      "height_px": 870,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/forward/report_forward_engine_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_forward_engine_comparison.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_forward_engine_comparison.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 73399,
+      "width_px": 1290,
+      "height_px": 930,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_forward_engine_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_layered_kinematic_vs_baseline_gather.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 262934,
+      "width_px": 1725,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_forward_engine_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_acoustic2d_wavefield_snapshots.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_acoustic2d_wavefield_snapshots.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 133877,
+      "width_px": 1530,
+      "height_px": 840,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_acoustic2d_prototype.md"
+      }
+    },
+    {
+      "filename": "fig_acoustic2d_shot_gather.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_acoustic2d_shot_gather.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 209830,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_acoustic2d_prototype.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_rayleigh_wavefield_snapshots.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 75214,
+      "width_px": 1260,
+      "height_px": 960,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_surface_gather.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_surface_gather.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 249529,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_rayleigh_velocity_check.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 36665,
+      "width_px": 960,
+      "height_px": 570,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_rayleigh_pick_diagnostics.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 279543,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_scattering_residual.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_scattering_residual.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 216214,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_diffraction_overlay.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_diffraction_overlay.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 201848,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_parameter_sensitivity.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 57304,
+      "width_px": 1500,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_residual_energy_map.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_residual_energy_map.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 42187,
+      "width_px": 1425,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_das_gauge_response.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_gauge_response.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 287623,
+      "width_px": 1500,
+      "height_px": 660,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_das_response.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_das_component_comparison.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_component_comparison.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 32200,
+      "width_px": 1080,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_das_response.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_das_gauge_length_sensitivity.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 39142,
+      "width_px": 900,
+      "height_px": 600,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_das_response.md"
+      }
+    },
+    {
+      "filename": "fig_elastic_vs_kinematic_overlay.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_overlay.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 201848,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic_vs_kinematic.md"
+      }
+    },
+    {
+      "filename": "fig_elastic_vs_kinematic_residual_energy.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 29106,
+      "width_px": 870,
+      "height_px": 600,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic_vs_kinematic.md"
+      }
+    },
+    {
+      "filename": "fig_elastic_vs_kinematic_energy_partition.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 35050,
+      "width_px": 1080,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic_vs_kinematic.md"
+      }
+    },
+    {
+      "filename": "fig_scan_x_depth_slice.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_scan_x_depth_slice.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 49978,
+      "width_px": 1275,
+      "height_px": 750,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_scan_x_y_slice.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_scan_x_y_slice.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 53017,
+      "width_px": 1275,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_multi_attribute_ablation.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_multi_attribute_ablation.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 133153,
+      "width_px": 1575,
+      "height_px": 1080,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/localization/report_multi_attribute_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_3d_high_score_components.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_3d_high_score_components.png",
+      "category": "uncertainty",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 42582,
+      "width_px": 1275,
+      "height_px": 930,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "uncertainty",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_x_y_depth_uncertainty_slices.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_x_y_depth_uncertainty_slices.png",
+      "category": "uncertainty",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 66067,
+      "width_px": 1980,
+      "height_px": 660,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "uncertainty",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_recommendation_decision_flow.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_recommendation_decision_flow.png",
+      "category": "uncertainty",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 70372,
+      "width_px": 1350,
+      "height_px": 780,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "uncertainty",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_comparison.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_comparison.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 90990,
+      "width_px": 1350,
+      "height_px": 975,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_model_mismatch_error_summary.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_model_mismatch_error_summary.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 122491,
+      "width_px": 1500,
+      "height_px": 1050,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_model_mismatch.md"
+      }
+    },
+    {
+      "filename": "fig_depth_prior_sensitivity.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_depth_prior_sensitivity.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 42457,
+      "width_px": 1275,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_profile_current.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_profile_current.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 30506,
+      "width_px": 780,
+      "height_px": 750,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_2d_slice_current.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_2d_slice_current.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 30829,
+      "width_px": 1050,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_sampling_paths_current.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_sampling_paths_current.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 88400,
+      "width_px": 1500,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_uniform_vs_layered_travel_time_difference.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 46139,
+      "width_px": 1080,
+      "height_px": 660,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_active_badge.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_active_badge.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 39860,
+      "width_px": 930,
+      "height_px": 570,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_audit.md"
+      }
+    }
+  ],
+  "passed_items": [
+    {
+      "filename": "fig_geometry_layout_check.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_geometry_layout_check.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 82802,
+      "width_px": 1500,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_shot_gather_000.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_shot_gather_000.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 334319,
+      "width_px": 1200,
+      "height_px": 750,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_best_location_map.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_best_location_map.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 51038,
+      "width_px": 1350,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_confidence_diagnostics.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_confidence_diagnostics.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 144724,
+      "width_px": 1575,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_forward_roadmap_status.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_forward_roadmap_status.png",
+      "category": "core",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 146442,
+      "width_px": 1575,
+      "height_px": 870,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "core",
+        "required_report": "reports/forward/report_forward_engine_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_forward_engine_comparison.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_forward_engine_comparison.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 73399,
+      "width_px": 1290,
+      "height_px": 930,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_forward_engine_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_layered_kinematic_vs_baseline_gather.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 262934,
+      "width_px": 1725,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_forward_engine_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_acoustic2d_wavefield_snapshots.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_acoustic2d_wavefield_snapshots.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 133877,
+      "width_px": 1530,
+      "height_px": 840,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_acoustic2d_prototype.md"
+      }
+    },
+    {
+      "filename": "fig_acoustic2d_shot_gather.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_acoustic2d_shot_gather.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 209830,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_acoustic2d_prototype.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_rayleigh_wavefield_snapshots.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 75214,
+      "width_px": 1260,
+      "height_px": 960,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_surface_gather.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_surface_gather.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 249529,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_rayleigh_velocity_check.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 36665,
+      "width_px": 960,
+      "height_px": 570,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_rayleigh_pick_diagnostics.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 279543,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_rayleigh_validation.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_scattering_residual.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_scattering_residual.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 216214,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_diffraction_overlay.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_diffraction_overlay.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 201848,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_parameter_sensitivity.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 57304,
+      "width_px": 1500,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_void_residual_energy_map.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_residual_energy_map.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 42187,
+      "width_px": 1425,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_void_scattering.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_das_gauge_response.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_gauge_response.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 287623,
+      "width_px": 1500,
+      "height_px": 660,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_das_response.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_das_component_comparison.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_component_comparison.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 32200,
+      "width_px": 1080,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_das_response.md"
+      }
+    },
+    {
+      "filename": "fig_elastic2d_das_gauge_length_sensitivity.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 39142,
+      "width_px": 900,
+      "height_px": 600,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic2d_das_response.md"
+      }
+    },
+    {
+      "filename": "fig_elastic_vs_kinematic_overlay.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_overlay.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 201848,
+      "width_px": 1080,
+      "height_px": 690,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic_vs_kinematic.md"
+      }
+    },
+    {
+      "filename": "fig_elastic_vs_kinematic_residual_energy.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 29106,
+      "width_px": 870,
+      "height_px": 600,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic_vs_kinematic.md"
+      }
+    },
+    {
+      "filename": "fig_elastic_vs_kinematic_energy_partition.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
+      "category": "forward",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 35050,
+      "width_px": 1080,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "forward",
+        "required_report": "reports/forward/report_elastic_vs_kinematic.md"
+      }
+    },
+    {
+      "filename": "fig_scan_x_depth_slice.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_scan_x_depth_slice.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 49978,
+      "width_px": 1275,
+      "height_px": 750,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_scan_x_y_slice.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_scan_x_y_slice.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 53017,
+      "width_px": 1275,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/core/report_full_pipeline.md"
+      }
+    },
+    {
+      "filename": "fig_multi_attribute_ablation.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_multi_attribute_ablation.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 133153,
+      "width_px": 1575,
+      "height_px": 1080,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/localization/report_multi_attribute_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_3d_high_score_components.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_3d_high_score_components.png",
+      "category": "uncertainty",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 42582,
+      "width_px": 1275,
+      "height_px": 930,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "uncertainty",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_x_y_depth_uncertainty_slices.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_x_y_depth_uncertainty_slices.png",
+      "category": "uncertainty",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 66067,
+      "width_px": 1980,
+      "height_px": 660,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "uncertainty",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_recommendation_decision_flow.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_recommendation_decision_flow.png",
+      "category": "uncertainty",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 70372,
+      "width_px": 1350,
+      "height_px": 780,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "uncertainty",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_comparison.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_comparison.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 90990,
+      "width_px": 1350,
+      "height_px": 975,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_ablation.md"
+      }
+    },
+    {
+      "filename": "fig_model_mismatch_error_summary.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_model_mismatch_error_summary.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 122491,
+      "width_px": 1500,
+      "height_px": 1050,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_model_mismatch.md"
+      }
+    },
+    {
+      "filename": "fig_depth_prior_sensitivity.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_depth_prior_sensitivity.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 42457,
+      "width_px": 1275,
+      "height_px": 720,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/core/report_confidence.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_profile_current.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_profile_current.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 30506,
+      "width_px": 780,
+      "height_px": 750,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_2d_slice_current.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_2d_slice_current.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 30829,
+      "width_px": 1050,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_sampling_paths_current.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_sampling_paths_current.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 88400,
+      "width_px": 1500,
+      "height_px": 630,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_uniform_vs_layered_travel_time_difference.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 46139,
+      "width_px": 1080,
+      "height_px": 660,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_visualization.md"
+      }
+    },
+    {
+      "filename": "fig_velocity_model_active_badge.png",
+      "path": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_active_badge.png",
+      "category": "diagnostics",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 39860,
+      "width_px": 930,
+      "height_px": 570,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5D",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "diagnostics",
+        "required_report": "reports/diagnostics/report_velocity_model_audit.md"
+      }
+    }
+  ],
+  "failed_items": [],
+  "excluded_old_figures": [],
+  "excluded_duplicate_figures": [],
+  "missing_metadata_figures": [],
+  "status": "pass",
+  "recommended_figures": [
+    "core/fig_geometry_layout_check.png",
+    "core/fig_shot_gather_000.png",
+    "core/fig_best_location_map.png",
+    "core/fig_confidence_diagnostics.png",
+    "core/fig_forward_roadmap_status.png",
+    "forward/fig_forward_engine_comparison.png",
+    "forward/fig_layered_kinematic_vs_baseline_gather.png",
+    "forward/fig_acoustic2d_wavefield_snapshots.png",
+    "forward/fig_acoustic2d_shot_gather.png",
+    "forward/fig_elastic2d_rayleigh_wavefield_snapshots.png",
+    "forward/fig_elastic2d_surface_gather.png",
+    "forward/fig_elastic2d_rayleigh_velocity_check.png",
+    "forward/fig_elastic2d_rayleigh_pick_diagnostics.png",
+    "forward/fig_elastic2d_void_scattering_residual.png",
+    "forward/fig_elastic2d_void_diffraction_overlay.png",
+    "forward/fig_elastic2d_void_parameter_sensitivity.png",
+    "forward/fig_elastic2d_void_residual_energy_map.png",
+    "forward/fig_elastic2d_das_gauge_response.png",
+    "forward/fig_elastic2d_das_component_comparison.png",
+    "forward/fig_elastic2d_das_gauge_length_sensitivity.png",
+    "forward/fig_elastic_vs_kinematic_overlay.png",
+    "forward/fig_elastic_vs_kinematic_residual_energy.png",
+    "forward/fig_elastic_vs_kinematic_energy_partition.png",
+    "localization/fig_scan_x_depth_slice.png",
+    "localization/fig_scan_x_y_slice.png",
+    "localization/fig_multi_attribute_ablation.png",
+    "uncertainty/fig_3d_high_score_components.png",
+    "uncertainty/fig_x_y_depth_uncertainty_slices.png",
+    "uncertainty/fig_recommendation_decision_flow.png",
+    "diagnostics/fig_velocity_model_comparison.png",
+    "diagnostics/fig_model_mismatch_error_summary.png",
+    "diagnostics/fig_depth_prior_sensitivity.png",
+    "diagnostics/fig_velocity_model_profile_current.png",
+    "diagnostics/fig_velocity_model_2d_slice_current.png",
+    "diagnostics/fig_velocity_sampling_paths_current.png",
+    "diagnostics/fig_uniform_vs_layered_travel_time_difference.png",
+    "diagnostics/fig_velocity_model_active_badge.png"
+  ]
+}

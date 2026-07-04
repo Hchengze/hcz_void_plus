@@ -48,3 +48,9 @@ travel_time = integral(ds / v(x, y, z))
 ## latest_stable 边界
 
 Stage 5C 起，`outputs/latest_stable/` 是当前精选成果目录，不再是历史阶段所有图件和报告的平铺总仓库。完整历史输出应从时间戳运行目录追溯，当前主结论应优先查看分层后的 `figures/core`、`figures/forward`、`reports/core` 和 `reports/forward`。
+
+Stage 5D 起，精选图件必须先经过 figure self-check：文件存在、可读取、非空白、分辨率达标、分类正确，并在 manifest 中记录 `stage / forward_engine / velocity_model_type`。未通过自检的图件只留在时间戳运行目录，不进入 `latest_stable`。
+
+## Stage 5D 速度模型边界
+
+Stage 5D 会输出 `report_velocity_model_audit.md` 和当前速度模型图件，核验 `layered` 等效 Rayleigh 速度是否真正进入 direct wave、scatter wave 和 scan candidate travel-time。即便核验通过，它仍然只是 `straight-ray kinematic approximation`，不是完整 Vp/Vs/rho 弹性模型；`elastic2d_prototype` 使用的 Vp/Vs/rho 与主定位的 Rayleigh equivalent velocity 属于不同物理层级。

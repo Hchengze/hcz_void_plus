@@ -27,7 +27,7 @@ def get_current_algorithm_summary() -> dict[str, Any]:
     }
 
     return {
-        "stage": "Stage 5C",
+        "stage": "Stage 5D",
         "stable_area": "code/current_3d_algorithm",
         "research_area": "src",
         "geometry": "3D source_xyz / receiver_xyz / candidate_xyz",
@@ -35,6 +35,18 @@ def get_current_algorithm_summary() -> dict[str, Any]:
         "stable_forward_engine": "layered_kinematic",
         "available_validation_forward": ["acoustic2d_prototype", "elastic2d_prototype"],
         "planned_physics_forward": "elastic2d accuracy/stability hardening + 2.5D multi-section validation",
+        "velocity_model_audit": "direct/scatter/scan travel-time must use the velocity_model interface",
+        "latest_stable_policy": "curated outputs only after figure self-check",
+        "stage5d_diagnostics": [
+            "repository_health_report",
+            "figure_self_check_report",
+            "velocity_model_audit_report",
+            "velocity_model_visualization",
+            "elastic2d_rayleigh_pick_diagnostics",
+            "elastic2d_void_parameter_sensitivity",
+            "elastic2d_das_component_response",
+            "elastic_vs_kinematic_energy_partition",
+        ],
         "forward_roadmap": forward_roadmap,
         "velocity_default": "layered",
         "velocity_models": [

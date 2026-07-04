@@ -3,7 +3,12 @@
 本报告把 elastic2d residual gather 与局部 kinematic diffraction curve 叠加，检查运动学走时对 elastic residual 的解释能力。
 
 - curve_energy_ratio：`1.198e-07`。
-- main conclusion：layered/局部 kinematic 曲线能解释 elastic residual 的一部分主要到时，但 elastic2d 还显示振幅、尾波和多路径等运动学模型没有的效应。
+- residual_energy_near_kinematic_curve_ratio：`1.1981878201949605e-07`。
+- residual_energy_off_curve_ratio：`0.999999880181218`。
+- best_time_shift_ms：`10.0`。
+- kinematic_curve_explained_fraction：`0.00022196748680872161`。
+- elastic_extra_event_fraction：`0.9997780325131913`。
+- main conclusion：layered/局部 kinematic 曲线只能解释 elastic residual 的一部分能量；曲线外 residual 代表振幅、尾波、多路径、边界和弹性模式等运动学模型没有的效应。
 
 ## 结论边界
 

@@ -30,6 +30,7 @@ class Elastic2DResult:
     diagnostics: dict[str, float]
     source_x_m: float
     source_z_m: float
+    source_type: str
 
 
 def build_elastic2d_grid_from_params(params: SimpleNamespace) -> Elastic2DGrid:
@@ -123,7 +124,9 @@ def run_elastic2d_prototype(params: SimpleNamespace, with_void: bool = False) ->
     sxz = np.zeros_like(vx)
 
     source_ix = max(2, grid.nx // 4)
-    source_iz = 2
+    # 震源深度由 main.py 参数控制；这里限制在内部网格，避免放到 sponge 或越界点。
+    source_iz = int(round(params.forward.elastic2d_source_depth_m / max(grid.dz_m, 1.0e-9)))
+    source_iz = min(max(1, source_iz), grid.nz - 3)
     receiver_iz = 1
     receiver_ix = np.arange(2, grid.nx - 2, dtype=int)
     surface_vx = np.zeros((nt, len(receiver_ix)), dtype=float)
@@ -136,7 +139,17 @@ def run_elastic2d_prototype(params: SimpleNamespace, with_void: bool = False) ->
         # 动量方程：应力散度更新速度。collocated-grid 简化便于审计，但不是高精度工业格式。
         vx += dt * (_ddx(sxx, grid.dx_m) + _ddz(sxz, grid.dz_m)) * inv_rho
         vz += dt * (_ddx(sxz, grid.dx_m) + _ddz(szz, grid.dz_m)) * inv_rho
-        vz[source_iz, source_ix] += dt * source[it] / max(model.rho_kgm3[source_iz, source_ix], 1.0e-9)
+        # 三种最小震源机制都只服务 validation，不进入 layered_kinematic 主定位 forward。
+        # vertical_force 更接近锤击竖向力；horizontal_force 用来增强沿光纤切向 vx；
+        # explosive 是简化体积源，用于检查 pressure-like 响应，不代表真实 Rayleigh 激发。
+        source_value = dt * source[it] / max(model.rho_kgm3[source_iz, source_ix], 1.0e-9)
+        if params.forward.elastic2d_source_type == "horizontal_force":
+            vx[source_iz, source_ix] += source_value
+        elif params.forward.elastic2d_source_type == "explosive":
+            sxx[source_iz, source_ix] += source[it]
+            szz[source_iz, source_ix] += source[it]
+        else:
+            vz[source_iz, source_ix] += source_value
 
         dvx_dx = _ddx(vx, grid.dx_m)
         dvz_dz = _ddz(vz, grid.dz_m)
@@ -178,4 +191,5 @@ def run_elastic2d_prototype(params: SimpleNamespace, with_void: bool = False) ->
         diagnostics=diagnostics,
         source_x_m=grid.x_m[source_ix],
         source_z_m=grid.z_m[source_iz],
+        source_type=params.forward.elastic2d_source_type,
     )

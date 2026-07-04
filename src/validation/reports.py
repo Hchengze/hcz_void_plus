@@ -321,6 +321,10 @@ def write_elastic2d_rayleigh_validation_report(path: Path, result: dict[str, Any
         f"- expected sanity range：`{result['expected_rayleigh_like_range_mps']}` m/s。",
         f"- rayleigh_like_event_detected：`{result['rayleigh_like_event_detected']}`。",
         f"- estimation method：`{result['velocity_estimation_method']}`。",
+        f"- source type：`{result.get('source_type')}`。",
+        f"- source depth：`{result.get('source_depth_m')}` m。",
+        f"- pick velocity window：`{result.get('pick_vmin_mps')}` - `{result.get('pick_vmax_mps')}` m/s。",
+        f"- rayleigh_pick_interpretation：{result.get('rayleigh_pick_interpretation')}",
         "",
         "## 边界",
         "",
@@ -343,6 +347,8 @@ def write_elastic2d_void_scattering_report(path: Path, result: dict[str, Any]) -
         f"- relative_residual_energy：`{result['relative_residual_energy']:.4g}`。",
         f"- void_residual_visible：`{result['void_residual_visible']}`。",
         f"- scatter center：x=`{result['scatter_x_m']:.4g}` m, z=`{result['scatter_z_m']:.4g}` m。",
+        f"- parameter sensitivity best case：`{result.get('parameter_sensitivity', {}).get('best_case')}`。",
+        f"- parameter sensitivity best residual energy：`{result.get('parameter_sensitivity', {}).get('best_residual_energy')}`。",
         "",
         "## 解释",
         "",
@@ -371,6 +377,9 @@ def write_elastic2d_das_response_report(path: Path, result: dict[str, Any]) -> N
         f"- point shape：`{result['point_shape']}`。",
         f"- strain shape：`{result['strain_shape']}`。",
         f"- strain_rms / point_rms：`{result['strain_to_point_rms_ratio']:.4g}`。",
+        f"- best_source_type_for_gauge：`{result.get('best_source_type_for_gauge')}`。",
+        f"- best_gauge_length_m：`{result.get('best_gauge_length_m')}`。",
+        f"- gauge_void_residual_rms：`{result.get('gauge_void_residual_rms')}`。",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -384,6 +393,11 @@ def write_elastic_vs_kinematic_report(path: Path, result: dict[str, Any]) -> Non
         "本报告把 elastic2d residual gather 与局部 kinematic diffraction curve 叠加，检查运动学走时对 elastic residual 的解释能力。",
         "",
         f"- curve_energy_ratio：`{result['curve_energy_ratio']:.4g}`。",
+        f"- residual_energy_near_kinematic_curve_ratio：`{result.get('residual_energy_near_kinematic_curve_ratio')}`。",
+        f"- residual_energy_off_curve_ratio：`{result.get('residual_energy_off_curve_ratio')}`。",
+        f"- best_time_shift_ms：`{result.get('best_time_shift_ms')}`。",
+        f"- kinematic_curve_explained_fraction：`{result.get('kinematic_curve_explained_fraction')}`。",
+        f"- elastic_extra_event_fraction：`{result.get('elastic_extra_event_fraction')}`。",
         f"- main conclusion：{result['main_conclusion']}",
         "",
         "## 结论边界",
@@ -393,4 +407,32 @@ def write_elastic_vs_kinematic_report(path: Path, result: dict[str, Any]) -> Non
         "- 深度、横向 y、振幅和频率解释必须等 elastic validation 更成熟后再推进。",
         "- 当前结果是科研候选区，不是工程确诊。",
     ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_velocity_model_visualization_report(path: Path, result: dict[str, Any]) -> None:
+    """写出当前速度模型可视化报告。"""
+
+    diff = result["uniform_vs_active_travel_time_difference"]
+    sampling = result["sampling_path"]
+    lines = [
+        "# 当前速度模型可视化报告",
+        "",
+        "本报告回答当前主流程到底是不是 layered / heterogeneous velocity，而不是只存在源码文件。",
+        "",
+        f"- active velocity_model_type：`{result['active_velocity_model_type']}`",
+        f"- layer depths m：`{result['layer_depths_m']}`",
+        f"- layer velocities m/s：`{result['layer_rayleigh_velocities_mps']}`",
+        f"- sampling path velocity min/max/mean：`{sampling['velocity_min_mps']}` / `{sampling['velocity_max_mps']}` / `{sampling['velocity_mean_mps']}` m/s",
+        f"- uniform vs active direct RMS difference：`{diff['direct_diff_rms_ms']:.4g}` ms",
+        f"- uniform vs active direct max abs difference：`{diff['direct_diff_max_abs_ms']:.4g}` ms",
+        "",
+        "## 解释",
+        "",
+        "- 当前 layered_kinematic 使用等效 Rayleigh 速度模型和 straight-ray 路径采样积分。",
+        "- 该模型不是完整 Vp/Vs/rho 弹性模型，也不是速度反演结果。",
+        "- elastic2d_prototype 的 Vp/Vs/rho 是独立 validation 参数，与本报告中的 Rayleigh equivalent velocity 不属于同一层级。",
+        "- 下一步若要进入真实数据，应优先做实测速度标定或速度反演约束。",
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")

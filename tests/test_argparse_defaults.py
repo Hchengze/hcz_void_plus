@@ -6,7 +6,7 @@ def test_argparse_defaults_can_parse():
     params = args_to_params(args)
 
     assert params.project.task == "debug"
-    assert params.project.run_name == "stage5c_run"
+    assert params.project.run_name == "stage5d_run"
     assert params.fiber.channel_count >= 2
     assert params.source.shot_count >= 1
     assert params.derived.nt == len(params.derived.time_axis)
@@ -40,6 +40,10 @@ def test_argparse_defaults_can_parse():
     assert params.forward.elastic2d_vp_mps == 500.0
     assert params.forward.elastic2d_vs_mps == 250.0
     assert params.forward.elastic2d_void_enabled is True
+    assert params.forward.elastic2d_source_type == "vertical_force"
+    assert params.forward.elastic2d_source_depth_m == 0.2
+    assert params.forward.elastic2d_rayleigh_pick_vmin_factor == 0.7
+    assert params.forward.elastic2d_rayleigh_pick_vmax_factor == 1.1
     assert params.velocity.model_type == "layered"
     assert params.velocity.layer_depths_m == [0.3, 1.0, 3.0, 8.0]
     assert params.velocity.layer_rayleigh_velocities_mps == [120.0, 180.0, 260.0, 350.0]
@@ -95,6 +99,9 @@ def test_stage2_visualization_parameter_validation():
         ["--elastic2d-rho-kgm3", "0"],
         ["--elastic2d-void-radius-m", "0"],
         ["--elastic2d-void-vs-factor", "0"],
+        ["--elastic2d-source-depth-m", "-0.1"],
+        ["--elastic2d-rayleigh-pick-vmin-factor", "0"],
+        ["--elastic2d-rayleigh-pick-vmin-factor", "1.0", "--elastic2d-rayleigh-pick-vmax-factor", "1.0"],
     ):
         try:
             args_to_params(parse_arguments(bad_args))

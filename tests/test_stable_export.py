@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 from src.utils.stable_export import export_latest_stable_outputs
 
 
@@ -8,12 +11,22 @@ def _touch(path: Path, text: str = "x"):
     path.write_text(text, encoding="utf-8")
 
 
+def _write_valid_png(path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image = np.outer(np.linspace(0.0, 1.0, 64), np.linspace(1.0, 0.0, 96))
+    fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
+    ax.imshow(image, cmap="viridis")
+    ax.set_axis_off()
+    fig.savefig(path)
+    plt.close(fig)
+
+
 def test_export_latest_stable_outputs_creates_curated_directory(tmp_path):
     run_dir = tmp_path / "stage3_run_20260703_000000"
     latest = tmp_path / "latest_stable"
-    _touch(run_dir / "figures" / "fig_geometry_layout_check.png")
-    _touch(run_dir / "figures" / "fig_confidence_diagnostics.png")
-    _touch(run_dir / "figures" / "unselected_extra.png")
+    _write_valid_png(run_dir / "figures" / "fig_geometry_layout_check.png")
+    _write_valid_png(run_dir / "figures" / "fig_confidence_diagnostics.png")
+    _write_valid_png(run_dir / "figures" / "unselected_extra.png")
     _touch(run_dir / "reports" / "report_full_pipeline.md")
     _touch(run_dir / "reports" / "report_confidence.md")
     _touch(run_dir / "metadata" / "meta_run.json", "{}")

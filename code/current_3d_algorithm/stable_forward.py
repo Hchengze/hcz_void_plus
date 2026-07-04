@@ -1,8 +1,8 @@
 """稳定 forward 主线入口。
 
-本文件只暴露当前稳定 forward 主线，不复制研发区实现。Stage 5C 后，默认稳定
+本文件只暴露当前稳定 forward 主线，不复制研发区实现。Stage 5D 后，默认稳定
 正演是 `layered_kinematic`；`acoustic2d_prototype` 和 `elastic2d_prototype` 只作为 validation forward，
-不能作为 DAS-like Rayleigh 主定位数据。
+不能作为 DAS-like Rayleigh 主定位数据。速度模型调用链和 latest_stable 图件准入由研发区审计模块检查。
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ def get_stable_forward_summary() -> dict[str, object]:
         "available_forward_engines": list_forward_engines(),
         "stable_forward_spec": get_forward_engine_spec(STABLE_FORWARD_ENGINE).description,
         "boundary": "layered_kinematic 是 straight-ray kinematic approximation，不是 3D elastic wavefield。",
+        "stage5d_audit_boundary": "velocity_model_audit 和 figure_self_check 是稳定成果准入检查，不是工程确诊。",
     }
 
 

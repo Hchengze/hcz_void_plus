@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage5c_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5d_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -250,6 +250,25 @@ def build_arg_parser() -> argparse.ArgumentParser:
     forward.add_argument("--elastic2d-void-vs-factor", type=float, default=0.2, help="elastic2d void-like 扰动 Vs 折减因子。")
     forward.add_argument("--elastic2d-void-vp-factor", type=float, default=0.5, help="elastic2d void-like 扰动 Vp 折减因子。")
     forward.add_argument("--elastic2d-void-rho-factor", type=float, default=0.5, help="elastic2d void-like 扰动密度折减因子。")
+    forward.add_argument(
+        "--elastic2d-source-type",
+        default="vertical_force",
+        choices=["vertical_force", "horizontal_force", "explosive"],
+        help="elastic2d validation 震源类型；不影响 layered_kinematic 主定位 forward。",
+    )
+    forward.add_argument("--elastic2d-source-depth-m", type=float, default=0.2, help="elastic2d 震源深度 m。")
+    forward.add_argument(
+        "--elastic2d-rayleigh-pick-vmin-factor",
+        type=float,
+        default=0.7,
+        help="Rayleigh-like 拾取速度下限，相对 Vs 的比例。",
+    )
+    forward.add_argument(
+        "--elastic2d-rayleigh-pick-vmax-factor",
+        type=float,
+        default=1.1,
+        help="Rayleigh-like 拾取速度上限，相对 Vs 的比例。",
+    )
 
     scan = parser.add_argument_group("scan 扫描定位参数组")
     scan.add_argument("--scan-enabled", type=str_to_bool, default=True, help="是否启用基础 x-y-h 多炮扫描定位。")
@@ -516,6 +535,10 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             elastic2d_void_vs_factor=args.elastic2d_void_vs_factor,
             elastic2d_void_vp_factor=args.elastic2d_void_vp_factor,
             elastic2d_void_rho_factor=args.elastic2d_void_rho_factor,
+            elastic2d_source_type=args.elastic2d_source_type,
+            elastic2d_source_depth_m=args.elastic2d_source_depth_m,
+            elastic2d_rayleigh_pick_vmin_factor=args.elastic2d_rayleigh_pick_vmin_factor,
+            elastic2d_rayleigh_pick_vmax_factor=args.elastic2d_rayleigh_pick_vmax_factor,
         ),
         scan=_namespace(
             enabled=args.scan_enabled,
@@ -696,6 +719,12 @@ def validate_raw_params(params: SimpleNamespace) -> None:
     }.items():
         if not (0.0 < value <= 1.0):
             raise ValueError(f"{name} 错误：折减因子必须在 (0, 1]。")
+    if params.forward.elastic2d_source_depth_m < 0:
+        raise ValueError("elastic2d_source_depth_m 错误：震源深度必须 >= 0。")
+    if params.forward.elastic2d_rayleigh_pick_vmin_factor <= 0:
+        raise ValueError("elastic2d_rayleigh_pick_vmin_factor 错误：必须 > 0。")
+    if params.forward.elastic2d_rayleigh_pick_vmax_factor <= params.forward.elastic2d_rayleigh_pick_vmin_factor:
+        raise ValueError("elastic2d Rayleigh pick 速度范围错误：vmax factor 必须大于 vmin factor。")
     if params.output.wavefield_snapshot_count < 1:
         raise ValueError(
             f"wavefield_snapshot_count 错误：当前值为 {params.output.wavefield_snapshot_count}，合理条件是 >= 1。"
@@ -925,7 +954,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 5C 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5D 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")

@@ -1,6 +1,6 @@
 {
   "project": "hcz_void_plus",
-  "stage": "Stage 5C curated forward outputs and elastic2d validation prototype",
+  "stage": "Stage 5D elastic2d diagnostics and active velocity model audit",
   "data_shape": {
     "order": "shot × time × channel",
     "shape": [
@@ -34,7 +34,7 @@
     "is_true_elastic_wavefield": false,
     "is_true_wave_equation_snapshot": false,
     "rayleigh_depth_sensitivity_included": true,
-    "forward_engine_note": "Stage 5C 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d_prototype 只作 validation。"
+    "forward_engine_note": "Stage 5D 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d_prototype 只作 validation，并新增速度模型调用链与图件自检。"
   },
   "physics": {
     "rayleigh_depth_sensitivity_enabled": true,
@@ -69,22 +69,22 @@
     "wavefield_info": {
       "snapshot_count": 12,
       "snapshot_files": [
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t000.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t001.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t002.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t003.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t004.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t005.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t006.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t007.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t008.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t009.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t010.png",
-        "outputs\\stage5c_run_20260704_125722\\snapshots\\snap_pseudo_wavefield_t011.png"
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t007.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t008.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t009.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t010.png",
+        "outputs\\stage5d_run_20260704_191133\\snapshots\\snap_pseudo_wavefield_t011.png"
       ],
       "animation": {
         "success": true,
-        "path": "outputs\\stage5c_run_20260704_125722\\animations\\anim_pseudo_wavefield.gif",
+        "path": "outputs\\stage5d_run_20260704_191133\\animations\\anim_pseudo_wavefield.gif",
         "reason": null
       }
     }
@@ -281,46 +281,57 @@
     }
   },
   "diagnostics": {
-    "diffraction_travel_time_curve_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_diffraction_travel_time_curves.png",
-    "path_section_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_source_anomaly_receiver_path_section.png",
-    "depth_sensitivity_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_rayleigh_depth_sensitivity.png",
-    "raw_vs_weighted_best_location_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_raw_vs_weighted_best_location.png",
-    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
-    "y_high_score_width_check_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_y_high_score_width_check.png",
-    "score_method_depth_comparison_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_score_method_depth_comparison.png",
-    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_3d_high_score_uncertainty_summary.png",
-    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_x_y_depth_uncertainty_slices.png",
-    "multi_attribute_score_comparison_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_multi_attribute_score_comparison.png",
-    "depth_prior_sensitivity_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_depth_prior_sensitivity.png",
-    "preprocessing_comparison_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_preprocessing_comparison.png",
-    "preprocessing_ablation_summary_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_preprocessing_ablation_summary.png",
-    "fk_spectrum_before_after_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_fk_spectrum_before_after.png",
-    "fk_filter_effect_on_gather_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_fk_filter_effect_on_gather.png",
-    "matched_wavelet_score_comparison_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_matched_wavelet_score_comparison.png",
-    "semblance_score_volume_slice_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_semblance_score_volume_slice.png",
-    "frequency_shift_attribute_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_frequency_shift_attribute.png",
-    "geometry_ablation_best_locations_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_geometry_ablation_best_locations.png",
-    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_geometry_ablation_uncertainty_spans.png",
-    "multi_attribute_ablation_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_multi_attribute_ablation.png",
-    "3d_high_score_components_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_3d_high_score_components.png",
-    "recommendation_decision_flow_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_recommendation_decision_flow.png",
-    "velocity_model_comparison_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_velocity_model_comparison.png",
-    "layered_velocity_profile_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_layered_velocity_profile.png",
-    "velocity_model_travel_time_residuals_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_velocity_model_travel_time_residuals.png",
-    "model_mismatch_error_summary_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_model_mismatch_error_summary.png",
-    "forward_engine_comparison_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_forward_engine_comparison.png",
-    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
-    "forward_roadmap_status_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_forward_roadmap_status.png",
-    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_acoustic2d_wavefield_snapshots.png",
-    "acoustic2d_shot_gather_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_acoustic2d_shot_gather.png",
-    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
-    "elastic2d_surface_gather_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic2d_surface_gather.png",
-    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
-    "elastic2d_void_scattering_residual_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic2d_void_scattering_residual.png",
-    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic2d_void_diffraction_overlay.png",
-    "elastic2d_das_gauge_response_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic2d_das_gauge_response.png",
-    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic_vs_kinematic_overlay.png",
-    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5c_run_20260704_125722\\figures\\fig_elastic_vs_kinematic_residual_energy.png"
+    "diffraction_travel_time_curve_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_rayleigh_depth_sensitivity.png",
+    "raw_vs_weighted_best_location_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_raw_vs_weighted_best_location.png",
+    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
+    "y_high_score_width_check_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_y_high_score_width_check.png",
+    "score_method_depth_comparison_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_score_method_depth_comparison.png",
+    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_3d_high_score_uncertainty_summary.png",
+    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_x_y_depth_uncertainty_slices.png",
+    "multi_attribute_score_comparison_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_multi_attribute_score_comparison.png",
+    "depth_prior_sensitivity_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_depth_prior_sensitivity.png",
+    "preprocessing_comparison_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_preprocessing_comparison.png",
+    "preprocessing_ablation_summary_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_preprocessing_ablation_summary.png",
+    "fk_spectrum_before_after_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_fk_spectrum_before_after.png",
+    "fk_filter_effect_on_gather_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_fk_filter_effect_on_gather.png",
+    "matched_wavelet_score_comparison_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_matched_wavelet_score_comparison.png",
+    "semblance_score_volume_slice_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_semblance_score_volume_slice.png",
+    "frequency_shift_attribute_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_frequency_shift_attribute.png",
+    "geometry_ablation_best_locations_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_geometry_ablation_best_locations.png",
+    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_geometry_ablation_uncertainty_spans.png",
+    "multi_attribute_ablation_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_multi_attribute_ablation.png",
+    "3d_high_score_components_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_3d_high_score_components.png",
+    "recommendation_decision_flow_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_recommendation_decision_flow.png",
+    "velocity_model_comparison_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_comparison.png",
+    "layered_velocity_profile_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_layered_velocity_profile.png",
+    "velocity_model_travel_time_residuals_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_travel_time_residuals.png",
+    "model_mismatch_error_summary_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_model_mismatch_error_summary.png",
+    "forward_engine_comparison_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_forward_engine_comparison.png",
+    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
+    "forward_roadmap_status_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_forward_roadmap_status.png",
+    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_acoustic2d_wavefield_snapshots.png",
+    "acoustic2d_shot_gather_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_acoustic2d_shot_gather.png",
+    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
+    "elastic2d_surface_gather_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_surface_gather.png",
+    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
+    "elastic2d_void_scattering_residual_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_scattering_residual.png",
+    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_diffraction_overlay.png",
+    "elastic2d_das_gauge_response_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_gauge_response.png",
+    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_overlay.png",
+    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
+    "velocity_model_profile_current_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_profile_current.png",
+    "velocity_model_2d_slice_current_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_2d_slice_current.png",
+    "velocity_sampling_paths_current_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_sampling_paths_current.png",
+    "uniform_vs_layered_travel_time_difference_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
+    "velocity_model_active_badge_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_velocity_model_active_badge.png",
+    "elastic2d_rayleigh_pick_diagnostics_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
+    "elastic2d_void_parameter_sensitivity_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
+    "elastic2d_void_residual_energy_map_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_void_residual_energy_map.png",
+    "elastic2d_das_component_comparison_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_component_comparison.png",
+    "elastic2d_das_gauge_length_sensitivity_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
+    "elastic_vs_kinematic_energy_partition_figure": "outputs\\stage5d_run_20260704_191133\\figures\\fig_elastic_vs_kinematic_energy_partition.png"
   },
   "confidence": {
     "peak_sharpness": 2.0599457066651934,
@@ -397,9 +408,9 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "f54f0ab",
+    "commit_id": "e88e5c1",
     "push_attempted": true,
-    "push_success": true
+    "push_success": false
   },
   "limitations": [
     "不是完整 DAS 仪器模拟。",
@@ -1430,14 +1441,133 @@
       "note": "layered_kinematic 是当前主定位 forward；kinematic_baseline 只作基线；acoustic2d_prototype 只验证声学波动方程基础设施，不能代表 Rayleigh 波。"
     },
     "elastic2d_rayleigh_validation": {
-      "estimated_surface_velocity_mps": 316.07531842949334,
-      "velocity_estimation_method": "envelope_peak_moveout",
+      "estimated_surface_velocity_mps": 174.94441758968424,
+      "velocity_estimation_method": "windowed_envelope_peak_moveout",
       "velocity_fit_ok": true,
+      "pick_offset_m": [
+        0.40000000000000036,
+        0.5,
+        0.6000000000000001,
+        0.7000000000000002,
+        0.8000000000000003,
+        0.9000000000000004,
+        1.0,
+        1.1,
+        1.2000000000000002,
+        1.3000000000000003,
+        1.4000000000000004,
+        1.5,
+        1.6,
+        1.7000000000000002,
+        1.8000000000000003,
+        1.9000000000000004,
+        2.0,
+        2.1000000000000005,
+        2.2,
+        2.3,
+        2.4000000000000004,
+        2.5,
+        2.6000000000000005,
+        2.7,
+        2.8000000000000007,
+        2.9000000000000004,
+        3.0,
+        3.1000000000000005,
+        3.2,
+        3.3000000000000007,
+        3.4000000000000004,
+        3.5,
+        3.6000000000000005,
+        3.7,
+        3.8000000000000007,
+        3.9000000000000004,
+        4.0,
+        4.1000000000000005,
+        4.2,
+        4.300000000000001,
+        4.4,
+        4.5,
+        4.6000000000000005,
+        4.7,
+        4.800000000000001,
+        4.9,
+        5.0,
+        5.1000000000000005,
+        5.2,
+        5.300000000000001,
+        5.4,
+        5.5,
+        5.6000000000000005,
+        5.7,
+        5.800000000000001
+      ],
+      "pick_time_s": [
+        0.002276883835420683,
+        0.0028213560569343246,
+        0.0034153257531310244,
+        0.003959797974644666,
+        0.004553767670841366,
+        0.004999244942988891,
+        0.0056922095885517075,
+        0.006236681810065349,
+        0.006830651506262049,
+        0.007424621202458749,
+        0.00796909342397239,
+        0.008563063120169091,
+        0.009107535341682732,
+        0.009701505037879431,
+        0.010245977259393073,
+        0.010839946955589774,
+        0.011384419177103415,
+        0.011978388873300116,
+        0.012522861094813757,
+        0.013116830791010456,
+        0.013710800487207157,
+        0.014255272708720798,
+        0.014849242404917497,
+        0.015393714626431139,
+        0.01598768432262784,
+        0.01653215654414148,
+        0.017126126240338182,
+        0.017670598461851823,
+        0.018264568158048524,
+        0.018809040379562166,
+        0.019403010075758863,
+        0.019996979771955564,
+        0.020541451993469205,
+        0.021135421689665906,
+        0.021679893911179547,
+        0.022273863607376248,
+        0.02281833582888989,
+        0.02341230552508659,
+        0.02395677774660023,
+        0.02455074744279693,
+        0.02509521966431057,
+        0.02568918936050727,
+        0.026283159056703972,
+        0.026827631278217613,
+        0.027421600974414314,
+        0.027966073195927955,
+        0.028560042892124653,
+        0.029104515113638298,
+        0.029698484809834995,
+        0.030242957031348636,
+        0.030836926727545337,
+        0.03138139894905898,
+        0.03197536864525568,
+        0.03256933834145238,
+        0.03311381056296602
+      ],
+      "pick_vmin_mps": 175.0,
+      "pick_vmax_mps": 275.0,
+      "source_type": "vertical_force",
+      "source_depth_m": 0.2,
       "expected_rayleigh_like_range_mps": [
         212.5,
         245.0
       ],
       "rayleigh_like_event_detected": false,
+      "rayleigh_pick_interpretation": "拾取速度偏慢，可能受边界反射、sponge 衰减或弱表面事件影响。",
       "cfl_info": {
         "cfl_number": 0.35,
         "stable": true,
@@ -1456,7 +1586,277 @@
       "residual_energy": 1.7048461273516514e-17,
       "relative_residual_energy": 1.7048461273516515e-05,
       "void_residual_visible": true,
-      "note": "void-like 模型是低 Vp/低 Vs/低密度扰动，不是真实空腔边界条件。"
+      "note": "void-like 模型是低 Vp/低 Vs/低密度扰动，不是真实空腔边界条件。",
+      "parameter_sensitivity": {
+        "cases": {
+          "vertical_force_r0.5_vs0.2": {
+            "source_type": "vertical_force",
+            "void_radius_m": 0.5,
+            "void_vs_factor": 0.2,
+            "residual_energy": 3.1669341126553377e-18,
+            "relative_residual_energy": 3.1669341126553377e-06
+          },
+          "vertical_force_r0.5_vs0.4": {
+            "source_type": "vertical_force",
+            "void_radius_m": 0.5,
+            "void_vs_factor": 0.4,
+            "residual_energy": 2.366656615118002e-18,
+            "relative_residual_energy": 2.366656615118002e-06
+          },
+          "vertical_force_r0.5_vs0.6": {
+            "source_type": "vertical_force",
+            "void_radius_m": 0.5,
+            "void_vs_factor": 0.6,
+            "residual_energy": 1.5213785732895961e-18,
+            "relative_residual_energy": 1.5213785732895962e-06
+          },
+          "vertical_force_r1.0_vs0.2": {
+            "source_type": "vertical_force",
+            "void_radius_m": 1.0,
+            "void_vs_factor": 0.2,
+            "residual_energy": 2.5253535759321672e-17,
+            "relative_residual_energy": 2.5253535759321673e-05
+          },
+          "vertical_force_r1.0_vs0.4": {
+            "source_type": "vertical_force",
+            "void_radius_m": 1.0,
+            "void_vs_factor": 0.4,
+            "residual_energy": 2.0080373384036732e-17,
+            "relative_residual_energy": 2.0080373384036733e-05
+          },
+          "vertical_force_r1.0_vs0.6": {
+            "source_type": "vertical_force",
+            "void_radius_m": 1.0,
+            "void_vs_factor": 0.6,
+            "residual_energy": 1.3802157547056734e-17,
+            "relative_residual_energy": 1.3802157547056734e-05
+          },
+          "vertical_force_r1.5_vs0.2": {
+            "source_type": "vertical_force",
+            "void_radius_m": 1.5,
+            "void_vs_factor": 0.2,
+            "residual_energy": 1.1075624099111773e-16,
+            "relative_residual_energy": 0.00011075624099111774
+          },
+          "vertical_force_r1.5_vs0.4": {
+            "source_type": "vertical_force",
+            "void_radius_m": 1.5,
+            "void_vs_factor": 0.4,
+            "residual_energy": 9.733724362988349e-17,
+            "relative_residual_energy": 9.733724362988349e-05
+          },
+          "vertical_force_r1.5_vs0.6": {
+            "source_type": "vertical_force",
+            "void_radius_m": 1.5,
+            "void_vs_factor": 0.6,
+            "residual_energy": 7.699084303358937e-17,
+            "relative_residual_energy": 7.699084303358937e-05
+          },
+          "horizontal_force_r0.5_vs0.2": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 0.5,
+            "void_vs_factor": 0.2,
+            "residual_energy": 3.387975924427363e-19,
+            "relative_residual_energy": 3.387975924427363e-07
+          },
+          "horizontal_force_r0.5_vs0.4": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 0.5,
+            "void_vs_factor": 0.4,
+            "residual_energy": 2.4670782535497036e-19,
+            "relative_residual_energy": 2.4670782535497035e-07
+          },
+          "horizontal_force_r0.5_vs0.6": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 0.5,
+            "void_vs_factor": 0.6,
+            "residual_energy": 1.577550443554991e-19,
+            "relative_residual_energy": 1.577550443554991e-07
+          },
+          "horizontal_force_r1.0_vs0.2": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 1.0,
+            "void_vs_factor": 0.2,
+            "residual_energy": 2.535493240840679e-18,
+            "relative_residual_energy": 2.535493240840679e-06
+          },
+          "horizontal_force_r1.0_vs0.4": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 1.0,
+            "void_vs_factor": 0.4,
+            "residual_energy": 1.976336818271671e-18,
+            "relative_residual_energy": 1.976336818271671e-06
+          },
+          "horizontal_force_r1.0_vs0.6": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 1.0,
+            "void_vs_factor": 0.6,
+            "residual_energy": 1.280184133875596e-18,
+            "relative_residual_energy": 1.280184133875596e-06
+          },
+          "horizontal_force_r1.5_vs0.2": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 1.5,
+            "void_vs_factor": 0.2,
+            "residual_energy": 1.3495020018196952e-17,
+            "relative_residual_energy": 1.3495020018196953e-05
+          },
+          "horizontal_force_r1.5_vs0.4": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 1.5,
+            "void_vs_factor": 0.4,
+            "residual_energy": 7.41222939865675e-18,
+            "relative_residual_energy": 7.41222939865675e-06
+          },
+          "horizontal_force_r1.5_vs0.6": {
+            "source_type": "horizontal_force",
+            "void_radius_m": 1.5,
+            "void_vs_factor": 0.6,
+            "residual_energy": 5.965297210351065e-18,
+            "relative_residual_energy": 5.965297210351065e-06
+          }
+        },
+        "best_case": "vertical_force_r1.5_vs0.2",
+        "best_residual_energy": 1.1075624099111773e-16,
+        "best_relative_residual_energy": 0.00011075624099111774,
+        "parameter_count": 18,
+        "note": "该敏感性只检查 low-Vs/low-density perturbation 的 residual 能量，不代表真实空腔边界散射强度。"
+      }
+    },
+    "elastic2d_void_parameter_sensitivity": {
+      "cases": {
+        "vertical_force_r0.5_vs0.2": {
+          "source_type": "vertical_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 3.1669341126553377e-18,
+          "relative_residual_energy": 3.1669341126553377e-06
+        },
+        "vertical_force_r0.5_vs0.4": {
+          "source_type": "vertical_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 2.366656615118002e-18,
+          "relative_residual_energy": 2.366656615118002e-06
+        },
+        "vertical_force_r0.5_vs0.6": {
+          "source_type": "vertical_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.5213785732895961e-18,
+          "relative_residual_energy": 1.5213785732895962e-06
+        },
+        "vertical_force_r1.0_vs0.2": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.2,
+          "residual_energy": 2.5253535759321672e-17,
+          "relative_residual_energy": 2.5253535759321673e-05
+        },
+        "vertical_force_r1.0_vs0.4": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.4,
+          "residual_energy": 2.0080373384036732e-17,
+          "relative_residual_energy": 2.0080373384036733e-05
+        },
+        "vertical_force_r1.0_vs0.6": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.3802157547056734e-17,
+          "relative_residual_energy": 1.3802157547056734e-05
+        },
+        "vertical_force_r1.5_vs0.2": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 1.1075624099111773e-16,
+          "relative_residual_energy": 0.00011075624099111774
+        },
+        "vertical_force_r1.5_vs0.4": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 9.733724362988349e-17,
+          "relative_residual_energy": 9.733724362988349e-05
+        },
+        "vertical_force_r1.5_vs0.6": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 7.699084303358937e-17,
+          "relative_residual_energy": 7.699084303358937e-05
+        },
+        "horizontal_force_r0.5_vs0.2": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 3.387975924427363e-19,
+          "relative_residual_energy": 3.387975924427363e-07
+        },
+        "horizontal_force_r0.5_vs0.4": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 2.4670782535497036e-19,
+          "relative_residual_energy": 2.4670782535497035e-07
+        },
+        "horizontal_force_r0.5_vs0.6": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.577550443554991e-19,
+          "relative_residual_energy": 1.577550443554991e-07
+        },
+        "horizontal_force_r1.0_vs0.2": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.2,
+          "residual_energy": 2.535493240840679e-18,
+          "relative_residual_energy": 2.535493240840679e-06
+        },
+        "horizontal_force_r1.0_vs0.4": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.4,
+          "residual_energy": 1.976336818271671e-18,
+          "relative_residual_energy": 1.976336818271671e-06
+        },
+        "horizontal_force_r1.0_vs0.6": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.280184133875596e-18,
+          "relative_residual_energy": 1.280184133875596e-06
+        },
+        "horizontal_force_r1.5_vs0.2": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 1.3495020018196952e-17,
+          "relative_residual_energy": 1.3495020018196953e-05
+        },
+        "horizontal_force_r1.5_vs0.4": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 7.41222939865675e-18,
+          "relative_residual_energy": 7.41222939865675e-06
+        },
+        "horizontal_force_r1.5_vs0.6": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 5.965297210351065e-18,
+          "relative_residual_energy": 5.965297210351065e-06
+        }
+      },
+      "best_case": "vertical_force_r1.5_vs0.2",
+      "best_residual_energy": 1.1075624099111773e-16,
+      "best_relative_residual_energy": 0.00011075624099111774,
+      "parameter_count": 18,
+      "note": "该敏感性只检查 low-Vs/low-density perturbation 的 residual 能量，不代表真实空腔边界散射强度。"
     },
     "elastic2d_das_response": {
       "point_shape": [
@@ -1468,7 +1868,43 @@
         77
       ],
       "strain_to_point_rms_ratio": 0.0,
-      "status": "generated_from_elastic2d_surface_velocity"
+      "status": "component_and_gauge_length_checked",
+      "source_cases": {
+        "vertical_force": {
+          "vx_rms": 1.848729217587471e-09,
+          "vz_rms": 5.94347881684969e-09,
+          "gauge_strain_rms": 0.0,
+          "source_depth_m": 0.2
+        },
+        "horizontal_force": {
+          "vx_rms": 3.968052216697787e-26,
+          "vz_rms": 2.1220302847609228e-09,
+          "gauge_strain_rms": 0.0,
+          "source_depth_m": 0.2
+        }
+      },
+      "gauge_length_cases": {
+        "0.5": {
+          "gauge_length_m": 0.5,
+          "gauge_strain_rms": 1.122332819152145e-25
+        },
+        "1.0": {
+          "gauge_length_m": 1.0,
+          "gauge_strain_rms": 2.9943920068354373e-26
+        },
+        "2.0": {
+          "gauge_length_m": 2.0,
+          "gauge_strain_rms": 2.1300511790381496e-26
+        },
+        "4.0": {
+          "gauge_length_m": 4.0,
+          "gauge_strain_rms": 1.1149093852539492e-26
+        }
+      },
+      "best_source_type_for_gauge": "vertical_force",
+      "best_gauge_length_m": 0.5,
+      "gauge_void_residual_rms": 0.0,
+      "note": "当前 DAS-like strain 是 surface vx 的有限差分近似，不是真实 DAS 仪器响应。"
     },
     "elastic_vs_kinematic": {
       "scatter_x_m": 4.96,
@@ -1477,8 +1913,279 @@
       "relative_residual_energy": 1.7048461273516515e-05,
       "void_residual_visible": true,
       "note": "void-like 模型是低 Vp/低 Vs/低密度扰动，不是真实空腔边界条件。",
-      "curve_energy_ratio": 1.1981878201949608e-07,
-      "main_conclusion": "layered/局部 kinematic 曲线能解释 elastic residual 的一部分主要到时，但 elastic2d 还显示振幅、尾波和多路径等运动学模型没有的效应。"
+      "curve_energy_ratio": 1.1981878201949605e-07,
+      "residual_energy_near_kinematic_curve_ratio": 1.1981878201949605e-07,
+      "residual_energy_off_curve_ratio": 0.999999880181218,
+      "best_time_shift_ms": 10.0,
+      "kinematic_curve_explained_fraction": 0.00022196748680872161,
+      "elastic_extra_event_fraction": 0.9997780325131913,
+      "main_conclusion": "layered/局部 kinematic 曲线只能解释 elastic residual 的一部分能量；曲线外 residual 代表振幅、尾波、多路径、边界和弹性模式等运动学模型没有的效应。"
+    }
+  },
+  "stage5d_validation": {
+    "velocity_model_audit": {
+      "active_velocity_model_type": "layered",
+      "argparse_default_velocity_model_type": "layered",
+      "active_velocity_model_confirmed": true,
+      "is_layered_default": true,
+      "layer_depths_m": [
+        0.3,
+        1.0,
+        3.0,
+        8.0
+      ],
+      "layer_rayleigh_velocities_mps": [
+        120.0,
+        180.0,
+        260.0,
+        350.0
+      ],
+      "direct_uses_velocity_model_travel_time": true,
+      "scatter_uses_velocity_model_travel_time": true,
+      "scan_uses_velocity_model_travel_time": true,
+      "velocity_model_used_by_direct": true,
+      "velocity_model_used_by_scatter": true,
+      "velocity_model_used_by_scan": true,
+      "source_checks": {
+        "direct_wave_uses_compute_kinematic_travel_time": true,
+        "scatter_wave_uses_compute_scatter_travel_time": true,
+        "scan_uses_compute_scatter_travel_time": true,
+        "forward_pipeline_builds_velocity_model": true
+      },
+      "representative_velocity_call_sites": [
+        "src/forward/kinematic_baseline.py",
+        "src/model/velocity_model.py",
+        "src/pipeline/run_forward_pipeline.py"
+      ],
+      "uniform_only_baseline": true,
+      "travel_time_difference": {
+        "direct_diff_mean_ms": 233.9986863500751,
+        "direct_diff_rms_ms": 268.88153988251065,
+        "direct_diff_max_abs_ms": 500.1544797520483,
+        "scatter_diff_mean_ms": 71.46958887014793,
+        "scatter_diff_rms_ms": 73.78559949874979,
+        "scatter_diff_max_abs_ms": 102.37405197450688
+      },
+      "elastic2d_velocity_note": "elastic2d_prototype 使用独立 Vp/Vs/rho 弹性参数；它与 layered_kinematic 的 Rayleigh equivalent velocity model 不是同一套物理参数。",
+      "status": "pass"
+    },
+    "velocity_model_visualization": {
+      "active_velocity_model_type": "layered",
+      "layer_depths_m": [
+        0.3,
+        1.0,
+        3.0,
+        8.0
+      ],
+      "layer_rayleigh_velocities_mps": [
+        120.0,
+        180.0,
+        260.0,
+        350.0
+      ],
+      "sampling_path": {
+        "sample_count": 80,
+        "velocity_min_mps": 120.0,
+        "velocity_max_mps": 260.0,
+        "velocity_mean_mps": 226.0
+      },
+      "uniform_vs_active_travel_time_difference": {
+        "direct_diff_mean_ms": 191.7109017766025,
+        "direct_diff_rms_ms": 215.69599998465384,
+        "direct_diff_max_abs_ms": 500.1544797520483
+      },
+      "status": "generated"
+    },
+    "elastic2d_void_parameter_sensitivity": {
+      "cases": {
+        "vertical_force_r0.5_vs0.2": {
+          "source_type": "vertical_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 3.1669341126553377e-18,
+          "relative_residual_energy": 3.1669341126553377e-06
+        },
+        "vertical_force_r0.5_vs0.4": {
+          "source_type": "vertical_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 2.366656615118002e-18,
+          "relative_residual_energy": 2.366656615118002e-06
+        },
+        "vertical_force_r0.5_vs0.6": {
+          "source_type": "vertical_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.5213785732895961e-18,
+          "relative_residual_energy": 1.5213785732895962e-06
+        },
+        "vertical_force_r1.0_vs0.2": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.2,
+          "residual_energy": 2.5253535759321672e-17,
+          "relative_residual_energy": 2.5253535759321673e-05
+        },
+        "vertical_force_r1.0_vs0.4": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.4,
+          "residual_energy": 2.0080373384036732e-17,
+          "relative_residual_energy": 2.0080373384036733e-05
+        },
+        "vertical_force_r1.0_vs0.6": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.3802157547056734e-17,
+          "relative_residual_energy": 1.3802157547056734e-05
+        },
+        "vertical_force_r1.5_vs0.2": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 1.1075624099111773e-16,
+          "relative_residual_energy": 0.00011075624099111774
+        },
+        "vertical_force_r1.5_vs0.4": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 9.733724362988349e-17,
+          "relative_residual_energy": 9.733724362988349e-05
+        },
+        "vertical_force_r1.5_vs0.6": {
+          "source_type": "vertical_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 7.699084303358937e-17,
+          "relative_residual_energy": 7.699084303358937e-05
+        },
+        "horizontal_force_r0.5_vs0.2": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 3.387975924427363e-19,
+          "relative_residual_energy": 3.387975924427363e-07
+        },
+        "horizontal_force_r0.5_vs0.4": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 2.4670782535497036e-19,
+          "relative_residual_energy": 2.4670782535497035e-07
+        },
+        "horizontal_force_r0.5_vs0.6": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 0.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.577550443554991e-19,
+          "relative_residual_energy": 1.577550443554991e-07
+        },
+        "horizontal_force_r1.0_vs0.2": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.2,
+          "residual_energy": 2.535493240840679e-18,
+          "relative_residual_energy": 2.535493240840679e-06
+        },
+        "horizontal_force_r1.0_vs0.4": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.4,
+          "residual_energy": 1.976336818271671e-18,
+          "relative_residual_energy": 1.976336818271671e-06
+        },
+        "horizontal_force_r1.0_vs0.6": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.0,
+          "void_vs_factor": 0.6,
+          "residual_energy": 1.280184133875596e-18,
+          "relative_residual_energy": 1.280184133875596e-06
+        },
+        "horizontal_force_r1.5_vs0.2": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.2,
+          "residual_energy": 1.3495020018196952e-17,
+          "relative_residual_energy": 1.3495020018196953e-05
+        },
+        "horizontal_force_r1.5_vs0.4": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.4,
+          "residual_energy": 7.41222939865675e-18,
+          "relative_residual_energy": 7.41222939865675e-06
+        },
+        "horizontal_force_r1.5_vs0.6": {
+          "source_type": "horizontal_force",
+          "void_radius_m": 1.5,
+          "void_vs_factor": 0.6,
+          "residual_energy": 5.965297210351065e-18,
+          "relative_residual_energy": 5.965297210351065e-06
+        }
+      },
+      "best_case": "vertical_force_r1.5_vs0.2",
+      "best_residual_energy": 1.1075624099111773e-16,
+      "best_relative_residual_energy": 0.00011075624099111774,
+      "parameter_count": 18,
+      "note": "该敏感性只检查 low-Vs/low-density perturbation 的 residual 能量，不代表真实空腔边界散射强度。"
+    },
+    "elastic2d_das_component_response": {
+      "point_shape": [
+        1617,
+        77
+      ],
+      "strain_shape": [
+        1617,
+        77
+      ],
+      "strain_to_point_rms_ratio": 0.0,
+      "status": "component_and_gauge_length_checked",
+      "source_cases": {
+        "vertical_force": {
+          "vx_rms": 1.848729217587471e-09,
+          "vz_rms": 5.94347881684969e-09,
+          "gauge_strain_rms": 0.0,
+          "source_depth_m": 0.2
+        },
+        "horizontal_force": {
+          "vx_rms": 3.968052216697787e-26,
+          "vz_rms": 2.1220302847609228e-09,
+          "gauge_strain_rms": 0.0,
+          "source_depth_m": 0.2
+        }
+      },
+      "gauge_length_cases": {
+        "0.5": {
+          "gauge_length_m": 0.5,
+          "gauge_strain_rms": 1.122332819152145e-25
+        },
+        "1.0": {
+          "gauge_length_m": 1.0,
+          "gauge_strain_rms": 2.9943920068354373e-26
+        },
+        "2.0": {
+          "gauge_length_m": 2.0,
+          "gauge_strain_rms": 2.1300511790381496e-26
+        },
+        "4.0": {
+          "gauge_length_m": 4.0,
+          "gauge_strain_rms": 1.1149093852539492e-26
+        }
+      },
+      "best_source_type_for_gauge": "vertical_force",
+      "best_gauge_length_m": 0.5,
+      "gauge_void_residual_rms": 0.0,
+      "note": "当前 DAS-like strain 是 surface vx 的有限差分近似，不是真实 DAS 仪器响应。"
+    },
+    "elastic_vs_kinematic_metrics": {
+      "residual_energy_near_kinematic_curve_ratio": 1.1981878201949605e-07,
+      "residual_energy_off_curve_ratio": 0.999999880181218,
+      "best_time_shift_ms": 10.0,
+      "kinematic_curve_explained_fraction": 0.00022196748680872161,
+      "elastic_extra_event_fraction": 0.9997780325131913,
+      "main_conclusion": "layered/局部 kinematic 曲线只能解释 elastic residual 的一部分能量；曲线外 residual 代表振幅、尾波、多路径、边界和弹性模式等运动学模型没有的效应。"
     }
   }
 }

@@ -4,54 +4,28 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from src.utils.latest_stable_manifest import (
+    STAGE5D_FIGURE_SPECS,
+    build_figure_metadata,
+    specs_by_category,
+)
+from src.validation.figure_self_check import run_figure_self_check, write_figure_self_check_report
+from src.validation.repository_health import build_repository_health_report, write_repository_health_report
 
-CURATED_FIGURES = {
-    "core": [
-        "fig_geometry_layout_check.png",
-        "fig_shot_gather_000.png",
-        "fig_best_location_map.png",
-        "fig_confidence_diagnostics.png",
-        "fig_forward_roadmap_status.png",
-    ],
-    "forward": [
-        "fig_forward_engine_comparison.png",
-        "fig_layered_kinematic_vs_baseline_gather.png",
-        "fig_acoustic2d_wavefield_snapshots.png",
-        "fig_acoustic2d_shot_gather.png",
-        "fig_elastic2d_rayleigh_wavefield_snapshots.png",
-        "fig_elastic2d_surface_gather.png",
-        "fig_elastic2d_rayleigh_velocity_check.png",
-        "fig_elastic2d_void_scattering_residual.png",
-        "fig_elastic2d_void_diffraction_overlay.png",
-        "fig_elastic2d_das_gauge_response.png",
-        "fig_elastic_vs_kinematic_overlay.png",
-        "fig_elastic_vs_kinematic_residual_energy.png",
-    ],
-    "localization": [
-        "fig_scan_x_depth_slice.png",
-        "fig_scan_x_y_slice.png",
-        "fig_multi_attribute_ablation.png",
-    ],
-    "uncertainty": [
-        "fig_3d_high_score_components.png",
-        "fig_x_y_depth_uncertainty_slices.png",
-        "fig_recommendation_decision_flow.png",
-    ],
-    "diagnostics": [
-        "fig_velocity_model_comparison.png",
-        "fig_model_mismatch_error_summary.png",
-        "fig_depth_prior_sensitivity.png",
-    ],
-}
+
+CURATED_FIGURES = specs_by_category()
 
 CURATED_REPORTS = {
     "core": [
         "report_full_pipeline.md",
         "report_confidence.md",
+        "report_repository_health.md",
+        "report_figure_self_check.md",
     ],
     "forward": [
         "report_forward_engine_ablation.md",
@@ -69,6 +43,8 @@ CURATED_REPORTS = {
     "diagnostics": [
         "report_velocity_model_ablation.md",
         "report_model_mismatch.md",
+        "report_velocity_model_audit.md",
+        "report_velocity_model_visualization.md",
     ],
 }
 
@@ -164,6 +140,11 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     elastic_void = stage5b_validation.get("elastic2d_void_scattering") or {}
     elastic_das = stage5b_validation.get("elastic2d_das_response") or {}
     elastic_vs_kinematic = stage5b_validation.get("elastic_vs_kinematic") or {}
+    velocity_model_audit = summary_info.get("velocity_model_audit") or {}
+    velocity_model_visualization = summary_info.get("velocity_model_visualization") or {}
+    figure_self_check = summary_info.get("figure_self_check") or {}
+    repository_health = summary_info.get("repository_health") or {}
+    elastic_void_sensitivity = stage5b_validation.get("elastic2d_void_parameter_sensitivity") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
@@ -180,7 +161,7 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 ## 本轮信息
 
 - commit id：`{summary_info.get("commit_id", "unknown")}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5C")}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5D")}`
 - 运行时间：`{summary_info.get("run_time", datetime.now().isoformat(timespec="seconds"))}`
 - 来源目录：`{summary_info.get("source_run_dir", "")}`
 
@@ -249,7 +230,7 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - minimum recommended velocity model：`{_format_optional(model_mismatch.get("minimum_recommended_velocity_model"))}`
 - note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
-## Stage 5B/5C 正演技术路线与 elastic2d 验证
+## Stage 5B/5C/5D 正演技术路线与 elastic2d 验证
 
 - latest_stable_curated：`{_format_optional(summary_info.get("latest_stable_curated", True))}`
 - forward_engine_active：`{_format_optional(summary_info.get("forward_engine_active") or forward_engine_ablation.get("active_forward_engine"))}`
@@ -267,6 +248,24 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - elastic_vs_kinematic_main_conclusion：{_format_optional(summary_info.get("elastic_vs_kinematic_main_conclusion") or elastic_vs_kinematic.get("main_conclusion"))}
 - elastic2d_design_status：`{_format_optional(summary_info.get("elastic2d_design_status") or "minimal_prototype_available_validation_only")}`
 - note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering；`elastic2d_prototype` 是最小科研验证原型，仍不替代主定位 forward。
+
+## Stage 5D 速度模型核验、图件自检与 elastic2d 加固
+
+- repository_health_status：`{_format_optional(repository_health.get("status"))}`
+- figure_self_check_status：`{_format_optional(figure_self_check.get("status"))}`
+- figure_self_check passed/failed：`{_format_optional(figure_self_check.get("passed_count"))}` / `{_format_optional(figure_self_check.get("failed_count"))}`
+- active_velocity_model_type：`{_format_optional(velocity_model_audit.get("active_velocity_model_type") or summary_info.get("active_velocity_model_type"))}`
+- active_velocity_model_confirmed：`{_format_optional(velocity_model_audit.get("active_velocity_model_confirmed"))}`
+- velocity_model_used_by_direct：`{_format_optional(velocity_model_audit.get("velocity_model_used_by_direct"))}`
+- velocity_model_used_by_scatter：`{_format_optional(velocity_model_audit.get("velocity_model_used_by_scatter"))}`
+- velocity_model_used_by_scan：`{_format_optional(velocity_model_audit.get("velocity_model_used_by_scan"))}`
+- velocity_model_visualization_status：`{_format_optional(velocity_model_visualization.get("status"))}`
+- uniform_vs_layered_direct_rms_ms：`{_format_optional((velocity_model_visualization.get("uniform_vs_active_travel_time_difference") or {}).get("direct_diff_rms_ms"))}`
+- rayleigh_like_event_detected：`{_format_optional(elastic_rayleigh.get("rayleigh_like_event_detected"))}`
+- rayleigh_pick_interpretation：{_format_optional(elastic_rayleigh.get("rayleigh_pick_interpretation"))}
+- void_residual_energy_best_case：`{_format_optional(elastic_void_sensitivity.get("best_case"))}` / `{_format_optional(elastic_void_sensitivity.get("best_residual_energy"))}`
+- das_gauge_response_best_case：source=`{_format_optional(elastic_das.get("best_source_type_for_gauge"))}`，gauge_length=`{_format_optional(elastic_das.get("best_gauge_length_m"))}` m
+- elastic_vs_kinematic_explained_fraction：`{_format_optional(elastic_vs_kinematic.get("kinematic_curve_explained_fraction"))}`
 
 ## 基础置信度指标
 
@@ -365,12 +364,28 @@ def export_latest_stable_outputs(
     run_output_dir = Path(run_output_dir)
     latest_stable_dir = Path(latest_stable_dir)
     output_root_dir = latest_stable_dir.parent
+    figure_metadata = build_figure_metadata(
+        stage="Stage 5D",
+        forward_engine=str(summary_info.get("forward_engine_active", "layered_kinematic")),
+        velocity_model_type=str(summary_info.get("active_velocity_model_type", "layered")),
+    )
+    figure_self_check = run_figure_self_check(run_output_dir, STAGE5D_FIGURE_SPECS, figure_metadata)
+    write_figure_self_check_report(
+        run_output_dir / "reports" / "report_figure_self_check.md",
+        figure_self_check,
+    )
+    passed_by_category: dict[str, set[str]] = {}
+    for item in figure_self_check["passed_items"]:
+        passed_by_category.setdefault(item["category"], set()).add(item["filename"])
     _reset_latest_stable_dir(latest_stable_dir, output_root_dir)
 
     copied: list[str] = []
     missing: list[str] = []
     for category, filenames in CURATED_FIGURES.items():
         for filename in filenames:
+            if filename not in passed_by_category.get(category, set()):
+                missing.append(str(run_output_dir / "figures" / filename))
+                continue
             _copy_if_exists(
                 run_output_dir / "figures" / filename,
                 latest_stable_dir / "figures" / category / filename,
@@ -403,12 +418,37 @@ def export_latest_stable_outputs(
         copied,
         missing,
     )
+    manifest_path = latest_stable_dir / "metadata" / "figure_manifest.json"
+    manifest_path.write_text(json.dumps(figure_self_check, ensure_ascii=False, indent=2), encoding="utf-8")
+    copied.append(str(manifest_path))
+    summary_info["figure_self_check"] = {
+        "checked_count": figure_self_check["checked_count"],
+        "passed_count": figure_self_check["passed_count"],
+        "failed_count": figure_self_check["failed_count"],
+        "status": figure_self_check["status"],
+        "excluded_old_figures": figure_self_check["excluded_old_figures"],
+        "excluded_duplicate_figures": figure_self_check["excluded_duplicate_figures"],
+    }
     _write_latest_stable_readme(latest_stable_dir / "README.md")
     copied.append(str(latest_stable_dir / "README.md"))
     _write_archive_manifest(latest_stable_dir / "archive_manifest.md")
     copied.append(str(latest_stable_dir / "archive_manifest.md"))
     _write_summary(latest_stable_dir / "summary.md", summary_info, copied, missing)
     copied.append(str(latest_stable_dir / "summary.md"))
+    repository_health = build_repository_health_report(Path.cwd(), latest_stable_dir)
+    repository_health_path = latest_stable_dir / "reports" / "core" / "report_repository_health.md"
+    write_repository_health_report(repository_health_path, repository_health)
+    # repository health 报告自身写入后，reports/core 数量会增加 1。
+    # 重新统计一次，保证报告中的 latest_stable 分层数量与最终目录完全一致。
+    repository_health = build_repository_health_report(Path.cwd(), latest_stable_dir)
+    write_repository_health_report(repository_health_path, repository_health)
+    copied.append(str(repository_health_path))
+    summary_info["repository_health"] = {
+        "status": repository_health["status"],
+        "figures_root_png_count": repository_health["figures_root_png_count"],
+        "reports_root_md_count": repository_health["reports_root_md_count"],
+    }
+    _write_summary(latest_stable_dir / "summary.md", summary_info, copied, missing)
     return {
         "latest_stable_dir": str(latest_stable_dir),
         "copied": copied,

@@ -4,10 +4,14 @@
 
 - CFL stable：`True`。
 - CFL number：`0.35`。
-- estimated surface velocity：`316.1` m/s。
+- estimated surface velocity：`174.9` m/s。
 - expected sanity range：`[212.5, 245.0]` m/s。
 - rayleigh_like_event_detected：`False`。
-- estimation method：`envelope_peak_moveout`。
+- estimation method：`windowed_envelope_peak_moveout`。
+- source type：`vertical_force`。
+- source depth：`0.2` m。
+- pick velocity window：`175.0` - `275.0` m/s。
+- rayleigh_pick_interpretation：拾取速度偏慢，可能受边界反射、sponge 衰减或弱表面事件影响。
 
 ## 边界
 

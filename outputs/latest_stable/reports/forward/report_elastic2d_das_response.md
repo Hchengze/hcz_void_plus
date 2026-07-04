@@ -11,3 +11,6 @@
 - point shape：`(1617, 77)`。
 - strain shape：`(1617, 77)`。
 - strain_rms / point_rms：`0`。
+- best_source_type_for_gauge：`vertical_force`。
+- best_gauge_length_m：`0.5`。
+- gauge_void_residual_rms：`0.0`。

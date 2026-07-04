@@ -104,7 +104,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5C curated forward outputs and elastic2d validation prototype",
+        "stage": "Stage 5D elastic2d diagnostics and active velocity model audit",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),

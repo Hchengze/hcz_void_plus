@@ -263,8 +263,8 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert "3D high-score span" in summary_text
     assert "Stage 4B" in summary_text
     assert "Stage 5A" in summary_text
-    assert "Stage 5B/5C" in summary_text
-    assert "Stage 5C" in summary_text
+    assert "Stage 5B/5C/5D" in summary_text
+    assert "Stage 5D" in summary_text
     assert "forward_engine_active" in summary_text
     assert "latest_stable_curated" in summary_text
     assert "acoustic2d_prototype_status" in summary_text
