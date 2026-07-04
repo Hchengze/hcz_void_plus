@@ -1,7 +1,7 @@
 {
   "project": {
     "task": "full_pipeline",
-    "run_name": "stage5e_run",
+    "run_name": "stage5f_run",
     "random_seed": 20260703
   },
   "road": {
@@ -1872,6 +1872,6 @@
     "estimated_wavelength_m": 8.666666666666666,
     "rayleigh_penetration_depth_m": 8.666666666666666,
     "latest_stable_dir": "outputs\\latest_stable",
-    "output_run_dir": "outputs\\stage5e_run_20260704_222232"
+    "output_run_dir": "outputs\\stage5f_run_20260705_000529"
   }
 }

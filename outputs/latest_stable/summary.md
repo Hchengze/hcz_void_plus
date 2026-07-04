@@ -2,10 +2,10 @@
 
 ## 本轮信息
 
-- commit id: `90c0bd3`
-- 任务名称：`Stage 5E elastic2d 数值格式加固 + 速度模型物理关系澄清 + 科学图件自检`
-- 运行时间：`2026-07-04T22:23:26`
-- 来源目录：`outputs\stage5e_run_20260704_222232`
+- commit id：`0d39007`
+- 任务名称：`Stage 5F 阶段一致性修复 + 图件精选治理 + staggered elastic2d benchmark`
+- 运行时间：`2026-07-05T00:06:40`
+- 来源目录：`outputs\stage5f_run_20260705_000529`
 
 ## 当前近似条件
 
@@ -77,7 +77,7 @@
 - latest_stable_curated：`True`
 - forward_engine_active：`layered_kinematic`
 - forward_engine_available：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype', 'elastic2d_prototype']`
-- forward_engine_next_required：`elastic2d accuracy/stability hardening before 2.5D multi-section validation`
+- forward_engine_next_required：`Rayleigh benchmark and DAS gauge validation before 2.5D`
 - forward_modeling_stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation`
 - validation_forward_available：`['acoustic2d_prototype', 'elastic2d_prototype']`
 - layered_vs_baseline travel-time RMS residual：`57.07585810059442` ms
@@ -95,7 +95,7 @@
 
 - repository_health_status：`pass`
 - figure_self_check_status：`pass`
-- figure_self_check passed/failed：`45` / `0`
+- figure_self_check passed/failed：`29` / `0`
 - active_velocity_model_type：`layered`
 - active_velocity_model_confirmed：`True`
 - velocity_model_used_by_direct：`True`
@@ -125,16 +125,40 @@
 
 ## Stage 5E 人工优先查看图件
 
-- `figures/core/fig_stage5e_status_badge.png`
+- `figures/core/fig_stage5f_status_badge.png`
 - `figures/core/fig_confidence_diagnostics.png`
 - `figures/diagnostics/fig_velocity_model_active_badge.png`
+- `figures/diagnostics/fig_latest_stable_quality_summary.png`
 - `figures/diagnostics/fig_velocity_model_physics_bridge.png`
-- `figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png`
-- `figures/forward/fig_elastic2d_numerical_sensitivity_summary.png`
-- `figures/forward/fig_elastic2d_rayleigh_pick_case_comparison.png`
-- `figures/forward/fig_elastic2d_das_response_nonzero_check.png`
+- `figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png`
+- `figures/forward/fig_elastic2d_rayleigh_velocity_error.png`
+- `figures/forward/fig_elastic2d_surface_event_ridge.png`
+- `figures/forward/fig_elastic2d_das_best_case.png`
 - `figures/forward/fig_elastic_vs_kinematic_energy_partition.png`
 - `figures/localization/fig_scan_x_y_slice.png`
+
+## Stage 5F 阶段一致性、图件精选治理与 staggered benchmark
+
+- stage：`Stage 5F`
+- stage_consistency_status：`pass`
+- document_cleanup_status：`archived_historical_docs`
+- latest_stable_file_audit_status：`pass`
+- figure_quality_check_status：`pass`
+- figure_deduplication_status：`pass`
+- figure_language_check_status：`pass`
+- latest_stable_total_figure_count：`29`
+- empty_figure_count：`0`
+- duplicate_figure_count：`0`
+- english_figure_count：`0`
+- staggered_grid_status：`implemented_minimal_validation`
+- best_rayleigh_benchmark_case：`staggered_traction_variant`
+- rayleigh_like_event_detected：`False`
+- rayleigh_velocity_relative_error：`0.2028480598664669`
+- best_free_surface_mode：`stress_zero_variant`
+- best_boundary_mode：`sponge_medium`
+- das_gauge_final_status：`nonzero_but_not_for_default_localization`
+- ready_for_2p5d：`False`
+- three_dimensional_policy_status：`established`
 
 ## 基础置信度指标
 
@@ -151,76 +175,59 @@
 
 ## 推荐人工重点查看
 
-- figures/core/fig_stage5e_status_badge.png
+- figures/core/fig_stage5f_status_badge.png
 - figures/core/fig_geometry_layout_check.png
 - figures/core/fig_shot_gather_000.png
-- figures/core/fig_best_location_map.png
 - figures/core/fig_confidence_diagnostics.png
 - figures/core/fig_forward_roadmap_status.png
-- figures/forward/fig_forward_engine_comparison.png
-- figures/forward/fig_layered_kinematic_vs_baseline_gather.png
-- figures/forward/fig_acoustic2d_wavefield_snapshots.png
-- figures/forward/fig_acoustic2d_shot_gather.png
-- figures/forward/fig_elastic2d_rayleigh_wavefield_snapshots.png
-- figures/forward/fig_elastic2d_surface_gather.png
-- figures/forward/fig_elastic2d_rayleigh_velocity_check.png
-- figures/forward/fig_elastic2d_rayleigh_pick_diagnostics.png
+- figures/diagnostics/fig_latest_stable_quality_summary.png
+- figures/diagnostics/fig_model_mismatch_error_summary.png
+- figures/diagnostics/fig_depth_prior_sensitivity.png
+- figures/diagnostics/fig_velocity_model_profile_current.png
+- figures/diagnostics/fig_velocity_model_active_badge.png
+- figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png
+- figures/diagnostics/fig_bridge_derived_elastic_parameters.png
+- figures/diagnostics/fig_velocity_model_physics_bridge.png
+- figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png
+- figures/forward/fig_elastic2d_rayleigh_velocity_error.png
+- figures/forward/fig_elastic2d_surface_event_ridge.png
+- figures/forward/fig_elastic2d_free_surface_mode_comparison.png
+- figures/forward/fig_elastic2d_boundary_reflection_diagnostics.png
 - figures/forward/fig_elastic2d_void_scattering_residual.png
-- figures/forward/fig_elastic2d_void_diffraction_overlay.png
-- figures/forward/fig_elastic2d_void_parameter_sensitivity.png
-- figures/forward/fig_elastic2d_void_residual_energy_map.png
-- figures/forward/fig_elastic2d_das_gauge_response.png
-- figures/forward/fig_elastic2d_das_component_comparison.png
-- figures/forward/fig_elastic2d_das_gauge_length_sensitivity.png
-- figures/forward/fig_elastic_vs_kinematic_overlay.png
-- figures/forward/fig_elastic_vs_kinematic_residual_energy.png
+- figures/forward/fig_elastic2d_das_staggered_vs_collocated.png
+- figures/forward/fig_elastic2d_das_best_case.png
+- figures/forward/fig_elastic2d_das_report_consistency.png
 - figures/forward/fig_elastic_vs_kinematic_energy_partition.png
-- figures/forward/fig_elastic2d_numerical_sensitivity_summary.png
-- figures/forward/fig_elastic2d_rayleigh_pick_case_comparison.png
-- figures/forward/fig_elastic2d_das_response_nonzero_check.png
-- figures/forward/fig_elastic2d_das_force_direction_comparison.png
 - figures/localization/fig_scan_x_depth_slice.png
 - figures/localization/fig_scan_x_y_slice.png
 - figures/localization/fig_multi_attribute_ablation.png
 - figures/uncertainty/fig_3d_high_score_components.png
 - figures/uncertainty/fig_x_y_depth_uncertainty_slices.png
 - figures/uncertainty/fig_recommendation_decision_flow.png
-- figures/diagnostics/fig_velocity_model_comparison.png
-- figures/diagnostics/fig_model_mismatch_error_summary.png
-- figures/diagnostics/fig_depth_prior_sensitivity.png
-- figures/diagnostics/fig_velocity_model_profile_current.png
-- figures/diagnostics/fig_velocity_model_2d_slice_current.png
-- figures/diagnostics/fig_velocity_sampling_paths_current.png
-- figures/diagnostics/fig_uniform_vs_layered_travel_time_difference.png
-- figures/diagnostics/fig_velocity_model_active_badge.png
-- figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png
-- figures/diagnostics/fig_elastic_vp_vs_rho_model.png
-- figures/diagnostics/fig_velocity_model_physics_bridge.png
 - figures/diagnostics/anim_pseudo_wavefield.gif
 - reports/core/report_full_pipeline.md
-- reports/core/report_confidence.md
-- reports/core/report_figure_self_check.md
 - reports/forward/report_forward_engine_ablation.md
-- reports/forward/report_acoustic2d_prototype.md
-- reports/forward/report_elastic2d_rayleigh_validation.md
+- reports/forward/report_elastic2d_rayleigh_benchmark.md
+- reports/forward/report_elastic2d_free_surface_validation.md
+- reports/forward/report_elastic2d_boundary_validation.md
 - reports/forward/report_elastic2d_void_scattering.md
 - reports/forward/report_elastic2d_das_response.md
-- reports/forward/report_elastic_vs_kinematic.md
-- reports/forward/report_elastic2d_numerical_sensitivity.md
 - reports/localization/report_multi_attribute_ablation.md
-- reports/localization/report_geometry_ablation.md
-- reports/diagnostics/report_velocity_model_ablation.md
 - reports/diagnostics/report_model_mismatch.md
 - reports/diagnostics/report_velocity_model_audit.md
 - reports/diagnostics/report_velocity_model_visualization.md
 - reports/diagnostics/report_velocity_model_physics_bridge.md
 - reports/core/report_repository_health.md
 - reports/core/report_scientific_figure_self_check.md
+- reports/core/report_figure_quality_check.md
+- reports/core/report_figure_deduplication.md
+- reports/core/report_figure_language_check.md
+- reports/core/report_latest_stable_file_audit.md
 
 ## 导出记录
 
-- 已复制精选文件数量：`71`
-- 缺失精选文件数量：`2`
+- 已复制精选文件数量：`54`
+- 缺失精选文件数量：`5`
 
 ## 当前限制
 
