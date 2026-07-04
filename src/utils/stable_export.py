@@ -10,16 +10,20 @@ from pathlib import Path
 from typing import Any
 
 from src.utils.latest_stable_manifest import (
-    STAGE5E_FIGURE_SPECS,
+    STAGE5F_FIGURE_SPECS,
     build_figure_metadata,
     specs_by_category,
 )
 from src.validation.figure_self_check import run_figure_self_check, write_figure_self_check_report
+from src.validation.figure_quality_check import run_figure_quality_check, write_figure_quality_report
+from src.validation.figure_deduplication import run_figure_deduplication, write_figure_deduplication_report
+from src.validation.figure_language_check import run_figure_language_check, write_figure_language_report
 from src.validation.repository_health import build_repository_health_report, write_repository_health_report
 from src.validation.scientific_figure_self_check import (
     run_scientific_figure_self_check,
     write_scientific_figure_self_check_report,
 )
+from src.utils.latest_stable_curator import audit_latest_stable_files, write_latest_stable_file_audit_report
 
 
 CURATED_FIGURES = specs_by_category()
@@ -27,27 +31,25 @@ CURATED_FIGURES = specs_by_category()
 CURATED_REPORTS = {
     "core": [
         "report_full_pipeline.md",
-        "report_confidence.md",
-        "report_repository_health.md",
-        "report_figure_self_check.md",
+        "report_latest_stable_file_audit.md",
+        "report_figure_quality_check.md",
+        "report_figure_deduplication.md",
+        "report_figure_language_check.md",
         "report_scientific_figure_self_check.md",
     ],
     "forward": [
         "report_forward_engine_ablation.md",
-        "report_acoustic2d_prototype.md",
-        "report_elastic2d_rayleigh_validation.md",
+        "report_elastic2d_rayleigh_benchmark.md",
+        "report_elastic2d_free_surface_validation.md",
+        "report_elastic2d_boundary_validation.md",
         "report_elastic2d_void_scattering.md",
         "report_elastic2d_das_response.md",
-        "report_elastic_vs_kinematic.md",
-        "report_elastic2d_numerical_sensitivity.md",
     ],
     "localization": [
         "report_multi_attribute_ablation.md",
-        "report_geometry_ablation.md",
     ],
     "uncertainty": [],
     "diagnostics": [
-        "report_velocity_model_ablation.md",
         "report_model_mismatch.md",
         "report_velocity_model_audit.md",
         "report_velocity_model_visualization.md",
@@ -172,9 +174,15 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     scientific_figure_self_check = summary_info.get("scientific_figure_self_check") or {}
     repository_health = summary_info.get("repository_health") or {}
     stage5e_validation = summary_info.get("stage5e_validation") or {}
+    stage5f_validation = summary_info.get("stage5f_validation") or {}
     elastic2d_numerical_sensitivity = stage5e_validation.get("elastic2d_numerical_sensitivity") or {}
     velocity_physics_bridge = stage5e_validation.get("velocity_model_physics_bridge") or {}
     das_nonzero = stage5e_validation.get("elastic2d_das_nonzero_check") or {}
+    rayleigh_benchmark = stage5f_validation.get("elastic2d_rayleigh_benchmark") or {}
+    latest_audit = summary_info.get("latest_stable_file_audit") or {}
+    quality_check = summary_info.get("figure_quality_check") or {}
+    dedup_check = summary_info.get("figure_deduplication") or {}
+    language_check = summary_info.get("figure_language_check") or {}
     elastic_void_sensitivity = stage5b_validation.get("elastic2d_void_parameter_sensitivity") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
@@ -188,14 +196,15 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
         and ("figures" in Path(path).parts or "reports" in Path(path).parts)
     )
     scientific_recommended = scientific_figure_self_check.get("recommended_figures") or [
-        "figures/core/fig_stage5e_status_badge.png",
+        "figures/core/fig_stage5f_status_badge.png",
         "figures/core/fig_confidence_diagnostics.png",
         "figures/diagnostics/fig_velocity_model_active_badge.png",
+        "figures/diagnostics/fig_latest_stable_quality_summary.png",
         "figures/diagnostics/fig_velocity_model_physics_bridge.png",
-        "figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png",
-        "figures/forward/fig_elastic2d_numerical_sensitivity_summary.png",
-        "figures/forward/fig_elastic2d_rayleigh_pick_case_comparison.png",
-        "figures/forward/fig_elastic2d_das_response_nonzero_check.png",
+        "figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png",
+        "figures/forward/fig_elastic2d_rayleigh_velocity_error.png",
+        "figures/forward/fig_elastic2d_surface_event_ridge.png",
+        "figures/forward/fig_elastic2d_das_best_case.png",
         "figures/forward/fig_elastic_vs_kinematic_energy_partition.png",
         "figures/localization/fig_scan_x_y_slice.png",
     ]
@@ -205,7 +214,7 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 ## 本轮信息
 
 - commit id：`{summary_info.get("commit_id", "unknown")}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5E")}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5F")}`
 - 运行时间：`{summary_info.get("run_time", datetime.now().isoformat(timespec="seconds"))}`
 - 来源目录：`{summary_info.get("source_run_dir", "")}`
 
@@ -329,6 +338,29 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 
 {scientific_recommended_text}
 
+## Stage 5F 阶段一致性、图件精选治理与 staggered benchmark
+
+- stage：`Stage 5F`
+- stage_consistency_status：`{_format_optional(summary_info.get("stage_consistency_status", "pass"))}`
+- document_cleanup_status：`{_format_optional(summary_info.get("document_cleanup_status", "archived_historical_docs"))}`
+- latest_stable_file_audit_status：`{_format_optional(latest_audit.get("status"))}`
+- figure_quality_check_status：`{_format_optional(quality_check.get("status"))}`
+- figure_deduplication_status：`{_format_optional(dedup_check.get("status"))}`
+- figure_language_check_status：`{_format_optional(language_check.get("status"))}`
+- latest_stable_total_figure_count：`{_format_optional(latest_audit.get("latest_stable_total_figure_count"))}`
+- empty_figure_count：`{_format_optional(quality_check.get("empty_figure_count"))}`
+- duplicate_figure_count：`{_format_optional(dedup_check.get("duplicate_figure_count"))}`
+- english_figure_count：`{_format_optional(language_check.get("english_figure_count"))}`
+- staggered_grid_status：`{_format_optional(rayleigh_benchmark.get("staggered_grid_status"))}`
+- best_rayleigh_benchmark_case：`{_format_optional(rayleigh_benchmark.get("best_case"))}`
+- rayleigh_like_event_detected：`{_format_optional(rayleigh_benchmark.get("rayleigh_like_event_detected"))}`
+- rayleigh_velocity_relative_error：`{_format_optional(rayleigh_benchmark.get("rayleigh_velocity_relative_error"))}`
+- best_free_surface_mode：`{_format_optional(rayleigh_benchmark.get("best_free_surface_mode"))}`
+- best_boundary_mode：`{_format_optional(rayleigh_benchmark.get("best_boundary_mode"))}`
+- das_gauge_final_status：`{_format_optional(stage5f_validation.get("das_gauge_final_status"))}`
+- ready_for_2p5d：`{_format_optional(stage5f_validation.get("ready_for_2p5d"))}`
+- three_dimensional_policy_status：`{_format_optional(stage5f_validation.get("three_dimensional_policy_status"))}`
+
 ## 基础置信度指标
 
 - peak sharpness：`{_format_optional(peak.get("peak_sharpness"))}`
@@ -427,11 +459,11 @@ def export_latest_stable_outputs(
     latest_stable_dir = Path(latest_stable_dir)
     output_root_dir = latest_stable_dir.parent
     figure_metadata = build_figure_metadata(
-        stage="Stage 5E",
+        stage="Stage 5F",
         forward_engine=str(summary_info.get("forward_engine_active", "layered_kinematic")),
         velocity_model_type=str(summary_info.get("active_velocity_model_type", "layered")),
     )
-    figure_self_check = run_figure_self_check(run_output_dir, STAGE5E_FIGURE_SPECS, figure_metadata)
+    figure_self_check = run_figure_self_check(run_output_dir, STAGE5F_FIGURE_SPECS, figure_metadata)
     write_figure_self_check_report(
         run_output_dir / "reports" / "report_figure_self_check.md",
         figure_self_check,
@@ -521,6 +553,40 @@ def export_latest_stable_outputs(
         "failure_count": scientific_check["failure_count"],
         "recommended_figures": scientific_check["recommended_figures"],
     }
+    quality_check = run_figure_quality_check(latest_stable_dir)
+    quality_path = latest_stable_dir / "reports" / "core" / "report_figure_quality_check.md"
+    write_figure_quality_report(quality_path, quality_check)
+    copied.append(str(quality_path))
+    dedup_check = run_figure_deduplication(latest_stable_dir)
+    dedup_path = latest_stable_dir / "reports" / "core" / "report_figure_deduplication.md"
+    write_figure_deduplication_report(dedup_path, dedup_check)
+    copied.append(str(dedup_path))
+    language_check = run_figure_language_check(latest_stable_dir)
+    language_path = latest_stable_dir / "reports" / "core" / "report_figure_language_check.md"
+    write_figure_language_report(language_path, language_check)
+    copied.append(str(language_path))
+    latest_audit = audit_latest_stable_files(latest_stable_dir)
+    audit_path = latest_stable_dir / "reports" / "core" / "report_latest_stable_file_audit.md"
+    write_latest_stable_file_audit_report(audit_path, latest_audit)
+    copied.append(str(audit_path))
+    latest_audit = audit_latest_stable_files(latest_stable_dir)
+    write_latest_stable_file_audit_report(audit_path, latest_audit)
+    summary_info["figure_quality_check"] = {
+        "status": quality_check["status"],
+        "empty_figure_count": quality_check["empty_figure_count"],
+        "excluded_empty_figures": quality_check["excluded_empty_figures"],
+    }
+    summary_info["figure_deduplication"] = {
+        "status": dedup_check["status"],
+        "duplicate_figure_count": dedup_check["duplicate_figure_count"],
+        "excluded_duplicate_figures": dedup_check["excluded_duplicate_figures"],
+    }
+    summary_info["figure_language_check"] = {
+        "status": language_check["status"],
+        "english_figure_count": language_check["english_figure_count"],
+        "english_or_needs_translation": language_check["english_or_needs_translation"],
+    }
+    summary_info["latest_stable_file_audit"] = latest_audit
     repository_health = build_repository_health_report(Path.cwd(), latest_stable_dir)
     write_repository_health_report(repository_health_path, repository_health)
     summary_info["repository_health"] = {

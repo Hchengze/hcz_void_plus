@@ -1,5 +1,9 @@
 # DAS-like Approximation
 
+> 历史阶段记录：本文件保留早期 DAS-like 近似说明。Stage 5F 当前口径是：
+> layered_kinematic 为主定位 forward，elastic2d 仅为 validation forward，
+> DAS-like gauge strain 不能默认用于定位。
+
 当前结果必须称为 `DAS-like response approximation`。
 
 Stage 3 仍然只实现 `point_receiver approximation`：每个光纤通道被近似为一个点式接收器，输出数据形状为：

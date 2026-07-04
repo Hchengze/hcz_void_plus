@@ -5,7 +5,7 @@
 - `code/current_3d_algorithm/`：稳定成果区，面向复用、人工审计和阶段交付。
 - `src/`：研发区，保留实验性模块、消融实验和后续算法探索。
 
-当前主线仍是 `DAS-like response approximation` 与 `kinematic approximation`，不是完整 DAS 仪器模拟，也不是 3D elastic wavefield。Stage 5E 后，稳定正演入口仍明确为 `layered_kinematic`，`elastic2d_prototype` 只作为 validation forward；速度模型调用链、latest_stable 图件准入和科学结论一致性都必须可审计。
+当前主线仍是 `DAS-like response approximation` 与 `kinematic approximation`，不是完整 DAS 仪器模拟，也不是 3D elastic wavefield。Stage 5F 后，稳定正演入口仍明确为 `layered_kinematic`，`elastic2d_prototype` 和 staggered-grid benchmark 只作为 validation forward；速度模型调用链、latest_stable 图件准入、图件质量和科学结论一致性都必须可审计。
 
 ## 当前稳定算法线
 
@@ -21,6 +21,8 @@
 10. Stage 5D 新增 velocity model audit、figure self-check、repository health report 和 elastic2d 参数敏感性诊断。
 11. Stage 5E 新增 scientific figure self-check、elastic2d numerical sensitivity、velocity physics bridge 和 DAS gauge nonzero check。
 12. Rayleigh-like 检测未通过、DAS gauge 很弱时，不得把 elastic2d 或 DAS-like strain 写成成功主线。
+13. Stage 5F 新增 figure quality/dedup/language check、staggered-grid Rayleigh benchmark 和三维 forward validation policy。
+14. Rayleigh benchmark 未通过前，`ready_for_2p5d=False`。
 
 ## 正演路线
 

@@ -104,7 +104,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5E elastic2d numerical hardening and velocity physics bridge",
+        "stage": "Stage 5F curated figure governance and staggered elastic2d benchmark",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),

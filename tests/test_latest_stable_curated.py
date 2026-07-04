@@ -14,20 +14,25 @@ def test_latest_stable_root_figures_are_not_flat_png_dump():
     latest = Path("outputs/latest_stable")
     root_pngs = list((latest / "figures").glob("*.png"))
     assert len(root_pngs) == 0
-    assert len(list((latest / "figures" / "core").glob("*.png"))) <= 8
+    assert len(list((latest / "figures" / "core").glob("*.png"))) <= 6
     summary = (latest / "summary.md").read_text(encoding="utf-8")
-    assert "Stage 5E" in summary
+    assert "Stage 5F" in summary
     assert "latest_stable_curated" in summary
 
 
-def test_latest_stable_stage5d_core_reports_and_no_root_png_dump():
+def test_latest_stable_stage5f_core_reports_and_no_root_png_dump():
     latest = Path("outputs/latest_stable")
     assert len(list((latest / "figures").glob("*.png"))) == 0
     assert len(list((latest / "reports").glob("*.md"))) == 0
     assert (latest / "reports" / "core" / "report_repository_health.md").exists()
-    assert (latest / "reports" / "core" / "report_figure_self_check.md").exists()
+    assert (latest / "reports" / "core" / "report_latest_stable_file_audit.md").exists()
+    assert (latest / "reports" / "core" / "report_figure_quality_check.md").exists()
+    assert (latest / "reports" / "core" / "report_figure_deduplication.md").exists()
+    assert (latest / "reports" / "core" / "report_figure_language_check.md").exists()
     assert (latest / "reports" / "diagnostics" / "report_velocity_model_audit.md").exists()
+    scientific = (latest / "reports" / "core" / "report_scientific_figure_self_check.md").read_text(encoding="utf-8")
+    assert "状态：`pass`" in scientific
     summary = (latest / "summary.md").read_text(encoding="utf-8")
     assert "active_velocity_model_type" in summary
     assert "scientific_figure_self_check_status" in summary
-    assert "Stage 3" not in summary
+    assert "stage：`Stage 3" not in summary

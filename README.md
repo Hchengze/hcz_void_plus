@@ -1,169 +1,94 @@
 # hcz_void_plus
 
-城市道路既有通信光纤 DAS-like 三维空洞探测科研级算法原型平台。
+三维道路 DAS-like 空洞探测科研原型。当前结果用于算法研发与候选区解释，不是工程确诊。
 
-本项目面向城市道路浅层空洞、脱空、松散区、管沟、管线周边扰动、弱夹层和破碎带等异常体。当前系统不是可安装发布软件，也不是工程确诊系统，而是本地可运行、可调试、可持续扩展的科研算法工程。
+## 当前阶段
 
-## 当前最新阶段
+当前推进到 **Stage 5F：阶段一致性修复 + 旧文档清理 + latest_stable 图件精选治理 + staggered-grid elastic2d benchmark + 三维场景约束强化**。
 
-当前主线推进到 **Stage 5E：elastic2d 数值格式加固 + 速度模型物理关系澄清 + 科学图件自检**。
-
-Stage 5A 前的结论中，部分 Stage 2/Stage 3/Stage 4 表述只代表历史阶段。当前主线请优先阅读：
+当前主依据：
 
 - `README.md`
 - `docs/current_status.md`
 - `docs/current_algorithm_boundary.md`
+- `docs/forward_modeling_roadmap.md`
+- `docs/three_dimensional_forward_validation_policy.md`
 - `code/current_3d_algorithm/`
 - `outputs/latest_stable/summary.md`
 
-## code/ 与 src/ 的区别
+历史文档如 `docs/archive/` 中的内容只作为阶段记录，不作为当前开发依据。
 
-- `code/current_3d_algorithm/`：当前最新稳定算法成果区。这里沉淀最值得保留的三维算法主线、稳定 API 和推荐流程。
-- `src/`：研发区。这里包含正演、预处理、定位、置信度、消融实验和后续探索模块，不代表所有内容都是当前推荐算法。
+## 当前主线
 
-`code/current_3d_algorithm/` 不复制第三方无许可证代码，也不维护第二套参数。它通过稳定 API 调用 `src/` 中经过测试的实现。
+- active velocity model：`layered`
+- active forward engine：`layered_kinematic`
+- current main localization forward：layered straight-ray kinematic approximation
+- validation forward：`acoustic2d_prototype`、`elastic2d_prototype`、`staggered_elastic2d_benchmark`
+- ready_for_2p5d：`False`，除非 Rayleigh benchmark、DAS gauge response、void residual 和 latest_stable 一致性全部通过
 
-## 当前稳定算法主线
+`layered_kinematic` 使用的是等效 Rayleigh 速度模型；`elastic2d` 使用 Vp/Vs/rho 弹性参数。二者属于不同物理层级，需要通过经验关系或实测标定桥接，不能混为同一个速度模型。
 
-1. 三维几何：`source_xyz / receiver_xyz / candidate_xyz`。
-2. DAS-like 点式接收近似：当前仍不是完整 DAS 仪器响应。
-3. 当前主正演：`layered_kinematic`，使用分层/非均匀速度模型的 straight-ray 运动学走时积分。
-4. 异常体：`sphere / ellipsoid / box / cylinder / pipe_trench` 的等效散射点表达。
-5. 推荐预处理：`bandpass + trace_normalization + taper direct mute`。
-6. 主定位：`multi_attribute_unweighted`，不让 depth weighting 默认主导定位。
-7. 不确定性表达：`3D high-score region`、连通域、推荐位置类型和 depth/y 区间。
-8. 稳定输出：`outputs/latest_stable/` 存放每轮最值得人工检查的精选图件、报告和 metadata。
+## 正演路线
 
-## 正演技术路线
+- F0 `kinematic_baseline`：快速均匀速度运动学基线，不是真实波场。
+- F1 `layered_kinematic`：当前主定位 forward，通过 velocity model travel-time 接口计算 direct / scatter / scan。
+- F2 `acoustic2d_prototype`：声学波动方程基础设施验证，不能代表 Rayleigh 波。
+- F3 `elastic2d_prototype`：Rayleigh/free-surface/void scattering 的局部科研验证起点。
+- Stage 5F `staggered_elastic2d_benchmark`：collocated / staggered 小网格对比 benchmark，只是 validation forward。
+- F4-F6：2.5D、多剖面、局部 3D elastic 是长期方向；Rayleigh benchmark 未通过前不建议进入。
 
-Stage 5B 起，forward modeling 单独立为主线；Stage 5C 新增最小 `elastic2d_prototype` validation；Stage 5D 已确认 active velocity model 为 `layered` 且进入 direct / scatter / scan 调用链，但 Rayleigh-like 检测未通过、DAS-like gauge strain 仍很弱。Stage 5E 的重点是加固 elastic2d 数值格式、澄清 Rayleigh equivalent velocity 与 Vp/Vs/rho 的物理关系，并升级科学图件自检：
+## 三维场景边界
 
-- F0 `kinematic_baseline`：均匀速度运动学快速基线，保留用于对比和回归测试。
-- F1 `layered_kinematic`：当前 active forward engine，支持 layered / heterogeneous straight-ray kinematic travel time。
-- F2 `acoustic2d_prototype`：二维标量 acoustic FDTD validation，用于验证网格、震源、接收、边界、CFL 和快照输出，不能代表 Rayleigh 波。
-- F3 `elastic2d_prototype`：最小 2D velocity-stress validation，用于 Rayleigh-like surface event、free-surface 和 void-like scattering 局部科研检查。
-- F4-F6：多剖面 elastic、小域 3D elastic 和外部 solver adapters；在 Rayleigh/free-surface 基础验证通过前，不建议进入 2.5D 或局部 3D。
+项目最终场景始终是三维道路 DAS-like：
 
-## 速度模型升级
+- source：`source_xyz`
+- receiver：`receiver_xyz` 或 receiver polyline
+- candidate：`candidate_xyz`
+- output：x-y-depth high-score region、connected components、uncertainty interval
 
-Stage 5A 起，默认速度模型从 `uniform` 升级为 `layered`：
+2D elastic 只服务于局部物理验证，不能直接替代三维 x-y-depth 定位。
 
-```bash
---velocity-model-type layered
-```
+## latest_stable 治理
 
-当前支持：
+`outputs/latest_stable/` 是当前精选成果目录，不是历史输出仓库。Stage 5F 后，进入该目录的图件必须通过：
 
-- `uniform`：均匀等效 Rayleigh 速度，用作基线对比；
-- `layered`：路面结构层、基层和土体层的分层等效 Rayleigh 速度；
-- `lateral_gradient`：沿 x/y 的横向速度渐变；
-- `localized_low_velocity_zone`：局部低速区；
-- `layered_with_anomaly_perturbation`：分层背景叠加异常附近低速扰动。
+- 文件级 figure self-check
+- scientific figure self-check
+- 空图/低质量图检查
+- 重复图检查
+- 图件中文化检查
+- latest_stable 分层数量审计
 
-这些模型通过直线路径采样积分计算走时，即 `straight-ray kinematic approximation`。它们比单一均匀速度更接近近地表情形，但仍不是 3D elastic wavefield、不是射线弯曲模拟，也不是速度反演。
+当前精选结构：
 
-## 如何运行
+- `figures/core/`：阶段状态、几何、shot gather、置信度、roadmap
+- `figures/forward/`：elastic2d / staggered benchmark / DAS / elastic-vs-kinematic
+- `figures/localization/`：三维扫描定位切片与多属性消融
+- `figures/uncertainty/`：三维高分区和推荐决策
+- `figures/diagnostics/`：速度模型、物理桥接、质量摘要与模型风险
+- `reports/core/`、`reports/forward/`、`reports/localization/`、`reports/diagnostics/`：对应精选报告
+
+空图、重复图、旧阶段主结论图和明显英文图不得进入 `latest_stable`。
+
+## 运行
 
 ```bash
 D:\HczApp\Anaconda\envs\mywork\python.exe -m pytest
 D:\HczApp\Anaconda\envs\mywork\python.exe main.py --task full_pipeline --max-shot-gather-figures 2 --wavefield-snapshot-count 8
+D:\HczApp\Anaconda\envs\mywork\python.exe code\current_3d_algorithm\run_current_3d.py
 ```
 
-也可以运行当前稳定算法入口：
+`main.py` 仍是唯一 argparse 参数入口。不创建 `config/` 或 `para/` 目录。
 
-```bash
-python code/current_3d_algorithm/run_current_3d.py
-```
+## 当前限制
 
-所有参数仍由根目录 `main.py` 的 argparse 管理，不创建 `config/` 或 `para/`。
-
-## 输出在哪里
-
-完整运行结果：
-
-```text
-outputs/<run_name>_<timestamp>/
-```
-
-精选稳定结果：
-
-```text
-outputs/latest_stable/
-```
-
-Stage 5E 后，`outputs/latest_stable/` 是分层精选目录，而不是历史图件总仓库。进入 latest_stable 的图件会先经过文件级自检，并继续通过 scientific figure self-check，防止“Rayleigh 未通过却写成功”或“DAS gauge 很弱却写有效”。重点新增图件和报告包括：
-
-- `fig_velocity_model_comparison.png`
-- `fig_layered_velocity_profile.png`
-- `fig_velocity_model_travel_time_residuals.png`
-- `fig_model_mismatch_error_summary.png`
-- `report_velocity_model_ablation.md`
-- `report_model_mismatch.md`
-- `fig_forward_engine_comparison.png`
-- `fig_layered_kinematic_vs_baseline_gather.png`
-- `fig_forward_roadmap_status.png`
-- `fig_acoustic2d_wavefield_snapshots.png`
-- `fig_acoustic2d_shot_gather.png`
-- `fig_elastic2d_rayleigh_wavefield_snapshots.png`
-- `fig_elastic2d_surface_gather.png`
-- `fig_elastic2d_rayleigh_velocity_check.png`
-- `fig_elastic2d_void_scattering_residual.png`
-- `fig_elastic2d_void_diffraction_overlay.png`
-- `fig_elastic2d_das_gauge_response.png`
-- `fig_elastic_vs_kinematic_overlay.png`
-- `fig_velocity_model_profile_current.png`
-- `fig_velocity_model_2d_slice_current.png`
-- `fig_velocity_sampling_paths_current.png`
-- `fig_uniform_vs_layered_travel_time_difference.png`
-- `fig_velocity_model_active_badge.png`
-- `fig_elastic2d_rayleigh_pick_diagnostics.png`
-- `fig_elastic2d_void_parameter_sensitivity.png`
-- `fig_elastic2d_void_residual_energy_map.png`
-- `fig_elastic2d_das_component_comparison.png`
-- `fig_elastic2d_das_gauge_length_sensitivity.png`
-- `fig_elastic_vs_kinematic_energy_partition.png`
-- `fig_stage5e_status_badge.png`
-- `fig_elastic2d_numerical_sensitivity_summary.png`
-- `fig_elastic2d_rayleigh_pick_case_comparison.png`
-- `fig_elastic2d_das_response_nonzero_check.png`
-- `fig_elastic2d_das_force_direction_comparison.png`
-- `fig_rayleigh_equivalent_vs_elastic_velocity.png`
-- `fig_elastic_vp_vs_rho_model.png`
-- `fig_velocity_model_physics_bridge.png`
-- `report_forward_engine_ablation.md`
-- `report_acoustic2d_prototype.md`
-- `report_repository_health.md`
-- `report_figure_self_check.md`
-- `report_velocity_model_audit.md`
-- `report_velocity_model_visualization.md`
-- `report_scientific_figure_self_check.md`
-- `report_elastic2d_numerical_sensitivity.md`
-- `report_velocity_model_physics_bridge.md`
-- `report_elastic2d_rayleigh_validation.md`
-- `report_elastic2d_void_scattering.md`
-- `report_elastic2d_das_response.md`
-- `report_elastic_vs_kinematic.md`
-
-## 当前最可信的结果表达
-
-当前结果应表达为三维候选体和不确定性区间，而不是工程确诊点。对于单侧或准单侧 DAS-like 观测几何，y-depth 耦合仍是核心风险。即使 x 方向聚焦较稳定，y 和 depth 也必须结合高分区跨度、连通域、模型错配和速度模型消融共同解释。
-
-## 当前仍然存在的问题
-
-- 当前是 `DAS-like response approximation`。
-- 当前是 `kinematic approximation`。
-- 分层/非均匀速度是 `straight-ray kinematic approximation`。
-- 当前不是完整 DAS 仪器响应。
-- 当前不是 3D elastic wavefield。
-- 当前 `acoustic2d_prototype` 不是 Rayleigh 波正演，只是 acoustic wave-equation infrastructure validation。
-- `elastic2d_prototype` 是 Rayleigh/free-surface/void scattering 的局部物理验证起点，但仍不是工业级模拟。
-- 当前异常体是 `equivalent scatter representation`，不是真实边界散射。
+- `layered_kinematic` 仍是 straight-ray kinematic approximation。
+- `elastic2d` 仍是最小科研验证原型，不是工业级 elastic solver。
+- Rayleigh-like benchmark 未通过时，不得宣称 Rayleigh 正演成功。
+- DAS-like gauge strain 很弱或不可解释时，不得默认用于定位。
+- 当前 DAS-like response 不是完整真实 DAS 仪器响应。
 - 当前结果是科研候选区，不是工程确诊。
-- 真实道路三维场景中，速度模型不确定性、观测几何和 y-depth 耦合仍是核心风险。
 
-## 下一步方向
+## 下一步
 
-1. 用更多三维观测几何实验优化 source 方位覆盖。
-2. 继续增强 layered / heterogeneous velocity 的可解释性和参数敏感性。
-3. 加固 `elastic2d_prototype` 的数值稳定性、自由表面处理和 void scattering 验证，但仍与主流程的运动学算法保持边界清晰。
-4. 在真实或半真实数据上验证预处理、multi-attribute score 和模型错配诊断是否稳定。
+优先继续加固 elastic2d 自由表面、吸收边界、staggered-grid 数值格式和 DAS-like gauge response。只有在 Rayleigh benchmark、void residual、DAS gauge response 和 latest_stable 一致性全部通过后，才考虑 2.5D 多剖面验证。

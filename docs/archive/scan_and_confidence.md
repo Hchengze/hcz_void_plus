@@ -1,5 +1,9 @@
 # Scan And Confidence
 
+> 历史阶段记录：本文件主要描述 Stage 3 扫描与置信度规则，不代表 Stage 5F
+> 当前主线。当前三维定位、速度模型、forward validation 和 latest_stable
+> 结论请以 `docs/current_status.md` 与 `outputs/latest_stable/summary.md` 为准。
+
 Stage 3 已在基础扫描定位之后加入规则型基础置信度诊断，但仍不实现完整概率置信度体系。
 
 ## 扫描方法

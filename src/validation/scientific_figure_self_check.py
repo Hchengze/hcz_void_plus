@@ -12,18 +12,22 @@ from pathlib import Path
 from typing import Any
 
 
-RECOMMENDED_STAGE5E_FIGURES = [
-    "figures/core/fig_stage5e_status_badge.png",
+RECOMMENDED_STAGE5F_FIGURES = [
+    "figures/core/fig_stage5f_status_badge.png",
     "figures/core/fig_confidence_diagnostics.png",
     "figures/diagnostics/fig_velocity_model_active_badge.png",
+    "figures/diagnostics/fig_latest_stable_quality_summary.png",
     "figures/diagnostics/fig_velocity_model_physics_bridge.png",
-    "figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png",
-    "figures/forward/fig_elastic2d_numerical_sensitivity_summary.png",
-    "figures/forward/fig_elastic2d_rayleigh_pick_case_comparison.png",
-    "figures/forward/fig_elastic2d_das_response_nonzero_check.png",
+    "figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png",
+    "figures/forward/fig_elastic2d_rayleigh_velocity_error.png",
+    "figures/forward/fig_elastic2d_surface_event_ridge.png",
+    "figures/forward/fig_elastic2d_das_best_case.png",
     "figures/forward/fig_elastic_vs_kinematic_energy_partition.png",
     "figures/localization/fig_scan_x_y_slice.png",
 ]
+
+# 兼容 Stage 5E 测试导入名；当前推荐清单已切换到 Stage 5F。
+RECOMMENDED_STAGE5E_FIGURES = RECOMMENDED_STAGE5F_FIGURES
 
 
 def _read_text(path: Path) -> str:
@@ -59,7 +63,7 @@ def _contains_unqualified_phrase(text: str, phrase: str) -> bool:
         index = text.find(phrase, start)
         if index < 0:
             return False
-        prefix = text[max(0, index - 12) : index]
+        prefix = text[max(0, index - 32) : index]
         if not any(marker in prefix for marker in negation_markers):
             return True
         start = index + len(phrase)
@@ -117,19 +121,25 @@ def run_scientific_figure_self_check(latest_stable_dir: Path, summary_info: dict
 
     for item in items:
         required_report = item.get("metadata", {}).get("required_report")
-        if required_report == "reports/core/report_scientific_figure_self_check.md":
+        if required_report in {
+            "reports/core/report_latest_stable_file_audit.md",
+            "reports/core/report_figure_quality_check.md",
+            "reports/core/report_figure_deduplication.md",
+            "reports/core/report_figure_language_check.md",
+            "reports/core/report_scientific_figure_self_check.md",
+        }:
             # scientific self-check 报告是在本函数运行后才写出，属于合法的自引用报告。
             continue
         if required_report and not (latest / required_report).exists():
             warnings.append(f"{item.get('filename')} 对应报告不存在：{required_report}")
 
     recommended_existing = [
-        name for name in RECOMMENDED_STAGE5E_FIGURES if (latest / name).exists()
+        name for name in RECOMMENDED_STAGE5F_FIGURES if (latest / name).exists()
     ]
     if not (8 <= len(recommended_existing) <= 12):
         warnings.append(f"人工推荐图件数量为 {len(recommended_existing)}，不在 8-12 范围内。")
     return {
-        "stage": "Stage 5E",
+        "stage": "Stage 5F",
         "checked_figure_count": len(items),
         "passed_count": len(items) if not failures else max(0, len(items) - len(failures)),
         "scientific_warning_count": len(warnings),

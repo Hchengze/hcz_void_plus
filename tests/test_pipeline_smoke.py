@@ -184,6 +184,12 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_rayleigh_equivalent_vs_elastic_velocity.png").exists()
     assert (output_dir / "figures" / "fig_elastic_vp_vs_rho_model.png").exists()
     assert (output_dir / "figures" / "fig_velocity_model_physics_bridge.png").exists()
+    assert (output_dir / "figures" / "fig_stage5f_status_badge.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_rayleigh_benchmark_matrix.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_rayleigh_velocity_error.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_surface_event_ridge.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_das_best_case.png").exists()
+    assert (output_dir / "figures" / "fig_latest_stable_quality_summary.png").exists()
     assert (output_dir / "reports" / "report_confidence.md").exists()
     assert (output_dir / "reports" / "report_preprocessing_ablation.md").exists()
     assert (output_dir / "reports" / "report_fk_filter_validation.md").exists()
@@ -202,6 +208,9 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "reports" / "report_elastic_vs_kinematic.md").exists()
     assert (output_dir / "reports" / "report_elastic2d_numerical_sensitivity.md").exists()
     assert (output_dir / "reports" / "report_velocity_model_physics_bridge.md").exists()
+    assert (output_dir / "reports" / "report_elastic2d_rayleigh_benchmark.md").exists()
+    assert (output_dir / "reports" / "report_elastic2d_free_surface_validation.md").exists()
+    assert (output_dir / "reports" / "report_elastic2d_boundary_validation.md").exists()
     assert (output_dir / "arrays" / "arr_confidence_metrics.json").exists()
     latest_stable = tmp_path / "latest_stable"
     assert latest_stable.exists()
@@ -209,36 +218,41 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "archive_manifest.md").exists()
     assert (latest_stable / "summary.md").exists()
     assert len(list((latest_stable / "figures").glob("*.png"))) == 0
+    assert (latest_stable / "figures" / "core" / "fig_stage5f_status_badge.png").exists()
     assert (latest_stable / "figures" / "core" / "fig_geometry_layout_check.png").exists()
     assert (latest_stable / "figures" / "core" / "fig_confidence_diagnostics.png").exists()
     assert (latest_stable / "figures" / "core" / "fig_forward_roadmap_status.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_forward_engine_comparison.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_layered_kinematic_vs_baseline_gather.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_acoustic2d_wavefield_snapshots.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_acoustic2d_shot_gather.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_wavefield_snapshots.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_void_scattering_residual.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_elastic_vs_kinematic_overlay.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_numerical_sensitivity_summary.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_pick_case_comparison.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_das_response_nonzero_check.png").exists()
+    assert len(list((latest_stable / "figures" / "core").glob("*.png"))) <= 6
+    assert len(list((latest_stable / "figures" / "forward").glob("*.png"))) <= 10
+    assert len(list((latest_stable / "figures" / "diagnostics").glob("*.png"))) <= 8
+    assert 25 <= len(list((latest_stable / "figures").glob("*/*.png"))) <= 35
+    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_benchmark_matrix.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_velocity_error.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_surface_event_ridge.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_das_best_case.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_elastic_vs_kinematic_energy_partition.png").exists()
     assert (latest_stable / "figures" / "localization" / "fig_scan_x_depth_slice.png").exists()
     assert (latest_stable / "figures" / "uncertainty" / "fig_3d_high_score_components.png").exists()
-    assert (latest_stable / "figures" / "diagnostics" / "fig_velocity_model_comparison.png").exists()
+    assert (latest_stable / "figures" / "diagnostics" / "fig_latest_stable_quality_summary.png").exists()
     assert (latest_stable / "figures" / "diagnostics" / "fig_velocity_model_physics_bridge.png").exists()
     assert (latest_stable / "reports" / "core" / "report_full_pipeline.md").exists()
-    assert (latest_stable / "reports" / "core" / "report_confidence.md").exists()
     assert (latest_stable / "reports" / "forward" / "report_forward_engine_ablation.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_acoustic2d_prototype.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_elastic2d_rayleigh_validation.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_elastic2d_rayleigh_benchmark.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_elastic2d_free_surface_validation.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_elastic2d_boundary_validation.md").exists()
     assert (latest_stable / "reports" / "forward" / "report_elastic2d_void_scattering.md").exists()
     assert (latest_stable / "reports" / "forward" / "report_elastic2d_das_response.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_elastic_vs_kinematic.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_elastic2d_numerical_sensitivity.md").exists()
     assert (latest_stable / "reports" / "localization" / "report_multi_attribute_ablation.md").exists()
-    assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_ablation.md").exists()
+    assert (latest_stable / "reports" / "diagnostics" / "report_model_mismatch.md").exists()
+    assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_audit.md").exists()
+    assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_visualization.md").exists()
     assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_physics_bridge.md").exists()
+    assert (latest_stable / "reports" / "core" / "report_latest_stable_file_audit.md").exists()
+    assert (latest_stable / "reports" / "core" / "report_figure_quality_check.md").exists()
+    assert (latest_stable / "reports" / "core" / "report_figure_deduplication.md").exists()
+    assert (latest_stable / "reports" / "core" / "report_figure_language_check.md").exists()
     assert (latest_stable / "reports" / "core" / "report_scientific_figure_self_check.md").exists()
+    assert 12 <= len(list((latest_stable / "reports").glob("*/*.md"))) <= 18
     assert (latest_stable / "metadata" / "meta_run.json").exists()
     metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
     assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
@@ -268,14 +282,12 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["stage5b_validation"]["elastic2d_das_response"] is not None
     assert metadata["stage5b_validation"]["elastic_vs_kinematic"] is not None
     assert metadata["approximation"]["forward_engine"] == "layered_kinematic"
-    assert (
-        metadata["approximation"]["forward_engine_next_required"]
-        == "elastic2d accuracy/stability hardening before 2.5D multi-section validation"
-    )
-    assert metadata["stage"] == "Stage 5E elastic2d numerical hardening and velocity physics bridge"
+    assert metadata["stage"] == "Stage 5F curated figure governance and staggered elastic2d benchmark"
     assert metadata["stage5e_validation"]["elastic2d_numerical_sensitivity"] is not None
     assert metadata["stage5e_validation"]["velocity_model_physics_bridge"] is not None
     assert metadata["stage5e_validation"]["elastic2d_das_nonzero_check"] is not None
+    assert metadata["stage5f_validation"]["elastic2d_rayleigh_benchmark"] is not None
+    assert metadata["stage5f_validation"]["ready_for_2p5d"] is False
     summary_text = (latest_stable / "summary.md").read_text(encoding="utf-8")
     assert "unweighted_best" in summary_text
     assert "weighted_best" in summary_text
@@ -286,7 +298,13 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert "Stage 5A" in summary_text
     assert "Stage 5B/5C/5D" in summary_text
     assert "Stage 5E" in summary_text
+    assert "Stage 5F" in summary_text
     assert "scientific_figure_self_check_status" in summary_text
+    assert "figure_quality_check_status" in summary_text
+    assert "figure_deduplication_status" in summary_text
+    assert "figure_language_check_status" in summary_text
+    assert "staggered_grid_status" in summary_text
+    assert "ready_for_2p5d" in summary_text
     assert "velocity_physics_bridge_status" in summary_text
     assert "elastic2d_ready_for_2p5d" in summary_text
     assert "forward_engine_active" in summary_text

@@ -58,7 +58,9 @@ def test_export_latest_stable_outputs_creates_curated_directory(tmp_path):
     assert not (latest / "figures" / "unselected_extra.png").exists()
     assert len(list((latest / "figures").glob("*.png"))) == 0
     assert not (latest / "arrays").exists()
-    assert (latest / "reports" / "core" / "report_confidence.md").exists()
+    assert (latest / "reports" / "core" / "report_full_pipeline.md").exists()
+    assert (latest / "reports" / "core" / "report_latest_stable_file_audit.md").exists()
+    assert (latest / "reports" / "core" / "report_figure_quality_check.md").exists()
     assert (latest / "metadata" / "meta_run.json").exists()
     assert (latest / "metadata" / "meta_params_snapshot.json").exists()
     assert (latest / "summary.md").exists()

@@ -24,9 +24,10 @@ def test_forward_roadmap_docs_exist_and_include_f0_f6():
 
 def test_stable_api_returns_forward_roadmap():
     summary = get_current_algorithm_summary()
-    assert summary["stage"] == "Stage 5E"
+    assert summary["stage"] == "Stage 5F"
     assert summary["stable_forward_engine"] == "layered_kinematic"
     assert "acoustic2d_prototype" in summary["available_validation_forward"]
     assert "elastic2d_prototype" in summary["available_validation_forward"]
+    assert "staggered_elastic2d_benchmark" in summary["available_validation_forward"]
     assert summary["planned_physics_forward"] == "elastic2d accuracy/stability hardening before 2.5D multi-section validation"
     assert "F6" in summary["forward_roadmap"]

@@ -1,5 +1,9 @@
 # Workflow
 
+> 历史阶段记录：本文件不代表 Stage 5F 当前主线。当前依据请以
+> `README.md`、`docs/current_status.md`、`docs/current_algorithm_boundary.md`
+> 和 `code/current_3d_algorithm/` 为准。
+
 Stage 4A 运行流程：
 
 1. `main.py` 解析所有命令行参数。

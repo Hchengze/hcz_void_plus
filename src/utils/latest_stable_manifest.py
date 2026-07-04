@@ -31,37 +31,18 @@ class StableFigureSpec:
     required_report: str
 
 
-STAGE5E_FIGURE_SPECS: list[StableFigureSpec] = [
-    StableFigureSpec("core", "fig_stage5e_status_badge.png", "reports/core/report_scientific_figure_self_check.md"),
+STAGE5F_FIGURE_SPECS: list[StableFigureSpec] = [
+    StableFigureSpec("core", "fig_stage5f_status_badge.png", "reports/core/report_latest_stable_file_audit.md"),
     StableFigureSpec("core", "fig_geometry_layout_check.png", "reports/core/report_full_pipeline.md"),
     StableFigureSpec("core", "fig_shot_gather_000.png", "reports/core/report_full_pipeline.md"),
-    StableFigureSpec("core", "fig_best_location_map.png", "reports/core/report_full_pipeline.md"),
-    StableFigureSpec("core", "fig_confidence_diagnostics.png", "reports/core/report_confidence.md"),
+    StableFigureSpec("core", "fig_confidence_diagnostics.png", "reports/core/report_full_pipeline.md"),
     StableFigureSpec("core", "fig_forward_roadmap_status.png", "reports/forward/report_forward_engine_ablation.md"),
-    StableFigureSpec("forward", "fig_forward_engine_comparison.png", "reports/forward/report_forward_engine_ablation.md"),
-    StableFigureSpec(
-        "forward",
-        "fig_layered_kinematic_vs_baseline_gather.png",
-        "reports/forward/report_forward_engine_ablation.md",
-    ),
-    StableFigureSpec("forward", "fig_acoustic2d_wavefield_snapshots.png", "reports/forward/report_acoustic2d_prototype.md"),
-    StableFigureSpec("forward", "fig_acoustic2d_shot_gather.png", "reports/forward/report_acoustic2d_prototype.md"),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_rayleigh_wavefield_snapshots.png",
-        "reports/forward/report_elastic2d_rayleigh_validation.md",
-    ),
-    StableFigureSpec("forward", "fig_elastic2d_surface_gather.png", "reports/forward/report_elastic2d_rayleigh_validation.md"),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_rayleigh_velocity_check.png",
-        "reports/forward/report_elastic2d_rayleigh_validation.md",
-    ),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_rayleigh_pick_diagnostics.png",
-        "reports/forward/report_elastic2d_rayleigh_validation.md",
-    ),
+    StableFigureSpec("diagnostics", "fig_latest_stable_quality_summary.png", "reports/core/report_figure_quality_check.md"),
+    StableFigureSpec("forward", "fig_elastic2d_rayleigh_benchmark_matrix.png", "reports/forward/report_elastic2d_rayleigh_benchmark.md"),
+    StableFigureSpec("forward", "fig_elastic2d_rayleigh_velocity_error.png", "reports/forward/report_elastic2d_rayleigh_benchmark.md"),
+    StableFigureSpec("forward", "fig_elastic2d_surface_event_ridge.png", "reports/forward/report_elastic2d_rayleigh_benchmark.md"),
+    StableFigureSpec("forward", "fig_elastic2d_free_surface_mode_comparison.png", "reports/forward/report_elastic2d_free_surface_validation.md"),
+    StableFigureSpec("forward", "fig_elastic2d_boundary_reflection_diagnostics.png", "reports/forward/report_elastic2d_boundary_validation.md"),
     StableFigureSpec(
         "forward",
         "fig_elastic2d_void_scattering_residual.png",
@@ -69,88 +50,31 @@ STAGE5E_FIGURE_SPECS: list[StableFigureSpec] = [
     ),
     StableFigureSpec(
         "forward",
-        "fig_elastic2d_void_diffraction_overlay.png",
-        "reports/forward/report_elastic2d_void_scattering.md",
-    ),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_void_parameter_sensitivity.png",
-        "reports/forward/report_elastic2d_void_scattering.md",
-    ),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_void_residual_energy_map.png",
-        "reports/forward/report_elastic2d_void_scattering.md",
-    ),
-    StableFigureSpec("forward", "fig_elastic2d_das_gauge_response.png", "reports/forward/report_elastic2d_das_response.md"),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_das_component_comparison.png",
+        "fig_elastic2d_das_staggered_vs_collocated.png",
         "reports/forward/report_elastic2d_das_response.md",
     ),
     StableFigureSpec(
         "forward",
-        "fig_elastic2d_das_gauge_length_sensitivity.png",
-        "reports/forward/report_elastic2d_das_response.md",
-    ),
-    StableFigureSpec("forward", "fig_elastic_vs_kinematic_overlay.png", "reports/forward/report_elastic_vs_kinematic.md"),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic_vs_kinematic_residual_energy.png",
-        "reports/forward/report_elastic_vs_kinematic.md",
-    ),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic_vs_kinematic_energy_partition.png",
-        "reports/forward/report_elastic_vs_kinematic.md",
-    ),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_numerical_sensitivity_summary.png",
-        "reports/forward/report_elastic2d_numerical_sensitivity.md",
-    ),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_rayleigh_pick_case_comparison.png",
-        "reports/forward/report_elastic2d_numerical_sensitivity.md",
-    ),
-    StableFigureSpec(
-        "forward",
-        "fig_elastic2d_das_response_nonzero_check.png",
+        "fig_elastic2d_das_best_case.png",
         "reports/forward/report_elastic2d_das_response.md",
     ),
     StableFigureSpec(
         "forward",
-        "fig_elastic2d_das_force_direction_comparison.png",
+        "fig_elastic2d_das_report_consistency.png",
         "reports/forward/report_elastic2d_das_response.md",
     ),
+    StableFigureSpec("forward", "fig_elastic_vs_kinematic_energy_partition.png", "reports/forward/report_elastic2d_void_scattering.md"),
     StableFigureSpec("localization", "fig_scan_x_depth_slice.png", "reports/core/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_scan_x_y_slice.png", "reports/core/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_multi_attribute_ablation.png", "reports/localization/report_multi_attribute_ablation.md"),
-    StableFigureSpec("uncertainty", "fig_3d_high_score_components.png", "reports/core/report_confidence.md"),
-    StableFigureSpec("uncertainty", "fig_x_y_depth_uncertainty_slices.png", "reports/core/report_confidence.md"),
-    StableFigureSpec("uncertainty", "fig_recommendation_decision_flow.png", "reports/core/report_confidence.md"),
-    StableFigureSpec("diagnostics", "fig_velocity_model_comparison.png", "reports/diagnostics/report_velocity_model_ablation.md"),
+    StableFigureSpec("uncertainty", "fig_3d_high_score_components.png", "reports/core/report_full_pipeline.md"),
+    StableFigureSpec("uncertainty", "fig_x_y_depth_uncertainty_slices.png", "reports/core/report_full_pipeline.md"),
+    StableFigureSpec("uncertainty", "fig_recommendation_decision_flow.png", "reports/core/report_full_pipeline.md"),
     StableFigureSpec("diagnostics", "fig_model_mismatch_error_summary.png", "reports/diagnostics/report_model_mismatch.md"),
-    StableFigureSpec("diagnostics", "fig_depth_prior_sensitivity.png", "reports/core/report_confidence.md"),
+    StableFigureSpec("diagnostics", "fig_depth_prior_sensitivity.png", "reports/core/report_full_pipeline.md"),
     StableFigureSpec(
         "diagnostics",
         "fig_velocity_model_profile_current.png",
-        "reports/diagnostics/report_velocity_model_visualization.md",
-    ),
-    StableFigureSpec(
-        "diagnostics",
-        "fig_velocity_model_2d_slice_current.png",
-        "reports/diagnostics/report_velocity_model_visualization.md",
-    ),
-    StableFigureSpec(
-        "diagnostics",
-        "fig_velocity_sampling_paths_current.png",
-        "reports/diagnostics/report_velocity_model_visualization.md",
-    ),
-    StableFigureSpec(
-        "diagnostics",
-        "fig_uniform_vs_layered_travel_time_difference.png",
         "reports/diagnostics/report_velocity_model_visualization.md",
     ),
     StableFigureSpec(
@@ -165,7 +89,7 @@ STAGE5E_FIGURE_SPECS: list[StableFigureSpec] = [
     ),
     StableFigureSpec(
         "diagnostics",
-        "fig_elastic_vp_vs_rho_model.png",
+        "fig_bridge_derived_elastic_parameters.png",
         "reports/diagnostics/report_velocity_model_physics_bridge.md",
     ),
     StableFigureSpec(
@@ -180,7 +104,7 @@ def specs_by_category() -> dict[str, list[str]]:
     """返回 stable_export 可直接使用的 category -> filename 清单。"""
 
     grouped: dict[str, list[str]] = {}
-    for spec in STAGE5E_FIGURE_SPECS:
+    for spec in STAGE5F_FIGURE_SPECS:
         grouped.setdefault(spec.category, []).append(spec.filename)
     return grouped
 
@@ -199,13 +123,14 @@ def build_figure_metadata(
     """
 
     metadata: dict[str, dict[str, Any]] = {}
-    for spec in STAGE5E_FIGURE_SPECS:
+    for spec in STAGE5F_FIGURE_SPECS:
         metadata[spec.filename] = {
             "stage": stage,
             "forward_engine": forward_engine,
             "velocity_model_type": velocity_model_type,
             "category": spec.category,
             "required_report": spec.required_report,
+            "language": "zh",
         }
     return metadata
 
@@ -213,11 +138,12 @@ def build_figure_metadata(
 def expected_category_for_filename(filename: str) -> str | None:
     """查找某张图应该进入的 latest_stable 子目录。"""
 
-    for spec in STAGE5E_FIGURE_SPECS:
+    for spec in STAGE5F_FIGURE_SPECS:
         if spec.filename == Path(filename).name:
             return spec.category
     return None
 
 
-# 兼容旧测试和 Stage 5D 调用名。实际清单已经扩展到 Stage 5E。
-STAGE5D_FIGURE_SPECS = STAGE5E_FIGURE_SPECS
+# 兼容旧测试和 Stage 5D/5E 调用名。实际清单已经扩展到 Stage 5F。
+STAGE5E_FIGURE_SPECS = STAGE5F_FIGURE_SPECS
+STAGE5D_FIGURE_SPECS = STAGE5F_FIGURE_SPECS

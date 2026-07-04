@@ -1,6 +1,6 @@
 """仓库与 latest_stable 健康报告。
 
-本模块把 Stage 5D/5E 开场核验固化为报告：HEAD、summary commit、latest_stable
+本模块把 Stage 5D/5E/5F 开场核验固化为报告：HEAD、summary commit、latest_stable
 分层数量、根目录是否平铺图件、文本换行健康等。报告明确说明：若 GitHub 网页
 预览与本地结果不同，以 git ls-tree 与本地字节检查为准。
 """
@@ -76,10 +76,13 @@ def build_repository_health_report(repo_root: Path, latest_stable_dir: Path) -> 
     return {
         "head_commit": head,
         "latest_stable_summary_commit": summary_commit,
-        "latest_stable_stage5e": "Stage 5E" in (latest / "summary.md").read_text(encoding="utf-8")
+        "latest_stable_stage5f": "Stage 5F" in (latest / "summary.md").read_text(encoding="utf-8")
         if (latest / "summary.md").exists()
         else False,
-        "latest_stable_stage5d": "Stage 5D" in (latest / "summary.md").read_text(encoding="utf-8")
+        "latest_stable_old_stage_marker": any(
+            marker in (latest / "summary.md").read_text(encoding="utf-8")
+            for marker in ["Stage 3 主结论", "Stage 4 主结论", "Stage 5A 主结论"]
+        )
         if (latest / "summary.md").exists()
         else False,
         "figures_root_png_count": _count_files(latest / "figures", "*.png"),
@@ -107,8 +110,8 @@ def write_repository_health_report(path: Path, result: dict[str, Any]) -> None:
         "",
         f"- 当前 HEAD commit：`{result['head_commit']}`",
         f"- latest_stable summary commit：`{result['latest_stable_summary_commit']}`",
-        f"- latest_stable 是否为 Stage 5E：`{result['latest_stable_stage5e']}`",
-        f"- latest_stable 是否仍包含 Stage 5D 历史说明：`{result['latest_stable_stage5d']}`",
+        f"- latest_stable 是否为 Stage 5F：`{result['latest_stable_stage5f']}`",
+        f"- latest_stable 是否混入旧阶段主结论：`{result['latest_stable_old_stage_marker']}`",
         f"- figures 根目录 PNG 数量：`{result['figures_root_png_count']}`",
         f"- reports 根目录 MD 数量：`{result['reports_root_md_count']}`",
         f"- 状态：`{result['status']}`",
