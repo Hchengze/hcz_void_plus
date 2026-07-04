@@ -144,7 +144,7 @@ def run_figure_self_check(
         if any("missing_metadata" in reason for reason in item.get("reasons", []))
     ]
     return {
-        "stage": "Stage 5F",
+        "stage": "Stage 5G",
         "checked_count": len(items),
         "passed_count": len(passed),
         "failed_count": len(failed),

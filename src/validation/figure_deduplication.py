@@ -66,7 +66,7 @@ def run_figure_deduplication(latest_stable_dir: Path) -> dict[str, Any]:
             if shapes[rel_a] == shapes[rel_b] and _hamming(hashes[rel_a], hashes[rel_b]) == 0:
                 duplicate_items.append({"kind": "perceptual", "kept": rel_a, "duplicate": rel_b})
     return {
-        "stage": "Stage 5F",
+        "stage": "Stage 5G",
         "checked_count": len(figures),
         "duplicate_figure_count": len(duplicate_items),
         "excluded_duplicate_figures": duplicate_items,

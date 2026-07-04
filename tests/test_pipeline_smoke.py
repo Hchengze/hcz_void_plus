@@ -185,6 +185,14 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_elastic_vp_vs_rho_model.png").exists()
     assert (output_dir / "figures" / "fig_velocity_model_physics_bridge.png").exists()
     assert (output_dir / "figures" / "fig_stage5f_status_badge.png").exists()
+    assert (output_dir / "figures" / "fig_stage5g_status_badge.png").exists()
+    assert (output_dir / "figures" / "fig_geometry_3d_overview.png").exists()
+    assert (output_dir / "figures" / "fig_velocity_sampling_paths_3d.png").exists()
+    assert (output_dir / "figures" / "fig_3d_high_score_region.png").exists()
+    assert (output_dir / "figures" / "fig_recommended_location_3d.png").exists()
+    assert (output_dir / "figures" / "fig_3d_uncertainty_box.png").exists()
+    assert (output_dir / "figures" / "fig_single_shot_wavefield_snapshots.png").exists()
+    assert (output_dir / "figures" / "fig_rayleigh_pick_interpretation.png").exists()
     assert (output_dir / "figures" / "fig_elastic2d_rayleigh_benchmark_matrix.png").exists()
     assert (output_dir / "figures" / "fig_elastic2d_rayleigh_velocity_error.png").exists()
     assert (output_dir / "figures" / "fig_elastic2d_surface_event_ridge.png").exists()
@@ -218,41 +226,38 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "archive_manifest.md").exists()
     assert (latest_stable / "summary.md").exists()
     assert len(list((latest_stable / "figures").glob("*.png"))) == 0
-    assert (latest_stable / "figures" / "core" / "fig_stage5f_status_badge.png").exists()
-    assert (latest_stable / "figures" / "core" / "fig_geometry_layout_check.png").exists()
-    assert (latest_stable / "figures" / "core" / "fig_confidence_diagnostics.png").exists()
-    assert (latest_stable / "figures" / "core" / "fig_forward_roadmap_status.png").exists()
-    assert len(list((latest_stable / "figures" / "core").glob("*.png"))) <= 6
-    assert len(list((latest_stable / "figures" / "forward").glob("*.png"))) <= 10
-    assert len(list((latest_stable / "figures" / "diagnostics").glob("*.png"))) <= 8
-    assert 25 <= len(list((latest_stable / "figures").glob("*/*.png"))) <= 35
+    assert not (latest_stable / "figures" / "core").exists()
+    assert not (latest_stable / "figures" / "diagnostics").exists()
+    assert not (latest_stable / "figures" / "uncertainty").exists()
+    assert 8 <= len(list((latest_stable / "figures" / "forward").glob("*.png"))) <= 10
+    assert 5 <= len(list((latest_stable / "figures" / "localization").glob("*.png"))) <= 7
+    assert 5 <= len(list((latest_stable / "figures" / "error_analysis").glob("*.png"))) <= 7
+    assert 18 <= len(list((latest_stable / "figures").glob("*/*.png"))) <= 24
+    assert (latest_stable / "figures" / "forward" / "fig_geometry_3d_overview.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_velocity_sampling_paths_3d.png").exists()
     assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_benchmark_matrix.png").exists()
     assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_velocity_error.png").exists()
     assert (latest_stable / "figures" / "forward" / "fig_elastic2d_surface_event_ridge.png").exists()
     assert (latest_stable / "figures" / "forward" / "fig_elastic2d_das_best_case.png").exists()
-    assert (latest_stable / "figures" / "forward" / "fig_elastic_vs_kinematic_energy_partition.png").exists()
+    assert (latest_stable / "figures" / "error_analysis" / "fig_elastic_vs_kinematic_energy_partition.png").exists()
     assert (latest_stable / "figures" / "localization" / "fig_scan_x_depth_slice.png").exists()
-    assert (latest_stable / "figures" / "uncertainty" / "fig_3d_high_score_components.png").exists()
-    assert (latest_stable / "figures" / "diagnostics" / "fig_latest_stable_quality_summary.png").exists()
-    assert (latest_stable / "figures" / "diagnostics" / "fig_velocity_model_physics_bridge.png").exists()
-    assert (latest_stable / "reports" / "core" / "report_full_pipeline.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_forward_engine_ablation.md").exists()
+    assert (latest_stable / "figures" / "localization" / "fig_3d_high_score_region.png").exists()
+    assert (latest_stable / "figures" / "localization" / "fig_recommended_location_3d.png").exists()
+    assert (latest_stable / "figures" / "localization" / "fig_3d_uncertainty_box.png").exists()
+    assert (latest_stable / "figures" / "error_analysis" / "fig_latest_stable_quality_summary.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_velocity_model_physics_bridge.png").exists()
+    assert (latest_stable / "reports" / "forward" / "report_full_pipeline.md").exists()
     assert (latest_stable / "reports" / "forward" / "report_elastic2d_rayleigh_benchmark.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_elastic2d_free_surface_validation.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_elastic2d_boundary_validation.md").exists()
-    assert (latest_stable / "reports" / "forward" / "report_elastic2d_void_scattering.md").exists()
     assert (latest_stable / "reports" / "forward" / "report_elastic2d_das_response.md").exists()
-    assert (latest_stable / "reports" / "localization" / "report_multi_attribute_ablation.md").exists()
-    assert (latest_stable / "reports" / "diagnostics" / "report_model_mismatch.md").exists()
-    assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_audit.md").exists()
-    assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_visualization.md").exists()
-    assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_physics_bridge.md").exists()
-    assert (latest_stable / "reports" / "core" / "report_latest_stable_file_audit.md").exists()
-    assert (latest_stable / "reports" / "core" / "report_figure_quality_check.md").exists()
-    assert (latest_stable / "reports" / "core" / "report_figure_deduplication.md").exists()
-    assert (latest_stable / "reports" / "core" / "report_figure_language_check.md").exists()
-    assert (latest_stable / "reports" / "core" / "report_scientific_figure_self_check.md").exists()
-    assert 12 <= len(list((latest_stable / "reports").glob("*/*.md"))) <= 18
+    assert (latest_stable / "reports" / "forward" / "report_velocity_model_physics_bridge.md").exists()
+    assert (latest_stable / "reports" / "localization" / "report_full_pipeline.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_model_mismatch.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_elastic_vs_kinematic.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_latest_stable_file_audit.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_figure_quality_check.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_figure_deduplication.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_figure_language_check.md").exists()
+    assert 8 <= len(list((latest_stable / "reports").glob("*/*.md"))) <= 12
     assert (latest_stable / "metadata" / "meta_run.json").exists()
     metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
     assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
@@ -282,35 +287,21 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["stage5b_validation"]["elastic2d_das_response"] is not None
     assert metadata["stage5b_validation"]["elastic_vs_kinematic"] is not None
     assert metadata["approximation"]["forward_engine"] == "layered_kinematic"
-    assert metadata["stage"] == "Stage 5F curated figure governance and staggered elastic2d benchmark"
+    assert metadata["stage"] == "Stage 5G latest_stable three-category curation and 3D visualization"
     assert metadata["stage5e_validation"]["elastic2d_numerical_sensitivity"] is not None
     assert metadata["stage5e_validation"]["velocity_model_physics_bridge"] is not None
     assert metadata["stage5e_validation"]["elastic2d_das_nonzero_check"] is not None
     assert metadata["stage5f_validation"]["elastic2d_rayleigh_benchmark"] is not None
     assert metadata["stage5f_validation"]["ready_for_2p5d"] is False
+    assert metadata["stage5g_validation"]["latest_stable_categories"] == ["forward", "localization", "error_analysis"]
     summary_text = (latest_stable / "summary.md").read_text(encoding="utf-8")
-    assert "unweighted_best" in summary_text
-    assert "weighted_best" in summary_text
-    assert "shallow bias warning" in summary_text
-    assert "recommended_location" in summary_text
     assert "3D high-score span" in summary_text
-    assert "Stage 4B" in summary_text
-    assert "Stage 5A" in summary_text
-    assert "Stage 5B/5C/5D" in summary_text
-    assert "Stage 5E" in summary_text
-    assert "Stage 5F" in summary_text
-    assert "scientific_figure_self_check_status" in summary_text
+    assert "Stage 5G" in summary_text
+    assert "manual_review_figures" in summary_text
+    assert "manual_review_animations" in summary_text
     assert "figure_quality_check_status" in summary_text
     assert "figure_deduplication_status" in summary_text
     assert "figure_language_check_status" in summary_text
-    assert "staggered_grid_status" in summary_text
     assert "ready_for_2p5d" in summary_text
-    assert "velocity_physics_bridge_status" in summary_text
-    assert "elastic2d_ready_for_2p5d" in summary_text
-    assert "forward_engine_active" in summary_text
-    assert "latest_stable_curated" in summary_text
-    assert "acoustic2d_prototype_status" in summary_text
-    assert "elastic2d_prototype_status" in summary_text
-    assert "elastic_vs_kinematic_main_conclusion" in summary_text
-    assert "velocity ablation" in summary_text
-    assert "multi_attribute improved over energy" in summary_text
+    assert "active_forward_engine" in summary_text
+    assert "nonzero_but_weak_not_for_default_localization" in summary_text

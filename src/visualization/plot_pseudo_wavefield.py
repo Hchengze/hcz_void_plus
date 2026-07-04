@@ -280,3 +280,145 @@ def save_pseudo_wavefield_animation(
     except Exception as exc:  # noqa: BLE001 - 这里需要保护科研主流程不中断
         plt.close(fig)
         return {"success": False, "path": None, "reason": str(exc)}
+
+
+def save_single_shot_wavefield_snapshots_figure(
+    params: SimpleNamespace,
+    source_xyz: np.ndarray,
+    scatter_xyz: np.ndarray,
+    scatter_weight: np.ndarray,
+    velocity_model: KinematicVelocityModel,
+    output_path: Path,
+    max_frames: int = 6,
+) -> dict[str, object]:
+    """保存单炮波场关键快照拼图。
+
+    latest_stable 只需要少量关键帧帮助人工判断传播关系，因此这里把多张 snapshot
+    收敛到一张中文拼图，不再把所有时间帧堆进当前精选目录。
+    """
+
+    setup_chinese_matplotlib()
+    frame_count = max(4, min(int(max_frames), int(params.output.wavefield_snapshot_count), 6))
+    times = np.linspace(params.time.t0_s, params.time.record_length_s, frame_count)
+    n_col = min(3, frame_count)
+    n_row = int(np.ceil(frame_count / n_col))
+    fig, axes = plt.subplots(n_row, n_col, figsize=(4.3 * n_col, 3.0 * n_row), dpi=150)
+    axes = np.atleast_1d(axes).ravel()
+    for index, ax in enumerate(axes):
+        if index >= frame_count:
+            ax.axis("off")
+            continue
+        grid_x, grid_y, amplitude = compute_kinematic_pseudo_wavefield_frame(
+            params, source_xyz, scatter_xyz, scatter_weight, velocity_model, float(times[index])
+        )
+        clip = np.percentile(np.abs(amplitude), 99.0) or 1.0
+        ax.imshow(
+            amplitude,
+            extent=_wavefield_extent(grid_x, grid_y),
+            origin="lower",
+            cmap="seismic",
+            vmin=-clip,
+            vmax=clip,
+            aspect="auto",
+            alpha=0.92,
+        )
+        _add_geometry_overlays(ax, params, source_xyz, scatter_xyz)
+        ax.set_title(f"t={times[index]:.3f} s")
+        ax.set_xlabel("x / m")
+        ax.set_ylabel("y / m")
+    fig.suptitle("单炮运动学地表响应关键快照：服务三维场景复查，不是 elastic2d 波场", fontsize=12)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+    return {"success": True, "path": str(output_path), "frame_count": frame_count}
+
+
+def save_single_shot_wavefield_animation(
+    params: SimpleNamespace,
+    source_xyz: np.ndarray,
+    scatter_xyz: np.ndarray,
+    scatter_weight: np.ndarray,
+    velocity_model: KinematicVelocityModel,
+    output_path: Path,
+) -> dict[str, object]:
+    """保存 Stage 5G 命名的单炮波场传播 GIF。"""
+
+    return save_pseudo_wavefield_animation(params, source_xyz, scatter_xyz, scatter_weight, velocity_model, output_path)
+
+
+def save_multishot_forward_overview_animation(
+    params: SimpleNamespace,
+    synthetic_data: np.ndarray,
+    source_xyz: np.ndarray,
+    receiver_xyz: np.ndarray,
+    scatter_xyz: np.ndarray,
+    output_path: Path,
+) -> dict[str, object]:
+    """保存多炮正演总览 GIF。
+
+    每一帧对应一个 shot：左侧显示三维道路场景在 x-y 平面的投影和当前炮点，右侧显示
+    该 shot 的 DAS-like 炮集。它用一个动图替代多张重复多炮静态图。
+    """
+
+    if not params.output.save_wavefield_animation:
+        return {"success": False, "path": None, "reason": "用户关闭 save_wavefield_animation。"}
+
+    setup_chinese_matplotlib()
+    n_shot = int(synthetic_data.shape[0])
+    time_ms = params.derived.time_axis * 1000.0
+    channel_x = params.derived.channel_x
+    vmax = max(float(np.percentile(np.abs(synthetic_data), 99.0)), 1.0e-12)
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.4), dpi=120)
+
+    def draw(shot_index: int):
+        ax_geo, ax_gather = axes
+        ax_geo.clear()
+        ax_gather.clear()
+        road = Rectangle(
+            (0.0, 0.0),
+            params.road.length_m,
+            params.road.width_m,
+            facecolor="#f2f2f2",
+            edgecolor="0.25",
+            linewidth=1.0,
+            alpha=0.35,
+            label="道路区域",
+        )
+        ax_geo.add_patch(road)
+        ax_geo.plot(receiver_xyz[:, 0], receiver_xyz[:, 1], color="#1f77b4", linewidth=2.0, label="光纤线")
+        ax_geo.scatter(source_xyz[:, 0], source_xyz[:, 1], s=24, marker="^", color="#d62728", alpha=0.45, label="震源线")
+        current = source_xyz[shot_index]
+        ax_geo.scatter([current[0]], [current[1]], s=120, marker="*", color="#ff7f0e", edgecolors="black", label="当前炮点")
+        ax_geo.scatter([params.anomaly.x0_m], [params.anomaly.y0_m], marker="x", s=80, color="#2ca02c", linewidths=2.0, label="异常体投影")
+        ax_geo.scatter(scatter_xyz[:, 0], scatter_xyz[:, 1], marker="+", s=30, color="#006d2c", alpha=0.6, label="散射点投影")
+        ax_geo.set_xlim(0.0, params.road.length_m)
+        ax_geo.set_ylim(min(-1.0, params.fiber.y_m - 1.0), max(params.road.width_m + 1.0, params.source.y_m + 1.0))
+        ax_geo.set_xlabel("x / m")
+        ax_geo.set_ylabel("y / m")
+        ax_geo.set_title(f"多炮正演总览：第 {shot_index + 1}/{n_shot} 炮")
+        ax_geo.legend(loc="upper right", fontsize=7)
+
+        image = ax_gather.imshow(
+            synthetic_data[shot_index],
+            extent=[channel_x[0], channel_x[-1], time_ms[-1], time_ms[0]],
+            cmap="seismic",
+            aspect="auto",
+            vmin=-vmax,
+            vmax=vmax,
+        )
+        ax_gather.set_xlabel("通道 x / m")
+        ax_gather.set_ylabel("时间 / ms")
+        ax_gather.set_title("当前炮 DAS-like 响应")
+        return [image]
+
+    try:
+        animation = FuncAnimation(fig, draw, frames=n_shot, blit=False)
+        writer = PillowWriter(fps=max(1.0, min(float(params.output.wavefield_animation_fps), 5.0)))
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        animation.save(output_path, writer=writer)
+        plt.close(fig)
+        return {"success": True, "path": str(output_path), "frame_count": n_shot, "reason": None}
+    except Exception as exc:  # noqa: BLE001 - 动图失败不应中断科研主流程
+        plt.close(fig)
+        return {"success": False, "path": None, "reason": str(exc)}

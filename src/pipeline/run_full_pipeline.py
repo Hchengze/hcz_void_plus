@@ -130,8 +130,21 @@ from src.visualization.plot_elastic2d import (
     plot_elastic_vs_kinematic_overlay,
     plot_elastic_vs_kinematic_residual_energy,
     plot_latest_stable_quality_summary,
+    plot_rayleigh_pick_interpretation,
     plot_stage5e_status_badge,
     plot_stage5f_status_badge,
+    plot_stage5g_status_badge,
+)
+from src.visualization.plot_geometry_3d import plot_geometry_3d_overview, plot_velocity_sampling_paths_3d
+from src.visualization.plot_localization_3d import (
+    plot_3d_high_score_region,
+    plot_3d_uncertainty_box,
+    plot_recommended_location_3d,
+)
+from src.visualization.plot_pseudo_wavefield import (
+    save_multishot_forward_overview_animation,
+    save_single_shot_wavefield_animation,
+    save_single_shot_wavefield_snapshots_figure,
 )
 from src.visualization.plot_velocity_model import (
     plot_uniform_vs_layered_travel_time_difference,
@@ -490,7 +503,7 @@ def _build_final_metadata(
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "Stage 5F 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d/staggered benchmark 只作 validation，并新增图件质量治理。",
+            "note": "Stage 5G 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d/staggered 只作 validation，并新增三类 latest_stable、中文图件和三维可视化。",
         },
         output_info=output_info,
         git_info=git_info,
@@ -501,6 +514,13 @@ def _build_final_metadata(
     metadata["stage5d_validation"] = stage5d_validation or {}
     metadata["stage5e_validation"] = stage5e_validation or {}
     metadata["stage5f_validation"] = stage5f_validation or {}
+    metadata["stage5g_validation"] = {
+        "latest_stable_categories": ["forward", "localization", "error_analysis"],
+        "three_dimensional_visualization": True,
+        "animations_required": True,
+        "ready_for_2p5d": (stage5f_validation or {}).get("ready_for_2p5d", False),
+        "das_gauge_default_localization": False,
+    }
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -585,6 +605,57 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 params,
                 scan_result,
                 paths["figures"] / "fig_multi_attribute_score_comparison.png",
+            )
+            plot_geometry_3d_overview(
+                params,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["scatter_xyz"],
+                paths["figures"] / "fig_geometry_3d_overview.png",
+                scan_result,
+            )
+            plot_3d_high_score_region(
+                params,
+                scan_result["score_volume_active"],
+                confidence_metrics,
+                scan_result,
+                paths["figures"] / "fig_3d_high_score_region.png",
+            )
+            plot_recommended_location_3d(
+                params,
+                confidence_metrics,
+                scan_result,
+                paths["figures"] / "fig_recommended_location_3d.png",
+            )
+            plot_3d_uncertainty_box(
+                params,
+                confidence_metrics,
+                paths["figures"] / "fig_3d_uncertainty_box.png",
+            )
+            save_single_shot_wavefield_snapshots_figure(
+                params,
+                forward_result["source_xyz"],
+                forward_result["scatter_xyz"],
+                forward_result["scatter_weight"],
+                forward_result["velocity_model"],
+                paths["figures"] / "fig_single_shot_wavefield_snapshots.png",
+            )
+        if params.output.save_wavefield_animation:
+            save_multishot_forward_overview_animation(
+                params,
+                forward_result["synthetic_data"],
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["scatter_xyz"],
+                paths["animations"] / "anim_multishot_forward_overview.gif",
+            )
+            save_single_shot_wavefield_animation(
+                params,
+                forward_result["source_xyz"],
+                forward_result["scatter_xyz"],
+                forward_result["scatter_weight"],
+                forward_result["velocity_model"],
+                paths["animations"] / "anim_single_shot_wavefield.gif",
             )
         if params.output.save_report:
             write_confidence_report(params, paths["reports"] / "report_confidence.md", confidence_metrics)
@@ -833,6 +904,21 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 forward_result["scatter_xyz"],
                 paths["figures"] / "fig_velocity_sampling_paths_current.png",
             )
+            candidate_xyz = np.array(
+                [
+                    scan_result["best_location"]["x_m"],
+                    scan_result["best_location"]["y_m"],
+                    scan_result["best_location"]["depth_m"],
+                ],
+                dtype=float,
+            )
+            sampling_summary_3d = plot_velocity_sampling_paths_3d(
+                params,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                candidate_xyz,
+                paths["figures"] / "fig_velocity_sampling_paths_3d.png",
+            )
             travel_time_difference_summary = plot_uniform_vs_layered_travel_time_difference(
                 params,
                 forward_result["source_xyz"],
@@ -849,6 +935,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             "layer_depths_m": list(params.velocity.layer_depths_m),
             "layer_rayleigh_velocities_mps": list(params.velocity.layer_rayleigh_velocities_mps),
             "sampling_path": sampling_summary,
+            "sampling_path_3d": sampling_summary_3d if "sampling_summary_3d" in locals() else {},
             "uniform_vs_active_travel_time_difference": travel_time_difference_summary
             or velocity_model_audit["travel_time_difference"],
             "status": "generated",
@@ -958,12 +1045,18 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             plot_stage5e_status_badge(stage5e_status, paths["figures"] / "fig_stage5e_status_badge.png")
             stage5f_status = {
                 "rayleigh_like_event_detected": elastic2d_rayleigh_benchmark["rayleigh_like_event_detected"],
-                "das_gauge_final_status": "nonzero_but_not_for_default_localization"
+                "das_gauge_final_status": "nonzero_but_weak_not_for_default_localization"
                 if elastic2d_das_nonzero_check["das_gauge_nonzero_status"] == "nonzero"
                 else elastic2d_das_nonzero_check["das_gauge_nonzero_status"],
                 "ready_for_2p5d": elastic2d_rayleigh_benchmark["ready_for_2p5d"],
             }
             plot_stage5f_status_badge(stage5f_status, paths["figures"] / "fig_stage5f_status_badge.png")
+            stage5g_status = {
+                **stage5f_status,
+                "active_velocity_model_type": params.velocity.model_type,
+                "active_forward_engine": params.forward.engine,
+            }
+            plot_stage5g_status_badge(stage5g_status, paths["figures"] / "fig_stage5g_status_badge.png")
             plot_elastic2d_rayleigh_benchmark_matrix(
                 elastic2d_rayleigh_benchmark,
                 paths["figures"] / "fig_elastic2d_rayleigh_benchmark_matrix.png",
@@ -975,6 +1068,10 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             plot_elastic2d_surface_event_ridge(
                 elastic2d_rayleigh_benchmark,
                 paths["figures"] / "fig_elastic2d_surface_event_ridge.png",
+            )
+            plot_rayleigh_pick_interpretation(
+                elastic2d_rayleigh_benchmark,
+                paths["figures"] / "fig_rayleigh_pick_interpretation.png",
             )
             plot_elastic2d_free_surface_mode_comparison(
                 elastic2d_rayleigh_benchmark,
@@ -1203,7 +1300,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             ),
             "ready_for_2p5d": (elastic2d_rayleigh_benchmark or {}).get("ready_for_2p5d"),
             "three_dimensional_policy_status": "established",
-            "das_gauge_final_status": "nonzero_but_not_for_default_localization"
+            "das_gauge_final_status": "nonzero_but_weak_not_for_default_localization"
             if (elastic2d_das_nonzero_check or {}).get("das_gauge_nonzero_status") == "nonzero"
             else (elastic2d_das_nonzero_check or {}).get("das_gauge_nonzero_status"),
         }
@@ -1227,7 +1324,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             if params.output.save_figures:
                 plot_latest_stable_quality_summary(
                     {
-                        "latest_stable_total_figure_count": 29,
+                        "latest_stable_total_figure_count": 23,
                         "empty_figure_count": 0,
                         "duplicate_figure_count": 0,
                         "english_figure_count": 0,
@@ -1238,7 +1335,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "commit_id": get_git_commit_id(Path.cwd()),
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
-                "task_name": "Stage 5F 阶段一致性修复 + 图件精选治理 + staggered elastic2d benchmark",
+                "task_name": "Stage 5G latest_stable 三类结果重构 + 图件中文化 + 动图整合 + 三维可视化增强",
                 "forward_engine_active": params.forward.engine,
                 "forward_engine_available": [
                     "kinematic_baseline",
@@ -1287,6 +1384,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "stage5d_validation": stage5d_validation,
                 "stage5e_validation": stage5e_validation,
                 "stage5f_validation": stage5f_validation,
+                "das_gauge_final_status": stage5f_validation.get("das_gauge_final_status"),
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],

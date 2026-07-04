@@ -178,7 +178,7 @@ def plot_velocity_model_active_badge(params: SimpleNamespace, audit: dict[str, A
     ax.text(
         0.5,
         0.68,
-        f"ACTIVE VELOCITY MODEL\n{params.velocity.model_type}",
+        f"当前 active velocity model\n{params.velocity.model_type}",
         ha="center",
         va="center",
         fontsize=18,

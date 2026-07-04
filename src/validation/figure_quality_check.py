@@ -86,7 +86,7 @@ def run_figure_quality_check(latest_stable_dir: Path) -> dict[str, Any]:
     items = [check_figure_quality(path) for path in figures]
     failed = [item for item in items if not item["passed"]]
     return {
-        "stage": "Stage 5F",
+        "stage": "Stage 5G",
         "checked_count": len(items),
         "empty_figure_count": len(failed),
         "excluded_empty_figures": [item["path"] for item in failed],

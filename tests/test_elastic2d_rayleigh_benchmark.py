@@ -23,7 +23,7 @@ def test_elastic2d_rayleigh_benchmark_outputs_multiple_cases(tmp_path):
         )
     )
     result = run_elastic2d_rayleigh_benchmark(params)
-    assert result["stage"] == "Stage 5F"
+    assert result["stage"] == "Stage 5G"
     assert result["case_count"] >= 6
     assert result["best_case"] in result["cases"]
     assert result["staggered_grid_status"] == "implemented_minimal_validation"

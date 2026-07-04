@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from src.forward.elastic2d.das_response import build_elastic_das_response
+from src.visualization.label_i18n import zh_label, zh_labels
 from src.visualization.plot_style import setup_chinese_matplotlib
 
 
@@ -273,12 +274,12 @@ def plot_elastic_vs_kinematic_energy_partition(result: dict[str, Any], output_pa
         result["kinematic_curve_explained_fraction"],
         result["elastic_extra_event_fraction"],
     ]
-    labels = ["near curve", "off curve", "best shift explained", "extra events"]
+    labels = ["曲线附近能量", "曲线外能量", "最佳时移解释", "额外事件"]
     fig, ax = plt.subplots(figsize=(7.2, 4.2), dpi=150)
     ax.bar(labels, values, color=["#59a14f", "#e15759", "#4e79a7", "#f28e2b"])
     ax.set_ylim(0.0, 1.0)
-    ax.set_ylabel("energy fraction")
-    ax.set_title(f"elastic vs kinematic energy partition, shift={result['best_time_shift_ms']:.2f} ms")
+    ax.set_ylabel("能量比例")
+    ax.set_title(f"elastic residual 与运动学曲线能量分区，时移={result['best_time_shift_ms']:.2f} ms")
     ax.grid(axis="y", alpha=0.25)
     _save(fig, output_path)
 
@@ -365,6 +366,7 @@ def plot_elastic2d_das_response_nonzero_check(result: dict[str, Any], output_pat
 
     setup_chinese_matplotlib()
     names = list(result["cases"].keys())
+    display_names = zh_labels(names)
     velocity = [result["cases"][name]["velocity_gauge_strain_rms"] for name in names]
     displacement = [result["cases"][name]["displacement_gauge_strain_rms"] for name in names]
     x = np.arange(len(names))
@@ -373,9 +375,9 @@ def plot_elastic2d_das_response_nonzero_check(result: dict[str, Any], output_pat
     ax.plot(x, displacement, marker="s", label="ux-like gauge strain")
     ax.set_yscale("symlog", linthresh=1.0e-20)
     ax.set_xticks(x)
-    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_xticklabels(display_names, rotation=35, ha="right", fontsize=8)
     ax.set_ylabel("RMS")
-    ax.set_title(f"DAS-like gauge nonzero check: {result['das_gauge_nonzero_status']}")
+    ax.set_title(f"DAS-like gauge 非零检查：{result['das_gauge_nonzero_status']}")
     ax.legend()
     ax.grid(alpha=0.25)
     _save(fig, output_path)
@@ -393,10 +395,11 @@ def plot_elastic2d_das_force_direction_comparison(result: dict[str, Any], output
             item["displacement_gauge_strain_rms"],
         )
     fig, ax = plt.subplots(figsize=(6.4, 4.0), dpi=150)
-    ax.bar(list(grouped.keys()), list(grouped.values()), color=["#4e79a7", "#f28e2b"])
+    labels = zh_labels(grouped.keys())
+    ax.bar(labels, list(grouped.values()), color=["#4e79a7", "#f28e2b"])
     ax.set_yscale("symlog", linthresh=1.0e-20)
-    ax.set_ylabel("best gauge RMS")
-    ax.set_title("DAS-like force direction comparison")
+    ax.set_ylabel("最佳 gauge RMS")
+    ax.set_title("DAS-like 力源方向响应对比")
     ax.grid(axis="y", alpha=0.25)
     _save(fig, output_path)
 
@@ -429,6 +432,7 @@ def plot_elastic2d_rayleigh_benchmark_matrix(result: dict[str, Any], output_path
 
     setup_chinese_matplotlib()
     names = list(result["cases"].keys())
+    display_names = zh_labels(names)
     values = [result["cases"][name]["estimated_surface_velocity_mps"] for name in names]
     detected = [result["cases"][name]["rayleigh_like_event_detected"] for name in names]
     fig, ax = plt.subplots(figsize=(10.5, 4.8), dpi=150)
@@ -437,9 +441,9 @@ def plot_elastic2d_rayleigh_benchmark_matrix(result: dict[str, Any], output_path
     expected = result["best_case_metrics"]["expected_rayleigh_like_range_mps"]
     ax.axhspan(expected[0], expected[1], color="#59a14f", alpha=0.15, label="期望 Rayleigh-like 区间")
     ax.set_xticks(np.arange(len(names)))
-    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_xticklabels(display_names, rotation=35, ha="right", fontsize=8)
     ax.set_ylabel("表面事件速度 / (m/s)")
-    ax.set_title(f"elastic2d Rayleigh benchmark 矩阵，最佳={result['best_case']}")
+    ax.set_title(f"elastic2d Rayleigh benchmark 矩阵，最佳={zh_label(result['best_case'])}")
     ax.legend()
     ax.grid(axis="y", alpha=0.25)
     _save(fig, output_path)
@@ -450,11 +454,12 @@ def plot_elastic2d_rayleigh_velocity_error(result: dict[str, Any], output_path: 
 
     setup_chinese_matplotlib()
     names = list(result["cases"].keys())
+    display_names = zh_labels(names)
     values = [result["cases"][name]["rayleigh_velocity_relative_error"] for name in names]
     fig, ax = plt.subplots(figsize=(10.5, 4.4), dpi=150)
     ax.bar(np.arange(len(names)), values, color="#4e79a7")
     ax.set_xticks(np.arange(len(names)))
-    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_xticklabels(display_names, rotation=35, ha="right", fontsize=8)
     ax.set_ylabel("相对误差")
     ax.set_title("Rayleigh-like 速度误差对比")
     ax.grid(axis="y", alpha=0.25)
@@ -473,7 +478,7 @@ def plot_elastic2d_surface_event_ridge(result: dict[str, Any], output_path: Path
         ax.plot(offsets, times * 1000.0, marker="o", linewidth=2.0)
     ax.set_xlabel("震源到接收点水平距离 / m")
     ax.set_ylabel("拾取时间 / ms")
-    ax.set_title(f"最佳 case 表面事件 ridge：{result['best_case']}")
+    ax.set_title(f"最佳 case 表面事件 ridge：{zh_label(result['best_case'])}")
     ax.grid(alpha=0.25)
     _save(fig, output_path)
 
@@ -487,7 +492,7 @@ def plot_elastic2d_free_surface_mode_comparison(result: dict[str, Any], output_p
         key = item["free_surface_mode"]
         grouped[key] = min(grouped.get(key, np.inf), item["rayleigh_velocity_relative_error"])
     fig, ax = plt.subplots(figsize=(6.8, 4.0), dpi=150)
-    ax.bar(list(grouped.keys()), list(grouped.values()), color="#76b7b2")
+    ax.bar(zh_labels(grouped.keys()), list(grouped.values()), color="#76b7b2")
     ax.set_ylabel("最小相对误差")
     ax.set_title("free-surface 模式对 Rayleigh-like 速度的影响")
     ax.grid(axis="y", alpha=0.25)
@@ -499,11 +504,12 @@ def plot_elastic2d_boundary_reflection_diagnostics(result: dict[str, Any], outpu
 
     setup_chinese_matplotlib()
     names = list(result["cases"].keys())
+    display_names = zh_labels(names)
     values = [result["cases"][name]["boundary_reflection_indicator"] for name in names]
     fig, ax = plt.subplots(figsize=(10.5, 4.4), dpi=150)
     ax.bar(np.arange(len(names)), values, color="#f28e2b")
     ax.set_xticks(np.arange(len(names)))
-    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_xticklabels(display_names, rotation=35, ha="right", fontsize=8)
     ax.set_ylabel("尾段能量占比")
     ax.set_title("边界反射 / 尾波诊断")
     ax.grid(axis="y", alpha=0.25)
@@ -515,12 +521,13 @@ def plot_elastic2d_das_staggered_vs_collocated(result: dict[str, Any], output_pa
 
     setup_chinese_matplotlib()
     names = list(result["cases"].keys())
+    display_names = zh_labels(names)
     values = [result["cases"][name].get("gauge_metric", 0.0) for name in names]
     colors = ["#4e79a7" if result["cases"][name]["scheme"] == "collocated" else "#f28e2b" for name in names]
     fig, ax = plt.subplots(figsize=(8.5, 4.2), dpi=150)
     ax.bar(np.arange(len(names)), values, color=colors)
     ax.set_xticks(np.arange(len(names)))
-    ax.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+    ax.set_xticklabels(display_names, rotation=35, ha="right", fontsize=8)
     ax.set_yscale("symlog", linthresh=1.0e-20)
     ax.set_ylabel("gauge 指标 RMS")
     ax.set_title("DAS-like gauge：collocated 与 staggered 对比")
@@ -539,9 +546,9 @@ def plot_elastic2d_das_best_case(result: dict[str, Any], output_path: Path) -> N
     ax.text(
         0.5,
         0.42,
-        f"case：{result['best_case']}\n"
-        f"scheme：{best['scheme']}\n"
-        f"source：{best['source_type']}\n"
+        f"case：{zh_label(result['best_case'])}\n"
+        f"网格：{zh_label(best['scheme'])}\n"
+        f"力源：{zh_label(best['source_type'])}\n"
         f"仅作 validation，不默认用于定位",
         ha="center",
         va="center",
@@ -585,5 +592,79 @@ def plot_latest_stable_quality_summary(result: dict[str, Any], output_path: Path
     ax.bar(labels, values, color=["#4e79a7", "#e15759", "#f28e2b", "#9c755f"])
     ax.set_ylabel("数量")
     ax.set_title("latest_stable 图件质量治理摘要")
+    ax.grid(axis="y", alpha=0.25)
+    _save(fig, output_path)
+
+
+def plot_stage5g_status_badge(summary: dict[str, Any], output_path: Path) -> None:
+    """绘制 Stage 5G 状态徽章。
+
+    该图进入 error_analysis 类，用最短路径提醒人工复查：三维主定位仍在，elastic2d
+    只是 validation，且 Rayleigh benchmark 未通过前不能进入 2.5D。
+    """
+
+    setup_chinese_matplotlib()
+    fig, ax = plt.subplots(figsize=(7.4, 4.2), dpi=150)
+    ax.axis("off")
+    ready = bool(summary.get("ready_for_2p5d", False))
+    rayleigh = summary.get("rayleigh_like_event_detected")
+    gauge = summary.get("das_gauge_final_status")
+    ax.text(0.5, 0.82, "Stage 5G 当前状态", ha="center", va="center", fontsize=20, fontweight="bold")
+    ax.text(
+        0.5,
+        0.54,
+        "主定位 forward：layered_kinematic\n"
+        "active velocity model：layered\n"
+        "elastic2d/staggered：validation forward\n"
+        f"Rayleigh benchmark 通过：{rayleigh}\n"
+        f"DAS gauge 结论：{gauge}\n"
+        f"ready_for_2p5d：{ready}",
+        ha="center",
+        va="center",
+        fontsize=11.5,
+    )
+    ax.text(
+        0.5,
+        0.13,
+        "2D elastic 仅服务三维道路 DAS-like 局部验证，不替代 source_xyz / receiver_xyz / candidate_xyz。",
+        ha="center",
+        va="center",
+        fontsize=9.5,
+        color="#e15759",
+    )
+    _save(fig, output_path)
+
+
+def plot_rayleigh_pick_interpretation(result: dict[str, Any], output_path: Path) -> None:
+    """绘制 Rayleigh 拾取解释图。
+
+    当前 benchmark 未通过时，本图只说明主要事件更可能落在哪类解释中，不把它写成
+    Rayleigh 正演成功。
+    """
+
+    setup_chinese_matplotlib()
+    metrics = result.get("best_case_metrics", {})
+    categories = ["surface event", "body wave", "boundary reflection", "late coda"]
+    values = [
+        float(metrics.get("surface_event_energy", 0.0)),
+        float(metrics.get("body_wave_leakage_indicator", 0.0)),
+        float(metrics.get("boundary_reflection_indicator", 0.0)),
+        float(metrics.get("late_coda_indicator", metrics.get("boundary_reflection_indicator", 0.0))),
+    ]
+    labels = ["表面事件能量", "体波泄漏指标", "边界反射指标", "尾波指标"]
+    fig, ax = plt.subplots(figsize=(7.2, 4.2), dpi=150)
+    ax.bar(labels, values, color=["#59a14f", "#4e79a7", "#f28e2b", "#e15759"])
+    ax.set_ylabel("归一化指标")
+    ax.set_title(f"Rayleigh 拾取解释：最佳 case={zh_label(result.get('best_case'))}")
+    ax.text(
+        0.02,
+        0.95,
+        f"rayleigh_like_event_detected={result.get('rayleigh_like_event_detected')}\n"
+        "未通过时只作失败原因解释，不宣称 Rayleigh 正演成功。",
+        transform=ax.transAxes,
+        va="top",
+        fontsize=9,
+        bbox={"facecolor": "white", "alpha": 0.78, "edgecolor": "0.8"},
+    )
     ax.grid(axis="y", alpha=0.25)
     _save(fig, output_path)

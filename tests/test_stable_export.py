@@ -3,6 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from src.utils.latest_stable_manifest import STAGE5G_FIGURE_SPECS, STAGE5G_ANIMATION_SPECS
 from src.utils.stable_export import export_latest_stable_outputs
 
 
@@ -13,25 +14,37 @@ def _touch(path: Path, text: str = "x"):
 
 def _write_valid_png(path: Path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    image = np.outer(np.linspace(0.0, 1.0, 64), np.linspace(1.0, 0.0, 96))
+    image = np.outer(np.linspace(0.0, 1.0, 80), np.linspace(1.0, 0.0, 120))
     fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
     ax.imshow(image, cmap="viridis")
-    ax.set_axis_off()
+    ax.set_title("中文测试图")
+    ax.set_xlabel("x / m")
+    ax.set_ylabel("y / m")
     fig.savefig(path)
     plt.close(fig)
 
 
-def test_export_latest_stable_outputs_creates_curated_directory(tmp_path):
-    run_dir = tmp_path / "stage3_run_20260703_000000"
+def test_export_latest_stable_outputs_creates_stage5g_three_category_directory(tmp_path):
+    run_dir = tmp_path / "stage5g_run_20260705_000000"
     latest = tmp_path / "latest_stable"
-    _write_valid_png(run_dir / "figures" / "fig_geometry_layout_check.png")
-    _write_valid_png(run_dir / "figures" / "fig_confidence_diagnostics.png")
-    _write_valid_png(run_dir / "figures" / "unselected_extra.png")
-    _touch(run_dir / "reports" / "report_full_pipeline.md")
-    _touch(run_dir / "reports" / "report_confidence.md")
+    for spec in STAGE5G_FIGURE_SPECS:
+        _write_valid_png(run_dir / "figures" / spec.filename)
+    for spec in STAGE5G_ANIMATION_SPECS:
+        path = run_dir / "animations" / spec.filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"GIF89a" + b"0" * 4096)
+    for name in [
+        "report_full_pipeline.md",
+        "report_velocity_model_visualization.md",
+        "report_velocity_model_physics_bridge.md",
+        "report_elastic2d_rayleigh_benchmark.md",
+        "report_elastic2d_das_response.md",
+        "report_model_mismatch.md",
+        "report_elastic_vs_kinematic.md",
+    ]:
+        _touch(run_dir / "reports" / name, "Stage 5G report")
     _touch(run_dir / "metadata" / "meta_run.json", "{}")
     _touch(run_dir / "metadata" / "params_snapshot.json", "{}")
-    _touch(run_dir / "arrays" / "arr_score_volume.npy")
 
     info = export_latest_stable_outputs(
         run_dir,
@@ -40,29 +53,27 @@ def test_export_latest_stable_outputs_creates_curated_directory(tmp_path):
             "commit_id": "abc1234",
             "task_name": "pytest",
             "source_run_dir": str(run_dir),
-            "confidence": {
-                "peak": {"peak_sharpness": 2.0},
-                "contrast": {"score_contrast": 3.0, "score_percentile": 100.0},
-                "multi_shot_consistency": {"coefficient_of_variation": 0.2},
-                "y_depth_coupling": {"warning": False},
-                "low_confidence_flag": "high",
-            },
+            "active_velocity_model_type": "layered",
+            "forward_engine_active": "layered_kinematic",
+            "rayleigh_like_event_detected": False,
+            "das_gauge_final_status": "nonzero_but_weak_not_for_default_localization",
+            "stage5f_validation": {"ready_for_2p5d": False, "elastic2d_rayleigh_benchmark": {}},
+            "confidence": {"high_score_region": {}},
         },
     )
 
     assert latest.exists()
     assert (latest / "README.md").exists()
     assert (latest / "archive_manifest.md").exists()
-    assert (latest / "figures" / "core" / "fig_geometry_layout_check.png").exists()
-    assert (latest / "figures" / "core" / "fig_confidence_diagnostics.png").exists()
+    assert set(path.name for path in (latest / "figures").iterdir()) == {"forward", "localization", "error_analysis"}
+    assert (latest / "figures" / "forward" / "fig_geometry_3d_overview.png").exists()
+    assert (latest / "animations" / "forward" / "anim_multishot_forward_overview.gif").exists()
     assert not (latest / "figures" / "unselected_extra.png").exists()
     assert len(list((latest / "figures").glob("*.png"))) == 0
     assert not (latest / "arrays").exists()
-    assert (latest / "reports" / "core" / "report_full_pipeline.md").exists()
-    assert (latest / "reports" / "core" / "report_latest_stable_file_audit.md").exists()
-    assert (latest / "reports" / "core" / "report_figure_quality_check.md").exists()
+    assert (latest / "reports" / "error_analysis" / "report_latest_stable_file_audit.md").exists()
+    assert (latest / "reports" / "error_analysis" / "report_figure_quality_check.md").exists()
     assert (latest / "metadata" / "meta_run.json").exists()
     assert (latest / "metadata" / "meta_params_snapshot.json").exists()
-    assert (latest / "summary.md").exists()
     assert "abc1234" in (latest / "summary.md").read_text(encoding="utf-8")
     assert info["copied"]

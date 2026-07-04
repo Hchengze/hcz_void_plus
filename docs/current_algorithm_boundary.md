@@ -47,7 +47,7 @@ travel_time = integral(ds / v(x, y, z))
 
 ## latest_stable 边界
 
-Stage 5C 起，`outputs/latest_stable/` 是当前精选成果目录，不再是历史阶段所有图件和报告的平铺总仓库。完整历史输出应从时间戳运行目录追溯，当前主结论应优先查看分层后的 `figures/core`、`figures/forward`、`reports/core` 和 `reports/forward`。
+Stage 5G 起，`outputs/latest_stable/` 是当前精选成果目录，不再是历史阶段所有图件和报告的平铺总仓库。完整历史输出应从时间戳运行目录追溯，当前主结论应优先查看三类目录：`forward`、`localization`、`error_analysis`。
 
 Stage 5D 起，精选图件必须先经过 figure self-check：文件存在、可读取、非空白、分辨率达标、分类正确，并在 manifest 中记录 `stage / forward_engine / velocity_model_type`。未通过自检的图件只留在时间戳运行目录，不进入 `latest_stable`。
 
@@ -75,3 +75,15 @@ Stage 5F 增加 latest_stable 图件质量治理、旧文档清理、staggered-g
 - DAS-like gauge strain 即使非零，也不得默认用于定位，除非经过真实 DAS gauge、方向和仪器响应校准。
 - 2D elastic 只服务三维道路 DAS-like 场景的局部物理验证，任何 2D 结果不得直接替代三维 x-y-h 定位。
 - `ready_for_2p5d` 只有在 Rayleigh benchmark、DAS gauge response、void residual 和 latest_stable 一致性同时满足后才可为 True。
+
+## Stage 5G 边界
+
+Stage 5G 不继续堆功能，而是收敛输出体系并强化三维主线。
+
+- latest_stable 只保留 `forward / localization / error_analysis` 三类当前精选成果。
+- 新图件必须中文为主，允许保留 DAS、Rayleigh、Vp、Vs、CFL、PML、RMS 等标准缩写。
+- 多炮正演和单炮波场传播优先用 GIF 表达，避免重复静态图堆积。
+- 三维几何、三维高分区、推荐位置和不确定性盒子必须持续表达 `source_xyz / receiver_xyz / candidate_xyz`。
+- Rayleigh benchmark 未通过前，`ready_for_2p5d=False`，不得进入 2.5D。
+- DAS gauge 统一结论为 `nonzero_but_weak_not_for_default_localization`，不得默认用于定位。
+- 2D elastic 仍只是服务三维道路 DAS-like 场景的局部 validation，不能替代三维 x-y-h 定位。

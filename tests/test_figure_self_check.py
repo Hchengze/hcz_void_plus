@@ -21,13 +21,13 @@ def test_single_figure_self_check_passes_nonblank_current_stage(tmp_path):
     path = tmp_path / "figures" / "fig_velocity_model_active_badge.png"
     _write_nonblank_png(path)
     metadata = build_figure_metadata(
-        stage="Stage 5F",
+        stage="Stage 5G",
         forward_engine="layered_kinematic",
         velocity_model_type="layered",
     )
     result = check_single_figure(
         path,
-        expected_category="diagnostics",
+        expected_category="forward",
         metadata=metadata[path.name],
         min_size_bytes=64,
         min_width_px=32,
@@ -41,21 +41,21 @@ def test_figure_self_check_rejects_missing_and_old_stage(tmp_path):
     _write_nonblank_png(path)
     specs = [
         StableFigureSpec(
-            "diagnostics",
+            "forward",
             "fig_velocity_model_active_badge.png",
-            "reports/diagnostics/report_velocity_model_audit.md",
+            "reports/forward/report_velocity_model_audit.md",
         ),
-        StableFigureSpec("forward", "fig_missing_stage5f.png", "reports/forward/report.md"),
+        StableFigureSpec("forward", "fig_missing_stage5g.png", "reports/forward/report.md"),
     ]
     metadata = {
         "fig_velocity_model_active_badge.png": {
             "stage": "Stage 3",
             "forward_engine": "layered_kinematic",
             "velocity_model_type": "layered",
-            "category": "diagnostics",
+            "category": "forward",
         },
-        "fig_missing_stage5f.png": {
-            "stage": "Stage 5F",
+        "fig_missing_stage5g.png": {
+            "stage": "Stage 5G",
             "forward_engine": "layered_kinematic",
             "velocity_model_type": "layered",
             "category": "forward",

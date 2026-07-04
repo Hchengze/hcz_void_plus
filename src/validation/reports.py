@@ -380,6 +380,8 @@ def write_elastic2d_das_response_report(path: Path, result: dict[str, Any]) -> N
         f"- best_source_type_for_gauge：`{result.get('best_source_type_for_gauge')}`。",
         f"- best_gauge_length_m：`{result.get('best_gauge_length_m')}`。",
         f"- gauge_void_residual_rms：`{result.get('gauge_void_residual_rms')}`。",
+        "- das_gauge_final_status：`nonzero_but_weak_not_for_default_localization`。",
+        "- default localization：`False`，当前不能默认使用 gauge strain。",
     ]
     nonzero = result.get("nonzero_check") or {}
     if nonzero:

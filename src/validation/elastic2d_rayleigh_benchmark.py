@@ -1,4 +1,4 @@
-"""Stage 5F collocated vs staggered Rayleigh-like benchmark。"""
+"""Stage 5G collocated vs staggered Rayleigh-like benchmark。"""
 
 from __future__ import annotations
 
@@ -122,7 +122,7 @@ def run_elastic2d_rayleigh_benchmark(params) -> dict[str, Any]:
     best_detected = detected[0] if detected else None
     best = cases[best_name]
     return {
-        "stage": "Stage 5F",
+        "stage": "Stage 5G",
         "cases": cases,
         "case_count": len(cases),
         "best_case": best_name,
@@ -140,7 +140,7 @@ def run_elastic2d_rayleigh_benchmark(params) -> dict[str, Any]:
 
 
 def write_elastic2d_rayleigh_benchmark_report(path: Path, result: dict[str, Any]) -> None:
-    """写出 Stage 5F Rayleigh benchmark 报告。"""
+    """写出 Stage 5G Rayleigh benchmark 报告。"""
 
     lines = [
         "# elastic2d Rayleigh benchmark 报告",
