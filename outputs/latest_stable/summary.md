@@ -2,7 +2,7 @@
 
 ## 本轮信息
 
-- commit id：`e88e5c1`
+- commit id：`958168f`
 - 任务名称：`Stage 5D elastic2d 加固 + 速度模型主线核验 + 图件自检`
 - 运行时间：`2026-07-04T19:12:23`
 - 来源目录：`outputs\stage5d_run_20260704_191133`
