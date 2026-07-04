@@ -1,17 +1,11 @@
-# latest_stable curated outputs
+# latest_stable
 
-本目录只保存当前阶段最关键的稳定精选成果，不再作为历史阶段文件堆积目录。
+Stage 5G 起，本目录只保留当前人工复查最需要的三类精选成果。
 
-## 子目录
+## 三类结果
 
-- `figures/core/`：人工复查最优先图件。
-- `figures/forward/`：forward roadmap、acoustic2d、elastic2d 验证图件。
-- `figures/localization/`：定位与多属性评分图件。
-- `figures/uncertainty/`：三维不确定性和推荐决策图件。
-- `figures/diagnostics/`：速度模型、模型错配和 depth prior 诊断。
-- `reports/core/`：核心报告。
-- `reports/forward/`：正演验证报告。
-- `reports/localization/`：定位验证报告。
-- `reports/diagnostics/`：速度模型和模型错配报告。
+- `forward/`：正演、速度模型、三维几何、Rayleigh benchmark、DAS-like response 与正演动图。
+- `localization/`：x-y-depth 定位、高分候选体、推荐位置和三维不确定性。
+- `error_analysis/`：质量检查、误差分析、Rayleigh/DAS 限制和 ready_for_2p5d 判断。
 
-当前结果仍是科研候选区，不是工程确诊。
+当前结果是科研候选区，不是工程确诊。2D elastic 只服务三维道路 DAS-like 场景的局部物理验证。

@@ -1,234 +1,78 @@
-# latest_stable 稳定成果摘要
+# latest_stable Stage 5G 摘要
 
-## 本轮信息
+## 当前阶段
 
-- commit id：`0d39007`
-- 任务名称：`Stage 5F 阶段一致性修复 + 图件精选治理 + staggered elastic2d benchmark`
-- 运行时间：`2026-07-05T00:06:40`
-- 来源目录：`outputs\stage5f_run_20260705_000529`
+- stage = Stage 5G
+- commit id：`128d807`
+- 任务名称：`Stage 5G latest_stable 三类结果重构 + 图件中文化 + 动图整合 + 三维可视化增强`
+- 运行时间：`2026-07-05T01:54:17`
+- active_velocity_model = `layered`
+- active_forward_engine = `layered_kinematic`
+- validation_forward = `elastic2d/staggered`
+- ready_for_2p5d = `False`
 
-## 当前近似条件
+## 三类精选结果
 
-- `kinematic approximation`
-- `DAS-like response approximation`
-- active forward engine：`layered_kinematic`
-- available forward engines：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype', 'elastic2d_prototype']`
-- forward modeling stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation`
-- `kinematic_surface_response`，不是真实弹性波场模拟
-- Rayleigh 深度权重是 `exp(-h / penetration_depth)` 简化近似，不是严格模态深度核
+- forward 图件数：`10`
+- localization 图件数：`6`
+- error_analysis 图件数：`7`
+- 静态图总数：`23`
+- 动图总数：`2`
+- 报告总数：`12`
 
-## 最佳定位结果
+## 三维定位结论
 
-- best_location：x=`60.0` m，y=`10.0` m，h=`2.5` m
+- recommended/best location：x=`60.0` m, y=`10.0` m, depth=`2.5` m
 - truth_error：`1.118033988749895` m
-
-## unweighted 与 weighted best 对比
-
-- unweighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
-- weighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
-- unweighted -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`0.0` m，三维距离=`0.0` m
-
-## 推荐位置与不确定性
-
-- recommended_location_type：`uncertainty_interval`
-- recommended_location：`{'x_m': 60.0, 'y_m': 10.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 60.0], 'y_interval_m': [8.0, 12.0], 'depth_interval_m': [2.5, 2.5], 'component_boxes': [{'point_count': 3, 'x_min_m': 60.0, 'x_max_m': 60.0, 'y_min_m': 8.0, 'y_max_m': 12.0, 'depth_min_m': 2.5, 'depth_max_m': 2.5, 'x_span_m': 0.0, 'y_span_m': 4.0, 'depth_span_m': 0.0}]}`
-- recommended_reason：weighted_best 受到深度权重影响，或触发边界、宽 y、unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。
-- depth uncertainty interval：`[2.5, 2.5]` m
-- 3D high-score span：x=`0.0` m，y=`4.0` m，depth=`0.0` m
+- 3D high-score span：x=`0.0` m, y=`4.0` m, depth=`0.0` m
 - high-score point count：`3`
 
-## score method 对比
+## Rayleigh 与 DAS 状态
 
-- comparison methods：`['diffraction_energy_stack', 'normalized_energy_stack']`
-- depth stability reference：`{'best_unweighted_depth_method': 'diffraction_energy_stack', 'best_unweighted_depth_abs_error_m': 0.5, 'note': '仅比较当前场景下 unweighted_best 的深度误差，不代表通用优劣。'}`
-
-## depth prior sensitivity
-
-- factors：`['0.5', '1.0', '2.0', 'off']`
-
-## Stage 4B 算法有效性验证
-
-- preprocessing best truth-error case：`none`
-- preprocessing narrowest y-depth case：`bandpass_trace_normalization_taper_direct_mute`
-- FK direct wave reduction ratio：`0.0316551481300289`
-- FK diffraction preservation ratio：`0.9796773553296154`
-- multi_attribute improved over energy：`False`
-- multi_attribute best group：`energy_only`
-- geometry best y-resolution case：`geometry_case_A_single_side_line`
-- geometry best depth-stability case：`geometry_case_A_single_side_line`
-- geometry best truth-error case：`geometry_case_A_single_side_line`
-- high-score component count：`1`
-- multi-region warning：`False`
-
-## Stage 5A 稳定算法与速度模型升级
-
-- stable code area：`code/current_3d_algorithm/`
-- default velocity model：`layered`
-- velocity ablation best truth-error case：`uniform`
-- velocity ablation best depth case：`uniform`
-- largest travel-time residual case：`layered_with_anomaly_perturbation`
-- model mismatch safest case：`uniform_forward_uniform_scan`
-- model mismatch riskiest case：`layered_forward_uniform_scan`
-- minimum recommended velocity model：`layered`
-- note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
-
-## Stage 5B/5C/5D 正演技术路线与 elastic2d 验证
-
-- latest_stable_curated：`True`
-- forward_engine_active：`layered_kinematic`
-- forward_engine_available：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype', 'elastic2d_prototype']`
-- forward_engine_next_required：`Rayleigh benchmark and DAS gauge validation before 2.5D`
-- forward_modeling_stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation`
-- validation_forward_available：`['acoustic2d_prototype', 'elastic2d_prototype']`
-- layered_vs_baseline travel-time RMS residual：`57.07585810059442` ms
-- layered_vs_baseline synthetic relative difference：`1.320055775620881`
-- acoustic2d_prototype_status：CFL stable=`True`，snapshot_count=`6`
-- elastic2d_prototype_status：`minimal_velocity_stress_validation`
-- rayleigh_validation_status：`False`
-- void_scattering_validation_status：`True`
-- das_gauge_response_status：`component_and_gauge_length_checked`
-- elastic_vs_kinematic_main_conclusion：layered/局部 kinematic 曲线只能解释 elastic residual 的一部分能量；曲线外 residual 代表振幅、尾波、多路径、边界和弹性模式等运动学模型没有的效应。
-- elastic2d_design_status：`minimal_prototype_available_validation_only`
-- note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering；`elastic2d_prototype` 是最小科研验证原型，仍不替代主定位 forward。
-
-## Stage 5D 速度模型核验、图件自检与 elastic2d 加固
-
-- repository_health_status：`pass`
-- figure_self_check_status：`pass`
-- figure_self_check passed/failed：`29` / `0`
-- active_velocity_model_type：`layered`
-- active_velocity_model_confirmed：`True`
-- velocity_model_used_by_direct：`True`
-- velocity_model_used_by_scatter：`True`
-- velocity_model_used_by_scan：`True`
-- velocity_model_visualization_status：`generated`
-- uniform_vs_layered_direct_rms_ms：`215.69599998465384`
-- rayleigh_like_event_detected：`False`
-- rayleigh_pick_interpretation：拾取速度偏慢，可能受边界反射、sponge 衰减或弱表面事件影响。
-- void_residual_energy_best_case：`vertical_force_r1.5_vs0.2` / `1.1075624099111773e-16`
-- das_gauge_response_best_case：source=`vertical_force`，gauge_length=`0.5` m
-- elastic_vs_kinematic_explained_fraction：`0.00022196748680872161`
-
-## Stage 5E 科学图件自检、速度物理桥接与 elastic2d 数值加固
-
-- stage：`Stage 5E`
-- scientific_figure_self_check_status：`pass`
-- scientific warning count：`0`
-- rayleigh_like_event_best_case：`source_horizontal`
-- rayleigh_like_event_detected：`False`
-- elastic2d_best_numerical_case：`{'name': 'source_horizontal', 'source_type': 'horizontal_force', 'source_depth_m': 0.2, 'sponge_strength': 'medium', 'free_surface_mode': 'approximate', 'receiver_depth_index': 'surface', 'estimated_surface_velocity_mps': 174.99252279465844, 'expected_rayleigh_like_range_mps': [212.5, 245.0], 'rayleigh_like_event_detected': False, 'rayleigh_pick_interpretation': '拾取速度偏慢，可能受边界反射、sponge 衰减或弱表面事件影响。', 'surface_event_energy': 1.752454782962487e-17, 'body_wave_leakage_indicator': 3.400135375364181e-11, 'boundary_reflection_indicator': 0.3443054143959791, 'cfl': 0.35, 'cfl_stable': True, 'max_amplitude': 1.4068548495363135e-08, 'distance_to_expected_center_mps': 53.75747720534156}`
-- velocity_physics_bridge_status：`generated`
-- rayleigh_equivalent_vs_elastic_consistency：`consistent`
-- das_gauge_nonzero_status：`nonzero`
-- das gauge default localization enabled：`False`
-- elastic2d_ready_for_2p5d：`False`
-
-## Stage 5E 人工优先查看图件
-
-- `figures/core/fig_stage5f_status_badge.png`
-- `figures/core/fig_confidence_diagnostics.png`
-- `figures/diagnostics/fig_velocity_model_active_badge.png`
-- `figures/diagnostics/fig_latest_stable_quality_summary.png`
-- `figures/diagnostics/fig_velocity_model_physics_bridge.png`
-- `figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png`
-- `figures/forward/fig_elastic2d_rayleigh_velocity_error.png`
-- `figures/forward/fig_elastic2d_surface_event_ridge.png`
-- `figures/forward/fig_elastic2d_das_best_case.png`
-- `figures/forward/fig_elastic_vs_kinematic_energy_partition.png`
-- `figures/localization/fig_scan_x_y_slice.png`
-
-## Stage 5F 阶段一致性、图件精选治理与 staggered benchmark
-
-- stage：`Stage 5F`
-- stage_consistency_status：`pass`
-- document_cleanup_status：`archived_historical_docs`
-- latest_stable_file_audit_status：`pass`
-- figure_quality_check_status：`pass`
-- figure_deduplication_status：`pass`
-- figure_language_check_status：`pass`
-- latest_stable_total_figure_count：`29`
-- empty_figure_count：`0`
-- duplicate_figure_count：`0`
-- english_figure_count：`0`
-- staggered_grid_status：`implemented_minimal_validation`
 - best_rayleigh_benchmark_case：`staggered_traction_variant`
 - rayleigh_like_event_detected：`False`
 - rayleigh_velocity_relative_error：`0.2028480598664669`
-- best_free_surface_mode：`stress_zero_variant`
-- best_boundary_mode：`sponge_medium`
-- das_gauge_final_status：`nonzero_but_not_for_default_localization`
-- ready_for_2p5d：`False`
-- three_dimensional_policy_status：`established`
+- das_gauge_final_status：`nonzero_but_weak_not_for_default_localization`
+- DAS gauge 默认定位使用：`False`
 
-## 基础置信度指标
+## 图件质量与中文化
 
-- peak sharpness：`2.0599457066651934`
-- score contrast：`8.187699231656023`
-- score percentile：`100.0`
-- multi-shot consistency CV：`0.12786256485343217`
-- y-depth coupling warning：`False`
-- best depth boundary warning：`False`
-- wide y high-score zone warning：`True`
-- raw/weighted divergence warning：`False`
-- shallow bias warning：`False`
-- low confidence flag：`medium-low`
+- figure_quality_check_status：`pass`
+- empty_figure_count：`0`
+- figure_deduplication_status：`pass`
+- duplicate_figure_count：`0`
+- figure_language_check_status：`pass`
+- english_figure_count：`0`
+- figure_label_audit_status：`pass`
+- english_case_label_count：`0`
 
-## 推荐人工重点查看
+## manual_review_figures
 
-- figures/core/fig_stage5f_status_badge.png
-- figures/core/fig_geometry_layout_check.png
-- figures/core/fig_shot_gather_000.png
-- figures/core/fig_confidence_diagnostics.png
-- figures/core/fig_forward_roadmap_status.png
-- figures/diagnostics/fig_latest_stable_quality_summary.png
-- figures/diagnostics/fig_model_mismatch_error_summary.png
-- figures/diagnostics/fig_depth_prior_sensitivity.png
-- figures/diagnostics/fig_velocity_model_profile_current.png
-- figures/diagnostics/fig_velocity_model_active_badge.png
-- figures/diagnostics/fig_rayleigh_equivalent_vs_elastic_velocity.png
-- figures/diagnostics/fig_bridge_derived_elastic_parameters.png
-- figures/diagnostics/fig_velocity_model_physics_bridge.png
+- figures/forward/fig_geometry_3d_overview.png
+- figures/forward/fig_velocity_model_active_badge.png
+- figures/forward/fig_velocity_model_physics_bridge.png
 - figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png
 - figures/forward/fig_elastic2d_rayleigh_velocity_error.png
-- figures/forward/fig_elastic2d_surface_event_ridge.png
-- figures/forward/fig_elastic2d_free_surface_mode_comparison.png
-- figures/forward/fig_elastic2d_boundary_reflection_diagnostics.png
-- figures/forward/fig_elastic2d_void_scattering_residual.png
-- figures/forward/fig_elastic2d_das_staggered_vs_collocated.png
 - figures/forward/fig_elastic2d_das_best_case.png
-- figures/forward/fig_elastic2d_das_report_consistency.png
-- figures/forward/fig_elastic_vs_kinematic_energy_partition.png
-- figures/localization/fig_scan_x_depth_slice.png
-- figures/localization/fig_scan_x_y_slice.png
-- figures/localization/fig_multi_attribute_ablation.png
-- figures/uncertainty/fig_3d_high_score_components.png
-- figures/uncertainty/fig_x_y_depth_uncertainty_slices.png
-- figures/uncertainty/fig_recommendation_decision_flow.png
-- figures/diagnostics/anim_pseudo_wavefield.gif
-- reports/core/report_full_pipeline.md
-- reports/forward/report_forward_engine_ablation.md
-- reports/forward/report_elastic2d_rayleigh_benchmark.md
-- reports/forward/report_elastic2d_free_surface_validation.md
-- reports/forward/report_elastic2d_boundary_validation.md
-- reports/forward/report_elastic2d_void_scattering.md
-- reports/forward/report_elastic2d_das_response.md
-- reports/localization/report_multi_attribute_ablation.md
-- reports/diagnostics/report_model_mismatch.md
-- reports/diagnostics/report_velocity_model_audit.md
-- reports/diagnostics/report_velocity_model_visualization.md
-- reports/diagnostics/report_velocity_model_physics_bridge.md
-- reports/core/report_repository_health.md
-- reports/core/report_scientific_figure_self_check.md
-- reports/core/report_figure_quality_check.md
-- reports/core/report_figure_deduplication.md
-- reports/core/report_figure_language_check.md
-- reports/core/report_latest_stable_file_audit.md
+- figures/localization/fig_3d_high_score_region.png
+- figures/localization/fig_recommended_location_3d.png
+- figures/localization/fig_3d_uncertainty_box.png
+- figures/error_analysis/fig_stage5g_status_badge.png
 
-## 导出记录
+## manual_review_animations
 
-- 已复制精选文件数量：`54`
-- 缺失精选文件数量：`5`
+- animations/forward/anim_multishot_forward_overview.gif
+- animations/forward/anim_single_shot_wavefield.gif
 
 ## 当前限制
 
-本目录只保存本轮最新、最值得人工检查的精选结果。时间戳运行目录保留完整本地结果，但大型数组、快照和中间产物默认不纳入 Git。当前定位和置信度仍是科研算法原型诊断，不能作为工程确诊结论。
+- `layered_kinematic` 仍是当前主定位 forward，属于 straight-ray kinematic approximation。
+- `elastic2d/staggered` 仍是 validation forward，不是工业级模拟。
+- Rayleigh benchmark 未通过前，`ready_for_2p5d` 必须为 False。
+- DAS-like gauge strain 非零但弱且未校准，不默认用于定位，也不等同真实 DAS 仪器响应。
+- 2D elastic 只服务三维道路 DAS-like 场景的局部物理验证，不能替代 `source_xyz / receiver_xyz / candidate_xyz` 和 x-y-depth 三维定位。
+
+## 导出记录
+
+- copied：`43`
+- missing：`0`

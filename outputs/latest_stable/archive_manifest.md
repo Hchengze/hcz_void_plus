@@ -1,11 +1,13 @@
 # archive manifest
 
-Stage 5C 起，latest_stable 不再平铺保存所有历史阶段图件和报告。
+Stage 5G 不再把历史图件堆进 latest_stable 当前精选目录。
 
-## 不再作为当前主结论平铺保存的内容
+## 已移出当前精选视图的内容
 
-- 旧 Stage 3/4/5A 的大量诊断图件不再平铺保存在 latest_stable/figures 根目录。
-- FK、matched wavelet、semblance、frequency shift 等详细验证仍保存在时间戳运行目录。
-- latest_stable 只保留当前阶段最关键 curated outputs。
+- acoustic2d shot gather 与 acoustic2d wavefield snapshots：F2 基础设施验证，不再占据当前主视图。
+- forward_engine_comparison 与 layered_kinematic_vs_baseline_gather：转为历史诊断，不再进入 Stage 5G 精选。
+- Stage 5E sensitivity/pick 旧图：由 Stage 5G Rayleigh benchmark 矩阵和速度误差图替代。
+- 重复 confidence/uncertainty 图：仅保留能说明三维不确定性的 1-2 张。
+- 旧 core/diagnostics/uncertainty/reference_only 细分类目录：合并为 forward/localization/error_analysis 三类。
 
-完整历史输出仍保存在对应时间戳运行目录；Git 中的 latest_stable 只保留当前精选成果。
+完整历史输出仍可从时间戳运行目录或 Git 历史追溯；latest_stable 只表达当前最稳定结论。

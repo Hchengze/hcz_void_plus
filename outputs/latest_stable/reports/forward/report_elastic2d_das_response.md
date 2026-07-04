@@ -14,6 +14,8 @@
 - best_source_type_for_gauge：`vertical_force`。
 - best_gauge_length_m：`0.5`。
 - gauge_void_residual_rms：`0.0`。
+- das_gauge_final_status：`nonzero_but_weak_not_for_default_localization`。
+- default localization：`False`，当前不能默认使用 gauge strain。
 
 ## Stage 5E 非零响应检查
 
