@@ -9,66 +9,73 @@ from pathlib import Path
 from typing import Any
 
 
-SELECTED_FIGURES = [
-    "fig_geometry_layout_check.png",
-    "fig_source_anomaly_receiver_path_section.png",
-    "fig_rayleigh_depth_sensitivity.png",
-    "fig_shot_gather_000.png",
-    "fig_diffraction_travel_time_curves.png",
-    "fig_scan_x_depth_slice.png",
-    "fig_scan_x_y_slice.png",
-    "fig_best_location_map.png",
-    "fig_raw_vs_weighted_best_location.png",
-    "fig_raw_vs_weighted_x_depth_slice.png",
-    "fig_y_high_score_width_check.png",
-    "fig_confidence_diagnostics.png",
-    "fig_score_method_depth_comparison.png",
-    "fig_3d_high_score_uncertainty_summary.png",
-    "fig_x_y_depth_uncertainty_slices.png",
-    "fig_3d_geometry_overview.png",
-    "fig_receiver_source_3d_layout.png",
-    "fig_anomaly_3d_scatter_points.png",
-    "fig_multi_attribute_score_comparison.png",
-    "fig_depth_prior_sensitivity.png",
-    "fig_preprocessing_comparison.png",
-    "fig_preprocessing_ablation_summary.png",
-    "fig_fk_spectrum_before_after.png",
-    "fig_fk_filter_effect_on_gather.png",
-    "fig_matched_wavelet_score_comparison.png",
-    "fig_semblance_score_volume_slice.png",
-    "fig_frequency_shift_attribute.png",
-    "fig_geometry_ablation_best_locations.png",
-    "fig_geometry_ablation_uncertainty_spans.png",
-    "fig_multi_attribute_ablation.png",
-    "fig_3d_high_score_components.png",
-    "fig_recommendation_decision_flow.png",
-    "fig_velocity_model_comparison.png",
-    "fig_layered_velocity_profile.png",
-    "fig_velocity_model_travel_time_residuals.png",
-    "fig_model_mismatch_error_summary.png",
-    "fig_forward_engine_comparison.png",
-    "fig_layered_kinematic_vs_baseline_gather.png",
-    "fig_forward_roadmap_status.png",
-    "fig_acoustic2d_wavefield_snapshots.png",
-    "fig_acoustic2d_shot_gather.png",
-]
+CURATED_FIGURES = {
+    "core": [
+        "fig_geometry_layout_check.png",
+        "fig_shot_gather_000.png",
+        "fig_best_location_map.png",
+        "fig_confidence_diagnostics.png",
+        "fig_forward_roadmap_status.png",
+    ],
+    "forward": [
+        "fig_forward_engine_comparison.png",
+        "fig_layered_kinematic_vs_baseline_gather.png",
+        "fig_acoustic2d_wavefield_snapshots.png",
+        "fig_acoustic2d_shot_gather.png",
+        "fig_elastic2d_rayleigh_wavefield_snapshots.png",
+        "fig_elastic2d_surface_gather.png",
+        "fig_elastic2d_rayleigh_velocity_check.png",
+        "fig_elastic2d_void_scattering_residual.png",
+        "fig_elastic2d_void_diffraction_overlay.png",
+        "fig_elastic2d_das_gauge_response.png",
+        "fig_elastic_vs_kinematic_overlay.png",
+        "fig_elastic_vs_kinematic_residual_energy.png",
+    ],
+    "localization": [
+        "fig_scan_x_depth_slice.png",
+        "fig_scan_x_y_slice.png",
+        "fig_multi_attribute_ablation.png",
+    ],
+    "uncertainty": [
+        "fig_3d_high_score_components.png",
+        "fig_x_y_depth_uncertainty_slices.png",
+        "fig_recommendation_decision_flow.png",
+    ],
+    "diagnostics": [
+        "fig_velocity_model_comparison.png",
+        "fig_model_mismatch_error_summary.png",
+        "fig_depth_prior_sensitivity.png",
+    ],
+}
 
-SELECTED_REPORTS = [
-    "report_full_pipeline.md",
-    "report_confidence.md",
-    "report_score_method_comparison.md",
-    "report_depth_prior_sensitivity.md",
-    "report_preprocessing_ablation.md",
-    "report_fk_filter_validation.md",
-    "report_matched_wavelet_validation.md",
-    "report_semblance_validation.md",
-    "report_frequency_shift_attribute.md",
-    "report_geometry_ablation.md",
-    "report_multi_attribute_ablation.md",
-    "report_velocity_model_ablation.md",
-    "report_model_mismatch.md",
-    "report_forward_engine_ablation.md",
-    "report_acoustic2d_prototype.md",
+CURATED_REPORTS = {
+    "core": [
+        "report_full_pipeline.md",
+        "report_confidence.md",
+    ],
+    "forward": [
+        "report_forward_engine_ablation.md",
+        "report_acoustic2d_prototype.md",
+        "report_elastic2d_rayleigh_validation.md",
+        "report_elastic2d_void_scattering.md",
+        "report_elastic2d_das_response.md",
+        "report_elastic_vs_kinematic.md",
+    ],
+    "localization": [
+        "report_multi_attribute_ablation.md",
+        "report_geometry_ablation.md",
+    ],
+    "uncertainty": [],
+    "diagnostics": [
+        "report_velocity_model_ablation.md",
+        "report_model_mismatch.md",
+    ],
+}
+
+LEGACY_STABLE_FILES = [
+    "旧 Stage 3/4/5A 的大量诊断图件不再平铺保存在 latest_stable/figures 根目录。",
+    "FK、matched wavelet、semblance、frequency shift 等详细验证仍保存在时间戳运行目录。",
+    "latest_stable 只保留当前阶段最关键 curated outputs。",
 ]
 
 
@@ -105,7 +112,10 @@ def _reset_latest_stable_dir(latest_stable_dir: Path, output_root_dir: Path) -> 
         raise ValueError(f"拒绝清理 output_root_dir 之外的目录：{target}")
     if latest_stable_dir.exists():
         shutil.rmtree(latest_stable_dir)
-    for name in ["figures", "animations", "reports", "metadata"]:
+    for name in ["figures", "reports"]:
+        for category in ["core", "forward", "localization", "uncertainty", "diagnostics"]:
+            (latest_stable_dir / name / category).mkdir(parents=True, exist_ok=True)
+    for name in ["metadata"]:
         (latest_stable_dir / name).mkdir(parents=True, exist_ok=True)
 
 
@@ -150,78 +160,27 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     forward_layered_vs_baseline = forward_engine_ablation.get("layered_vs_baseline") or {}
     forward_engines = forward_engine_ablation.get("engines") or {}
     acoustic2d = forward_engines.get("acoustic2d_prototype") or {}
+    elastic_rayleigh = stage5b_validation.get("elastic2d_rayleigh_validation") or {}
+    elastic_void = stage5b_validation.get("elastic2d_void_scattering") or {}
+    elastic_das = stage5b_validation.get("elastic2d_das_response") or {}
+    elastic_vs_kinematic = stage5b_validation.get("elastic_vs_kinematic") or {}
     peak = confidence.get("peak", {})
     contrast = confidence.get("contrast", {})
     consistency = confidence.get("multi_shot_consistency", {})
     coupling = confidence.get("y_depth_coupling", {})
     stage3b = confidence.get("stage3b_warnings", {})
     recommended = "\n".join(
-        [
-            "- figures/fig_geometry_layout_check.png",
-            "- figures/fig_source_anomaly_receiver_path_section.png",
-            "- figures/fig_rayleigh_depth_sensitivity.png",
-            "- figures/fig_shot_gather_000.png",
-            "- figures/fig_diffraction_travel_time_curves.png",
-            "- figures/fig_scan_x_depth_slice.png",
-            "- figures/fig_scan_x_y_slice.png",
-            "- figures/fig_best_location_map.png",
-            "- figures/fig_raw_vs_weighted_best_location.png",
-            "- figures/fig_raw_vs_weighted_x_depth_slice.png",
-            "- figures/fig_y_high_score_width_check.png",
-            "- figures/fig_confidence_diagnostics.png",
-            "- figures/fig_score_method_depth_comparison.png",
-            "- figures/fig_3d_high_score_uncertainty_summary.png",
-            "- figures/fig_x_y_depth_uncertainty_slices.png",
-            "- figures/fig_3d_geometry_overview.png",
-            "- figures/fig_receiver_source_3d_layout.png",
-            "- figures/fig_anomaly_3d_scatter_points.png",
-            "- figures/fig_multi_attribute_score_comparison.png",
-            "- figures/fig_depth_prior_sensitivity.png",
-            "- figures/fig_preprocessing_comparison.png",
-            "- figures/fig_preprocessing_ablation_summary.png",
-            "- figures/fig_fk_spectrum_before_after.png",
-            "- figures/fig_fk_filter_effect_on_gather.png",
-            "- figures/fig_matched_wavelet_score_comparison.png",
-            "- figures/fig_semblance_score_volume_slice.png",
-            "- figures/fig_frequency_shift_attribute.png",
-            "- figures/fig_geometry_ablation_best_locations.png",
-            "- figures/fig_geometry_ablation_uncertainty_spans.png",
-            "- figures/fig_multi_attribute_ablation.png",
-            "- figures/fig_3d_high_score_components.png",
-            "- figures/fig_recommendation_decision_flow.png",
-            "- figures/fig_velocity_model_comparison.png",
-            "- figures/fig_layered_velocity_profile.png",
-            "- figures/fig_velocity_model_travel_time_residuals.png",
-            "- figures/fig_model_mismatch_error_summary.png",
-            "- figures/fig_forward_engine_comparison.png",
-            "- figures/fig_layered_kinematic_vs_baseline_gather.png",
-            "- figures/fig_forward_roadmap_status.png",
-            "- figures/fig_acoustic2d_wavefield_snapshots.png",
-            "- figures/fig_acoustic2d_shot_gather.png",
-            "- animations/anim_pseudo_wavefield.gif",
-            "- reports/report_full_pipeline.md",
-            "- reports/report_confidence.md",
-            "- reports/report_score_method_comparison.md",
-            "- reports/report_depth_prior_sensitivity.md",
-            "- reports/report_preprocessing_ablation.md",
-            "- reports/report_fk_filter_validation.md",
-            "- reports/report_matched_wavelet_validation.md",
-            "- reports/report_semblance_validation.md",
-            "- reports/report_frequency_shift_attribute.md",
-            "- reports/report_geometry_ablation.md",
-            "- reports/report_multi_attribute_ablation.md",
-            "- reports/report_velocity_model_ablation.md",
-            "- reports/report_model_mismatch.md",
-            "- reports/report_forward_engine_ablation.md",
-            "- reports/report_acoustic2d_prototype.md",
-        ]
+        f"- {Path(path).resolve().relative_to(summary_path.parent.resolve()).as_posix()}"
+        for path in copied
+        if Path(path).resolve().is_relative_to(summary_path.parent.resolve())
+        and ("figures" in Path(path).parts or "reports" in Path(path).parts)
     )
     content = f"""# latest_stable 稳定成果摘要
 
 ## 本轮信息
 
 - commit id：`{summary_info.get("commit_id", "unknown")}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5A")}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5C")}`
 - 运行时间：`{summary_info.get("run_time", datetime.now().isoformat(timespec="seconds"))}`
 - 来源目录：`{summary_info.get("source_run_dir", "")}`
 
@@ -290,17 +249,24 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - minimum recommended velocity model：`{_format_optional(model_mismatch.get("minimum_recommended_velocity_model"))}`
 - note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
-## Stage 5B 正演技术路线
+## Stage 5B/5C 正演技术路线与 elastic2d 验证
 
+- latest_stable_curated：`{_format_optional(summary_info.get("latest_stable_curated", True))}`
 - forward_engine_active：`{_format_optional(summary_info.get("forward_engine_active") or forward_engine_ablation.get("active_forward_engine"))}`
 - forward_engine_available：`{_format_optional(summary_info.get("forward_engine_available") or forward_engine_ablation.get("available_forward_engines"))}`
 - forward_engine_next_required：`{_format_optional(summary_info.get("forward_engine_next_required") or forward_engine_ablation.get("next_required_forward"))}`
-- forward_modeling_stage：`{_format_optional(summary_info.get("forward_modeling_stage") or "F0-F6 roadmap established")}`
+- forward_modeling_stage：`{_format_optional(summary_info.get("forward_modeling_stage") or "F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation")}`
+- validation_forward_available：`{_format_optional(summary_info.get("validation_forward_available") or ["acoustic2d_prototype", "elastic2d_prototype"])}`
 - layered_vs_baseline travel-time RMS residual：`{_format_optional(forward_layered_vs_baseline.get("travel_time_residual_rms_ms"))}` ms
 - layered_vs_baseline synthetic relative difference：`{_format_optional(forward_layered_vs_baseline.get("synthetic_relative_difference"))}`
 - acoustic2d_prototype_status：CFL stable=`{_format_optional(acoustic2d.get("cfl_stable"))}`，snapshot_count=`{_format_optional(acoustic2d.get("snapshot_count"))}`
-- elastic2d_design_status：`{_format_optional(summary_info.get("elastic2d_design_status") or "planned_next_core")}`
-- note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering。
+- elastic2d_prototype_status：`{_format_optional(summary_info.get("elastic2d_prototype_status") or "minimal_velocity_stress_validation")}`
+- rayleigh_validation_status：`{_format_optional(summary_info.get("rayleigh_validation_status") or elastic_rayleigh.get("rayleigh_like_event_detected"))}`
+- void_scattering_validation_status：`{_format_optional(summary_info.get("void_scattering_validation_status") or elastic_void.get("void_residual_visible"))}`
+- das_gauge_response_status：`{_format_optional(summary_info.get("das_gauge_response_status") or elastic_das.get("status"))}`
+- elastic_vs_kinematic_main_conclusion：{_format_optional(summary_info.get("elastic_vs_kinematic_main_conclusion") or elastic_vs_kinematic.get("main_conclusion"))}
+- elastic2d_design_status：`{_format_optional(summary_info.get("elastic2d_design_status") or "minimal_prototype_available_validation_only")}`
+- note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering；`elastic2d_prototype` 是最小科研验证原型，仍不替代主定位 forward。
 
 ## 基础置信度指标
 
@@ -331,6 +297,52 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     summary_path.write_text(content, encoding="utf-8")
 
 
+def _write_latest_stable_readme(path: Path) -> None:
+    """写出 latest_stable 精选目录说明。"""
+
+    lines = [
+        "# latest_stable curated outputs",
+        "",
+        "本目录只保存当前阶段最关键的稳定精选成果，不再作为历史阶段文件堆积目录。",
+        "",
+        "## 子目录",
+        "",
+        "- `figures/core/`：人工复查最优先图件。",
+        "- `figures/forward/`：forward roadmap、acoustic2d、elastic2d 验证图件。",
+        "- `figures/localization/`：定位与多属性评分图件。",
+        "- `figures/uncertainty/`：三维不确定性和推荐决策图件。",
+        "- `figures/diagnostics/`：速度模型、模型错配和 depth prior 诊断。",
+        "- `reports/core/`：核心报告。",
+        "- `reports/forward/`：正演验证报告。",
+        "- `reports/localization/`：定位验证报告。",
+        "- `reports/diagnostics/`：速度模型和模型错配报告。",
+        "",
+        "当前结果仍是科研候选区，不是工程确诊。",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def _write_archive_manifest(path: Path) -> None:
+    """记录不再进入 curated latest_stable 的历史输出类型。"""
+
+    lines = [
+        "# archive manifest",
+        "",
+        "Stage 5C 起，latest_stable 不再平铺保存所有历史阶段图件和报告。",
+        "",
+        "## 不再作为当前主结论平铺保存的内容",
+        "",
+    ]
+    lines.extend(f"- {item}" for item in LEGACY_STABLE_FILES)
+    lines.extend(
+        [
+            "",
+            "完整历史输出仍保存在对应时间戳运行目录；Git 中的 latest_stable 只保留当前精选成果。",
+        ]
+    )
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def export_latest_stable_outputs(
     run_output_dir: Path,
     latest_stable_dir: Path,
@@ -357,26 +369,28 @@ def export_latest_stable_outputs(
 
     copied: list[str] = []
     missing: list[str] = []
-    for filename in SELECTED_FIGURES:
-        _copy_if_exists(
-            run_output_dir / "figures" / filename,
-            latest_stable_dir / "figures" / filename,
-            copied,
-            missing,
-        )
+    for category, filenames in CURATED_FIGURES.items():
+        for filename in filenames:
+            _copy_if_exists(
+                run_output_dir / "figures" / filename,
+                latest_stable_dir / "figures" / category / filename,
+                copied,
+                missing,
+            )
     _copy_if_exists(
         run_output_dir / "animations" / "anim_pseudo_wavefield.gif",
-        latest_stable_dir / "animations" / "anim_pseudo_wavefield.gif",
+        latest_stable_dir / "figures" / "diagnostics" / "anim_pseudo_wavefield.gif",
         copied,
         missing,
     )
-    for filename in SELECTED_REPORTS:
-        _copy_if_exists(
-            run_output_dir / "reports" / filename,
-            latest_stable_dir / "reports" / filename,
-            copied,
-            missing,
-        )
+    for category, filenames in CURATED_REPORTS.items():
+        for filename in filenames:
+            _copy_if_exists(
+                run_output_dir / "reports" / filename,
+                latest_stable_dir / "reports" / category / filename,
+                copied,
+                missing,
+            )
     _copy_if_exists(
         run_output_dir / "metadata" / "meta_run.json",
         latest_stable_dir / "metadata" / "meta_run.json",
@@ -389,6 +403,10 @@ def export_latest_stable_outputs(
         copied,
         missing,
     )
+    _write_latest_stable_readme(latest_stable_dir / "README.md")
+    copied.append(str(latest_stable_dir / "README.md"))
+    _write_archive_manifest(latest_stable_dir / "archive_manifest.md")
+    copied.append(str(latest_stable_dir / "archive_manifest.md"))
     _write_summary(latest_stable_dir / "summary.md", summary_info, copied, missing)
     copied.append(str(latest_stable_dir / "summary.md"))
     return {

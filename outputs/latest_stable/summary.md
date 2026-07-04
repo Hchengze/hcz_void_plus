@@ -2,10 +2,10 @@
 
 ## 本轮信息
 
-- commit id：`f04c949`
-- 任务名称：`Stage 5B 正演技术路线确立 + 分层运动学正演主线 + acoustic2d validation`
-- 运行时间：`2026-07-04T00:36:05`
-- 来源目录：`outputs\stage5b_run_20260704_003514`
+- commit id：`45cdaff`
+- 任务名称：`Stage 5C forward 职责治理 + curated latest_stable + elastic2d validation`
+- 运行时间：`2026-07-04T12:58:06`
+- 来源目录：`outputs\stage5c_run_20260704_125722`
 
 ## 当前近似条件
 
@@ -13,7 +13,7 @@
 - `DAS-like response approximation`
 - active forward engine：`layered_kinematic`
 - available forward engines：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype']`
-- forward modeling stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d designed`
+- forward modeling stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation`
 - `kinematic_surface_response`，不是真实弹性波场模拟
 - Rayleigh 深度权重是 `exp(-h / penetration_depth)` 简化近似，不是严格模态深度核
 
@@ -72,17 +72,24 @@
 - minimum recommended velocity model：`layered`
 - note：分层/非均匀速度仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
-## Stage 5B 正演技术路线
+## Stage 5B/5C 正演技术路线与 elastic2d 验证
 
+- latest_stable_curated：`True`
 - forward_engine_active：`layered_kinematic`
 - forward_engine_available：`['kinematic_baseline', 'layered_kinematic', 'acoustic2d_prototype']`
-- forward_engine_next_required：`elastic2d`
-- forward_modeling_stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d designed`
+- forward_engine_next_required：`elastic2d accuracy/stability hardening + 2.5D multi-section validation`
+- forward_modeling_stage：`F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation`
+- validation_forward_available：`['acoustic2d_prototype', 'elastic2d_prototype']`
 - layered_vs_baseline travel-time RMS residual：`57.07585810059442` ms
 - layered_vs_baseline synthetic relative difference：`1.320055775620881`
 - acoustic2d_prototype_status：CFL stable=`True`，snapshot_count=`6`
-- elastic2d_design_status：`planned_next_core`
-- note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering。
+- elastic2d_prototype_status：`minimal_velocity_stress_validation`
+- rayleigh_validation_status：`False`
+- void_scattering_validation_status：`True`
+- das_gauge_response_status：`generated_from_elastic2d_surface_velocity`
+- elastic_vs_kinematic_main_conclusion：layered/局部 kinematic 曲线能解释 elastic residual 的一部分主要到时，但 elastic2d 还显示振幅、尾波和多路径等运动学模型没有的效应。
+- elastic2d_design_status：`minimal_prototype_available_validation_only`
+- note：`acoustic2d_prototype` 是 acoustic wave-equation infrastructure validation，不能代表 Rayleigh/free-surface/void scattering；`elastic2d_prototype` 是最小科研验证原型，仍不替代主定位 forward。
 
 ## 基础置信度指标
 
@@ -99,67 +106,49 @@
 
 ## 推荐人工重点查看
 
-- figures/fig_geometry_layout_check.png
-- figures/fig_source_anomaly_receiver_path_section.png
-- figures/fig_rayleigh_depth_sensitivity.png
-- figures/fig_shot_gather_000.png
-- figures/fig_diffraction_travel_time_curves.png
-- figures/fig_scan_x_depth_slice.png
-- figures/fig_scan_x_y_slice.png
-- figures/fig_best_location_map.png
-- figures/fig_raw_vs_weighted_best_location.png
-- figures/fig_raw_vs_weighted_x_depth_slice.png
-- figures/fig_y_high_score_width_check.png
-- figures/fig_confidence_diagnostics.png
-- figures/fig_score_method_depth_comparison.png
-- figures/fig_3d_high_score_uncertainty_summary.png
-- figures/fig_x_y_depth_uncertainty_slices.png
-- figures/fig_3d_geometry_overview.png
-- figures/fig_receiver_source_3d_layout.png
-- figures/fig_anomaly_3d_scatter_points.png
-- figures/fig_multi_attribute_score_comparison.png
-- figures/fig_depth_prior_sensitivity.png
-- figures/fig_preprocessing_comparison.png
-- figures/fig_preprocessing_ablation_summary.png
-- figures/fig_fk_spectrum_before_after.png
-- figures/fig_fk_filter_effect_on_gather.png
-- figures/fig_matched_wavelet_score_comparison.png
-- figures/fig_semblance_score_volume_slice.png
-- figures/fig_frequency_shift_attribute.png
-- figures/fig_geometry_ablation_best_locations.png
-- figures/fig_geometry_ablation_uncertainty_spans.png
-- figures/fig_multi_attribute_ablation.png
-- figures/fig_3d_high_score_components.png
-- figures/fig_recommendation_decision_flow.png
-- figures/fig_velocity_model_comparison.png
-- figures/fig_layered_velocity_profile.png
-- figures/fig_velocity_model_travel_time_residuals.png
-- figures/fig_model_mismatch_error_summary.png
-- figures/fig_forward_engine_comparison.png
-- figures/fig_layered_kinematic_vs_baseline_gather.png
-- figures/fig_forward_roadmap_status.png
-- figures/fig_acoustic2d_wavefield_snapshots.png
-- figures/fig_acoustic2d_shot_gather.png
-- animations/anim_pseudo_wavefield.gif
-- reports/report_full_pipeline.md
-- reports/report_confidence.md
-- reports/report_score_method_comparison.md
-- reports/report_depth_prior_sensitivity.md
-- reports/report_preprocessing_ablation.md
-- reports/report_fk_filter_validation.md
-- reports/report_matched_wavelet_validation.md
-- reports/report_semblance_validation.md
-- reports/report_frequency_shift_attribute.md
-- reports/report_geometry_ablation.md
-- reports/report_multi_attribute_ablation.md
-- reports/report_velocity_model_ablation.md
-- reports/report_model_mismatch.md
-- reports/report_forward_engine_ablation.md
-- reports/report_acoustic2d_prototype.md
+- figures/core/fig_geometry_layout_check.png
+- figures/core/fig_shot_gather_000.png
+- figures/core/fig_best_location_map.png
+- figures/core/fig_confidence_diagnostics.png
+- figures/core/fig_forward_roadmap_status.png
+- figures/forward/fig_forward_engine_comparison.png
+- figures/forward/fig_layered_kinematic_vs_baseline_gather.png
+- figures/forward/fig_acoustic2d_wavefield_snapshots.png
+- figures/forward/fig_acoustic2d_shot_gather.png
+- figures/forward/fig_elastic2d_rayleigh_wavefield_snapshots.png
+- figures/forward/fig_elastic2d_surface_gather.png
+- figures/forward/fig_elastic2d_rayleigh_velocity_check.png
+- figures/forward/fig_elastic2d_void_scattering_residual.png
+- figures/forward/fig_elastic2d_void_diffraction_overlay.png
+- figures/forward/fig_elastic2d_das_gauge_response.png
+- figures/forward/fig_elastic_vs_kinematic_overlay.png
+- figures/forward/fig_elastic_vs_kinematic_residual_energy.png
+- figures/localization/fig_scan_x_depth_slice.png
+- figures/localization/fig_scan_x_y_slice.png
+- figures/localization/fig_multi_attribute_ablation.png
+- figures/uncertainty/fig_3d_high_score_components.png
+- figures/uncertainty/fig_x_y_depth_uncertainty_slices.png
+- figures/uncertainty/fig_recommendation_decision_flow.png
+- figures/diagnostics/fig_velocity_model_comparison.png
+- figures/diagnostics/fig_model_mismatch_error_summary.png
+- figures/diagnostics/fig_depth_prior_sensitivity.png
+- figures/diagnostics/anim_pseudo_wavefield.gif
+- reports/core/report_full_pipeline.md
+- reports/core/report_confidence.md
+- reports/forward/report_forward_engine_ablation.md
+- reports/forward/report_acoustic2d_prototype.md
+- reports/forward/report_elastic2d_rayleigh_validation.md
+- reports/forward/report_elastic2d_void_scattering.md
+- reports/forward/report_elastic2d_das_response.md
+- reports/forward/report_elastic_vs_kinematic.md
+- reports/localization/report_multi_attribute_ablation.md
+- reports/localization/report_geometry_ablation.md
+- reports/diagnostics/report_velocity_model_ablation.md
+- reports/diagnostics/report_model_mismatch.md
 
 ## 导出记录
 
-- 已复制精选文件数量：`59`
+- 已复制精选文件数量：`43`
 - 缺失精选文件数量：`0`
 
 ## 当前限制

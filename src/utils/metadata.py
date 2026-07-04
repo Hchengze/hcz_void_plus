@@ -104,7 +104,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5B forward roadmap and layered kinematic engine",
+        "stage": "Stage 5C curated forward outputs and elastic2d validation prototype",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -123,10 +123,12 @@ def build_metadata(
                 "kinematic_baseline",
                 "layered_kinematic",
                 "acoustic2d_prototype",
+                "elastic2d_prototype",
             ],
-            "forward_engine_next_required": "elastic2d",
+            "forward_engine_next_required": "elastic2d accuracy/stability hardening + 2.5D multi-section validation",
             "acoustic2d_prototype_status": "validation_only_not_rayleigh_forward",
-            "elastic2d_design_status": "planned_next_core",
+            "elastic2d_design_status": "minimal_prototype_available_validation_only",
+            "elastic2d_prototype_status": "validation_only_not_default_forward",
             "wavefield_snapshot_type": "kinematic_surface_response_snapshot",
             "surface_response_type": "kinematic_surface_response",
             "is_true_elastic_wavefield": False,

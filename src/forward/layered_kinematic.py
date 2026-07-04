@@ -1,6 +1,6 @@
 """F1 layered / heterogeneous straight-ray kinematic forward。
 
-这是 Stage 5B 的当前稳定正演主线。它仍然是 kinematic approximation，但所有直达
+这是 Stage 5B/5C 的当前稳定正演主线。它仍然是 kinematic approximation，但所有直达
 和散射走时都通过 velocity_model 的路径采样积分接口计算，因此支持 layered、
 lateral_gradient、localized_low_velocity_zone 等近地表等效速度模型。
 """

@@ -1,4 +1,4 @@
-"""Stage 5B full_pipeline：三维定位闭环、分层运动学正演主线与 forward 验证。"""
+"""Stage 5C full_pipeline：三维定位闭环、分层运动学主线与 elastic2d 验证。"""
 
 from __future__ import annotations
 
@@ -33,6 +33,9 @@ from src.validation.forward_engine_ablation import (
     run_forward_engine_ablation,
     strip_forward_engine_ablation_arrays,
 )
+from src.validation.elastic2d_rayleigh_validation import run_elastic2d_rayleigh_validation
+from src.validation.elastic2d_void_scattering import run_elastic2d_void_scattering
+from src.validation.elastic_vs_kinematic import run_elastic_vs_kinematic
 from src.validation.geometry_ablation import run_geometry_ablation
 from src.validation.model_mismatch import run_model_mismatch_experiment
 from src.validation.multi_attribute_ablation import run_multi_attribute_ablation
@@ -41,6 +44,10 @@ from src.validation.reports import (
     write_attribute_validation_report,
     write_fk_filter_validation_report,
     write_acoustic2d_prototype_report,
+    write_elastic2d_das_response_report,
+    write_elastic2d_rayleigh_validation_report,
+    write_elastic2d_void_scattering_report,
+    write_elastic_vs_kinematic_report,
     write_forward_engine_ablation_report,
     write_geometry_ablation_report,
     write_model_mismatch_report,
@@ -74,6 +81,17 @@ from src.visualization.plot_stage5b import (
     plot_forward_engine_comparison,
     plot_forward_roadmap_status,
     plot_layered_kinematic_vs_baseline_gather,
+)
+from src.forward.elastic2d.das_response import build_elastic_das_response
+from src.visualization.plot_elastic2d import (
+    plot_elastic2d_das_gauge_response,
+    plot_elastic2d_rayleigh_velocity_check,
+    plot_elastic2d_rayleigh_wavefield_snapshots,
+    plot_elastic2d_surface_gather,
+    plot_elastic2d_void_diffraction_overlay,
+    plot_elastic2d_void_scattering_residual,
+    plot_elastic_vs_kinematic_overlay,
+    plot_elastic_vs_kinematic_residual_energy,
 )
 
 
@@ -167,9 +185,9 @@ def _write_full_pipeline_report(
 
 本轮新增 layered / lateral_gradient / localized_low_velocity_zone / layered_with_anomaly_perturbation 速度模型，并输出 velocity model ablation 与 model mismatch 报告。分层和非均匀速度会改变绕射走时曲线与扫描结果，但当前仍是 straight-ray kinematic approximation，不是 3D elastic wavefield。
 
-## Stage 5B 正演技术路线
+## Stage 5B/5C 正演技术路线
 
-本轮确立 F0-F6 forward roadmap：F0 `kinematic_baseline` 保留为快速基线；F1 `layered_kinematic` 是当前主定位 forward；F2 `acoustic2d_prototype` 只验证声学波动方程框架；F3 `elastic2d` 是下一步 Rayleigh/free-surface/void scattering 核心；F4-F6 面向多剖面 elastic、小域 3D elastic 和外部 solver adapters。
+Stage 5B 确立 F0-F6 forward roadmap：F0 `kinematic_baseline` 保留为快速基线；F1 `layered_kinematic` 是当前主定位 forward；F2 `acoustic2d_prototype` 只验证声学波动方程框架。Stage 5C 新增 F3 `elastic2d_prototype` 最小 velocity-stress 验证，用于 Rayleigh-like surface event、free-surface 和 void-like scattering 的局部科研检查；F4-F6 面向多剖面 elastic、小域 3D elastic 和外部 solver adapters。
 
 ## 风险提示
 
@@ -313,6 +331,24 @@ def _build_final_metadata(
                 paths["figures"] / "fig_acoustic2d_wavefield_snapshots.png"
             ),
             "acoustic2d_shot_gather_figure": str(paths["figures"] / "fig_acoustic2d_shot_gather.png"),
+            "elastic2d_rayleigh_wavefield_snapshots_figure": str(
+                paths["figures"] / "fig_elastic2d_rayleigh_wavefield_snapshots.png"
+            ),
+            "elastic2d_surface_gather_figure": str(paths["figures"] / "fig_elastic2d_surface_gather.png"),
+            "elastic2d_rayleigh_velocity_check_figure": str(
+                paths["figures"] / "fig_elastic2d_rayleigh_velocity_check.png"
+            ),
+            "elastic2d_void_scattering_residual_figure": str(
+                paths["figures"] / "fig_elastic2d_void_scattering_residual.png"
+            ),
+            "elastic2d_void_diffraction_overlay_figure": str(
+                paths["figures"] / "fig_elastic2d_void_diffraction_overlay.png"
+            ),
+            "elastic2d_das_gauge_response_figure": str(paths["figures"] / "fig_elastic2d_das_gauge_response.png"),
+            "elastic_vs_kinematic_overlay_figure": str(paths["figures"] / "fig_elastic_vs_kinematic_overlay.png"),
+            "elastic_vs_kinematic_residual_energy_figure": str(
+                paths["figures"] / "fig_elastic_vs_kinematic_residual_energy.png"
+            ),
         },
         confidence_info=confidence_metrics,
         score_method_comparison=score_method_comparison,
@@ -320,7 +356,7 @@ def _build_final_metadata(
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "Stage 5B 当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation。",
+            "note": "Stage 5C 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d_prototype 只作 validation。",
         },
         output_info=output_info,
         git_info=git_info,
@@ -357,6 +393,10 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     velocity_model_ablation: dict[str, Any] | None = None
     model_mismatch: dict[str, Any] | None = None
     forward_engine_ablation: dict[str, Any] | None = None
+    elastic2d_rayleigh_validation: dict[str, Any] | None = None
+    elastic2d_void_scattering: dict[str, Any] | None = None
+    elastic2d_das_response: dict[str, Any] | None = None
+    elastic_vs_kinematic: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -661,6 +701,76 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 forward_engine_ablation,
             )
 
+        elastic2d_rayleigh_validation = run_elastic2d_rayleigh_validation(params)
+        elastic2d_void_scattering = run_elastic2d_void_scattering(params)
+        elastic_vs_kinematic = run_elastic_vs_kinematic(params)
+        elastic = elastic2d_rayleigh_validation["elastic_result"]
+        das = build_elastic_das_response(
+            elastic.surface_vx_gather,
+            elastic.surface_vz_gather,
+            elastic.grid.dx_m,
+            params.das_like.gauge_length_m,
+        )
+        point_rms = float(np.sqrt(np.mean(das["point_receiver_gather"] ** 2)))
+        strain_rms = float(np.sqrt(np.mean(das["gauge_length_strain_gather"] ** 2)))
+        elastic2d_das_response = {
+            "point_shape": tuple(int(v) for v in das["point_receiver_gather"].shape),
+            "strain_shape": tuple(int(v) for v in das["gauge_length_strain_gather"].shape),
+            "strain_to_point_rms_ratio": strain_rms / max(point_rms, 1.0e-12),
+            "status": "generated_from_elastic2d_surface_velocity",
+        }
+        if params.output.save_figures:
+            plot_elastic2d_rayleigh_wavefield_snapshots(
+                elastic2d_rayleigh_validation,
+                paths["figures"] / "fig_elastic2d_rayleigh_wavefield_snapshots.png",
+            )
+            plot_elastic2d_surface_gather(
+                elastic2d_rayleigh_validation,
+                paths["figures"] / "fig_elastic2d_surface_gather.png",
+            )
+            plot_elastic2d_rayleigh_velocity_check(
+                elastic2d_rayleigh_validation,
+                paths["figures"] / "fig_elastic2d_rayleigh_velocity_check.png",
+            )
+            plot_elastic2d_void_scattering_residual(
+                elastic2d_void_scattering,
+                paths["figures"] / "fig_elastic2d_void_scattering_residual.png",
+            )
+            plot_elastic2d_void_diffraction_overlay(
+                elastic2d_void_scattering,
+                paths["figures"] / "fig_elastic2d_void_diffraction_overlay.png",
+            )
+            plot_elastic2d_das_gauge_response(
+                elastic2d_rayleigh_validation,
+                params.das_like.gauge_length_m,
+                paths["figures"] / "fig_elastic2d_das_gauge_response.png",
+            )
+            plot_elastic_vs_kinematic_overlay(
+                elastic_vs_kinematic,
+                paths["figures"] / "fig_elastic_vs_kinematic_overlay.png",
+            )
+            plot_elastic_vs_kinematic_residual_energy(
+                elastic_vs_kinematic,
+                paths["figures"] / "fig_elastic_vs_kinematic_residual_energy.png",
+            )
+        if params.output.save_report:
+            write_elastic2d_rayleigh_validation_report(
+                paths["reports"] / "report_elastic2d_rayleigh_validation.md",
+                elastic2d_rayleigh_validation,
+            )
+            write_elastic2d_void_scattering_report(
+                paths["reports"] / "report_elastic2d_void_scattering.md",
+                elastic2d_void_scattering,
+            )
+            write_elastic2d_das_response_report(
+                paths["reports"] / "report_elastic2d_das_response.md",
+                elastic2d_das_response,
+            )
+            write_elastic_vs_kinematic_report(
+                paths["reports"] / "report_elastic_vs_kinematic.md",
+                elastic_vs_kinematic,
+            )
+
         _write_full_pipeline_report(
             params,
             forward_result["paths"]["reports"] / "report_full_pipeline.md",
@@ -688,6 +798,38 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         }
         stage5b_validation = {
             "forward_engine_ablation": strip_forward_engine_ablation_arrays(forward_engine_ablation),
+            "elastic2d_rayleigh_validation": {
+                key: value
+                for key, value in (elastic2d_rayleigh_validation or {}).items()
+                if key not in {"params", "elastic_result"}
+            },
+            "elastic2d_void_scattering": {
+                key: value
+                for key, value in (elastic2d_void_scattering or {}).items()
+                if key
+                not in {
+                    "params",
+                    "background_result",
+                    "anomaly_result",
+                    "residual_gather",
+                    "residual_envelope",
+                    "kinematic_curve_s",
+                }
+            },
+            "elastic2d_das_response": elastic2d_das_response,
+            "elastic_vs_kinematic": {
+                key: value
+                for key, value in (elastic_vs_kinematic or {}).items()
+                if key
+                not in {
+                    "params",
+                    "background_result",
+                    "anomaly_result",
+                    "residual_gather",
+                    "residual_envelope",
+                    "kinematic_curve_s",
+                }
+            },
         }
         _build_final_metadata(
             params,
@@ -705,7 +847,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         if params.output.export_latest_stable:
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
-                "task_name": "Stage 5B 正演技术路线确立 + 分层运动学正演主线 + acoustic2d validation",
+                "task_name": "Stage 5C forward 职责治理 + curated latest_stable + elastic2d validation",
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
                 "forward_engine_active": params.forward.engine,
@@ -714,10 +856,21 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                     "layered_kinematic",
                     "acoustic2d_prototype",
                 ],
-                "forward_engine_next_required": "elastic2d",
-                "forward_modeling_stage": "F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d designed",
+                "forward_engine_next_required": "elastic2d accuracy/stability hardening + 2.5D multi-section validation",
+                "forward_modeling_stage": "F1 layered_kinematic active, F2 acoustic2d validation, F3 elastic2d_prototype validation",
+                "latest_stable_curated": True,
+                "validation_forward_available": ["acoustic2d_prototype", "elastic2d_prototype"],
                 "acoustic2d_prototype_status": "validation_only_not_rayleigh_forward",
-                "elastic2d_design_status": "planned_next_core",
+                "elastic2d_design_status": "minimal_prototype_available_validation_only",
+                "elastic2d_prototype_status": "minimal_velocity_stress_validation",
+                "rayleigh_validation_status": (elastic2d_rayleigh_validation or {}).get(
+                    "rayleigh_like_event_detected"
+                ),
+                "void_scattering_validation_status": (elastic2d_void_scattering or {}).get(
+                    "void_residual_visible"
+                ),
+                "das_gauge_response_status": (elastic2d_das_response or {}).get("status"),
+                "elastic_vs_kinematic_main_conclusion": (elastic_vs_kinematic or {}).get("main_conclusion"),
                 "best_location": scan_result["best_location"],
                 "raw_best_location": scan_result["raw_best_location"],
                 "unweighted_best_location": scan_result["unweighted_best_location"],
@@ -754,5 +907,9 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["velocity_model_ablation"] = velocity_model_ablation
     result["model_mismatch"] = model_mismatch
     result["forward_engine_ablation"] = forward_engine_ablation
+    result["elastic2d_rayleigh_validation"] = elastic2d_rayleigh_validation
+    result["elastic2d_void_scattering"] = elastic2d_void_scattering
+    result["elastic2d_das_response"] = elastic2d_das_response
+    result["elastic_vs_kinematic"] = elastic_vs_kinematic
     result["stable_export_info"] = stable_export_info
     return result

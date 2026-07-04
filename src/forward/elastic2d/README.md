@@ -1,6 +1,6 @@
 # elastic2d planned forward
 
-本目录是 Stage 5B 建立的 2D elastic 正演技术设计区。当前不会实现完整 elastic2d solver，也不会把 acoustic2d prototype 误写成 Rayleigh 波正演。
+本目录是 Stage 5C 建立的 2D elastic velocity-stress 科研验证原型区。当前实现是最小 collocated-grid prototype，不是完整工业级 elastic solver，也不会把 acoustic2d prototype 误写成 Rayleigh 波正演。
 
 后续实现应包含：
 
@@ -15,4 +15,4 @@
 9. wavefield snapshots、shot gather 和 DAS-like strain gather；
 10. Rayleigh 传播速度、分层模型和空洞散射验证。
 
-当前主定位 forward 仍是 `layered_kinematic`，elastic2d 是下一步核心局部物理验证方向。
+当前主定位 forward 仍是 `layered_kinematic`，`elastic2d_prototype` 只作为 Rayleigh-like/free-surface/void-like scattering 的局部物理验证起点。后续需要继续加固自由表面、PML、数值色散和 2.5D 多剖面验证。

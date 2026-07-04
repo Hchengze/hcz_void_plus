@@ -38,11 +38,14 @@ def test_export_latest_stable_outputs_creates_curated_directory(tmp_path):
     )
 
     assert latest.exists()
-    assert (latest / "figures" / "fig_geometry_layout_check.png").exists()
-    assert (latest / "figures" / "fig_confidence_diagnostics.png").exists()
+    assert (latest / "README.md").exists()
+    assert (latest / "archive_manifest.md").exists()
+    assert (latest / "figures" / "core" / "fig_geometry_layout_check.png").exists()
+    assert (latest / "figures" / "core" / "fig_confidence_diagnostics.png").exists()
     assert not (latest / "figures" / "unselected_extra.png").exists()
+    assert len(list((latest / "figures").glob("*.png"))) == 0
     assert not (latest / "arrays").exists()
-    assert (latest / "reports" / "report_confidence.md").exists()
+    assert (latest / "reports" / "core" / "report_confidence.md").exists()
     assert (latest / "metadata" / "meta_run.json").exists()
     assert (latest / "metadata" / "meta_params_snapshot.json").exists()
     assert (latest / "summary.md").exists()

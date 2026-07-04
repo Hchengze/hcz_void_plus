@@ -168,6 +168,14 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_forward_roadmap_status.png").exists()
     assert (output_dir / "figures" / "fig_acoustic2d_wavefield_snapshots.png").exists()
     assert (output_dir / "figures" / "fig_acoustic2d_shot_gather.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_rayleigh_wavefield_snapshots.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_surface_gather.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_rayleigh_velocity_check.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_void_scattering_residual.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_void_diffraction_overlay.png").exists()
+    assert (output_dir / "figures" / "fig_elastic2d_das_gauge_response.png").exists()
+    assert (output_dir / "figures" / "fig_elastic_vs_kinematic_overlay.png").exists()
+    assert (output_dir / "figures" / "fig_elastic_vs_kinematic_residual_energy.png").exists()
     assert (output_dir / "reports" / "report_confidence.md").exists()
     assert (output_dir / "reports" / "report_preprocessing_ablation.md").exists()
     assert (output_dir / "reports" / "report_fk_filter_validation.md").exists()
@@ -180,52 +188,40 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "reports" / "report_model_mismatch.md").exists()
     assert (output_dir / "reports" / "report_forward_engine_ablation.md").exists()
     assert (output_dir / "reports" / "report_acoustic2d_prototype.md").exists()
+    assert (output_dir / "reports" / "report_elastic2d_rayleigh_validation.md").exists()
+    assert (output_dir / "reports" / "report_elastic2d_void_scattering.md").exists()
+    assert (output_dir / "reports" / "report_elastic2d_das_response.md").exists()
+    assert (output_dir / "reports" / "report_elastic_vs_kinematic.md").exists()
     assert (output_dir / "arrays" / "arr_confidence_metrics.json").exists()
     latest_stable = tmp_path / "latest_stable"
     assert latest_stable.exists()
+    assert (latest_stable / "README.md").exists()
+    assert (latest_stable / "archive_manifest.md").exists()
     assert (latest_stable / "summary.md").exists()
-    assert (latest_stable / "figures" / "fig_geometry_layout_check.png").exists()
-    assert (latest_stable / "figures" / "fig_confidence_diagnostics.png").exists()
-    assert (latest_stable / "figures" / "fig_raw_vs_weighted_best_location.png").exists()
-    assert (latest_stable / "figures" / "fig_raw_vs_weighted_x_depth_slice.png").exists()
-    assert (latest_stable / "figures" / "fig_y_high_score_width_check.png").exists()
-    assert (latest_stable / "figures" / "fig_score_method_depth_comparison.png").exists()
-    assert (latest_stable / "figures" / "fig_3d_high_score_uncertainty_summary.png").exists()
-    assert (latest_stable / "figures" / "fig_x_y_depth_uncertainty_slices.png").exists()
-    assert (latest_stable / "figures" / "fig_preprocessing_ablation_summary.png").exists()
-    assert (latest_stable / "figures" / "fig_fk_spectrum_before_after.png").exists()
-    assert (latest_stable / "figures" / "fig_fk_filter_effect_on_gather.png").exists()
-    assert (latest_stable / "figures" / "fig_matched_wavelet_score_comparison.png").exists()
-    assert (latest_stable / "figures" / "fig_semblance_score_volume_slice.png").exists()
-    assert (latest_stable / "figures" / "fig_frequency_shift_attribute.png").exists()
-    assert (latest_stable / "figures" / "fig_geometry_ablation_best_locations.png").exists()
-    assert (latest_stable / "figures" / "fig_geometry_ablation_uncertainty_spans.png").exists()
-    assert (latest_stable / "figures" / "fig_multi_attribute_ablation.png").exists()
-    assert (latest_stable / "figures" / "fig_3d_high_score_components.png").exists()
-    assert (latest_stable / "figures" / "fig_recommendation_decision_flow.png").exists()
-    assert (latest_stable / "figures" / "fig_velocity_model_comparison.png").exists()
-    assert (latest_stable / "figures" / "fig_layered_velocity_profile.png").exists()
-    assert (latest_stable / "figures" / "fig_velocity_model_travel_time_residuals.png").exists()
-    assert (latest_stable / "figures" / "fig_model_mismatch_error_summary.png").exists()
-    assert (latest_stable / "figures" / "fig_forward_engine_comparison.png").exists()
-    assert (latest_stable / "figures" / "fig_layered_kinematic_vs_baseline_gather.png").exists()
-    assert (latest_stable / "figures" / "fig_forward_roadmap_status.png").exists()
-    assert (latest_stable / "figures" / "fig_acoustic2d_wavefield_snapshots.png").exists()
-    assert (latest_stable / "figures" / "fig_acoustic2d_shot_gather.png").exists()
-    assert (latest_stable / "reports" / "report_full_pipeline.md").exists()
-    assert (latest_stable / "reports" / "report_confidence.md").exists()
-    assert (latest_stable / "reports" / "report_score_method_comparison.md").exists()
-    assert (latest_stable / "reports" / "report_preprocessing_ablation.md").exists()
-    assert (latest_stable / "reports" / "report_fk_filter_validation.md").exists()
-    assert (latest_stable / "reports" / "report_matched_wavelet_validation.md").exists()
-    assert (latest_stable / "reports" / "report_semblance_validation.md").exists()
-    assert (latest_stable / "reports" / "report_frequency_shift_attribute.md").exists()
-    assert (latest_stable / "reports" / "report_geometry_ablation.md").exists()
-    assert (latest_stable / "reports" / "report_multi_attribute_ablation.md").exists()
-    assert (latest_stable / "reports" / "report_velocity_model_ablation.md").exists()
-    assert (latest_stable / "reports" / "report_model_mismatch.md").exists()
-    assert (latest_stable / "reports" / "report_forward_engine_ablation.md").exists()
-    assert (latest_stable / "reports" / "report_acoustic2d_prototype.md").exists()
+    assert len(list((latest_stable / "figures").glob("*.png"))) == 0
+    assert (latest_stable / "figures" / "core" / "fig_geometry_layout_check.png").exists()
+    assert (latest_stable / "figures" / "core" / "fig_confidence_diagnostics.png").exists()
+    assert (latest_stable / "figures" / "core" / "fig_forward_roadmap_status.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_forward_engine_comparison.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_layered_kinematic_vs_baseline_gather.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_acoustic2d_wavefield_snapshots.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_acoustic2d_shot_gather.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_wavefield_snapshots.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_elastic2d_void_scattering_residual.png").exists()
+    assert (latest_stable / "figures" / "forward" / "fig_elastic_vs_kinematic_overlay.png").exists()
+    assert (latest_stable / "figures" / "localization" / "fig_scan_x_depth_slice.png").exists()
+    assert (latest_stable / "figures" / "uncertainty" / "fig_3d_high_score_components.png").exists()
+    assert (latest_stable / "figures" / "diagnostics" / "fig_velocity_model_comparison.png").exists()
+    assert (latest_stable / "reports" / "core" / "report_full_pipeline.md").exists()
+    assert (latest_stable / "reports" / "core" / "report_confidence.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_forward_engine_ablation.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_acoustic2d_prototype.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_elastic2d_rayleigh_validation.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_elastic2d_void_scattering.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_elastic2d_das_response.md").exists()
+    assert (latest_stable / "reports" / "forward" / "report_elastic_vs_kinematic.md").exists()
+    assert (latest_stable / "reports" / "localization" / "report_multi_attribute_ablation.md").exists()
+    assert (latest_stable / "reports" / "diagnostics" / "report_velocity_model_ablation.md").exists()
     assert (latest_stable / "metadata" / "meta_run.json").exists()
     metadata = json.loads((output_dir / "metadata" / "meta_run.json").read_text(encoding="utf-8"))
     assert metadata["physics"]["rayleigh_depth_sensitivity_enabled"] is True
@@ -250,8 +246,15 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["stage5a_validation"]["velocity_model_ablation"] is not None
     assert metadata["stage5a_validation"]["model_mismatch"] is not None
     assert metadata["stage5b_validation"]["forward_engine_ablation"] is not None
+    assert metadata["stage5b_validation"]["elastic2d_rayleigh_validation"] is not None
+    assert metadata["stage5b_validation"]["elastic2d_void_scattering"] is not None
+    assert metadata["stage5b_validation"]["elastic2d_das_response"] is not None
+    assert metadata["stage5b_validation"]["elastic_vs_kinematic"] is not None
     assert metadata["approximation"]["forward_engine"] == "layered_kinematic"
-    assert metadata["approximation"]["forward_engine_next_required"] == "elastic2d"
+    assert (
+        metadata["approximation"]["forward_engine_next_required"]
+        == "elastic2d accuracy/stability hardening + 2.5D multi-section validation"
+    )
     summary_text = (latest_stable / "summary.md").read_text(encoding="utf-8")
     assert "unweighted_best" in summary_text
     assert "weighted_best" in summary_text
@@ -260,8 +263,12 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert "3D high-score span" in summary_text
     assert "Stage 4B" in summary_text
     assert "Stage 5A" in summary_text
-    assert "Stage 5B" in summary_text
+    assert "Stage 5B/5C" in summary_text
+    assert "Stage 5C" in summary_text
     assert "forward_engine_active" in summary_text
+    assert "latest_stable_curated" in summary_text
     assert "acoustic2d_prototype_status" in summary_text
+    assert "elastic2d_prototype_status" in summary_text
+    assert "elastic_vs_kinematic_main_conclusion" in summary_text
     assert "velocity ablation" in summary_text
     assert "multi_attribute improved over energy" in summary_text

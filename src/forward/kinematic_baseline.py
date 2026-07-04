@@ -1,7 +1,7 @@
 """F0 kinematic baseline forward。
 
 F0 是项目最早的快速正演基线：直达事件与 source-scatter-receiver 等效散射事件
-叠加 Ricker 子波。Stage 5B 后，F0 只作为快速基线和回归测试保留，不能被描述为
+叠加 Ricker 子波。Stage 5B/5C 后，F0 只作为快速基线和回归测试保留，不能被描述为
 真实 DAS 仪器正演或真实 Rayleigh 波全波场模拟。
 """
 
@@ -30,7 +30,7 @@ def run_kinematic_baseline_forward(
 
     说明：
         该函数显式构造 UniformVelocityModel，只用于 baseline 对比。主流程默认不应
-        依赖它作为当前最佳正演能力；Stage 5B 的稳定主线是 layered_kinematic。
+        依赖它作为当前最佳正演能力；Stage 5B/5C 的稳定主线是 layered_kinematic。
     """
 
     velocity_model = UniformVelocityModel(params.velocity.rayleigh_velocity_mps)

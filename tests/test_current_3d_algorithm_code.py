@@ -17,11 +17,12 @@ def test_current_3d_algorithm_directory_exists():
 
 def test_stable_api_reports_current_algorithm_line():
     summary = get_current_algorithm_summary()
-    assert summary["stage"] == "Stage 5B"
+    assert summary["stage"] == "Stage 5C"
     assert summary["velocity_default"] == "layered"
     assert summary["main_localization"] == "multi_attribute_unweighted"
     assert summary["stable_forward_engine"] == "layered_kinematic"
-    assert summary["planned_physics_forward"] == "elastic2d"
+    assert "elastic2d_prototype" in summary["available_validation_forward"]
+    assert summary["planned_physics_forward"] == "elastic2d accuracy/stability hardening + 2.5D multi-section validation"
     assert summary["not_engineering_diagnosis"] is True
 
 

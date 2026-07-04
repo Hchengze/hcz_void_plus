@@ -1,6 +1,6 @@
 # 正演技术路线图
 
-本文件是 Stage 5B 的正演主线约束。项目面向城市道路既有通信光纤 DAS-like 三维空洞探测，但当前主流程仍是科研原型，不是工程确诊系统。所有阶段都必须明确物理假设、输入输出和不能宣称的内容。
+本文件是 Stage 5B/5C 的正演主线约束。项目面向城市道路既有通信光纤 DAS-like 三维空洞探测，但当前主流程仍是科研原型，不是工程确诊系统。所有阶段都必须明确物理假设、输入输出和不能宣称的内容。
 
 ## F0：kinematic baseline forward
 
@@ -28,11 +28,11 @@
 
 ## F3：2D elastic velocity-stress FDTD prototype
 
-- 目标能力：二维 velocity-stress elastic wave equation、`Vp / Vs / rho`、自由表面、PML 或 sponge 边界、vertical force 震源、surface displacement/velocity 接收和 DAS-like gauge-length strain。
-- 设计位置：`docs/elastic2d_forward_design.md`、`src/forward/elastic2d/README.md`。
+- 当前能力：最小 collocated-grid velocity-stress elastic prototype，状态量包括 `vx / vz / sxx / szz / sxz`，介质参数包括 `Vp / Vs / rho / lambda / mu`，支持 Ricker vertical force、surface receiver line、sponge boundary、近似 free surface、surface gather、wavefield snapshots、CFL 检查和 low-Vs void-like anomaly。
+- 实现位置：`src/forward/elastic2d/`、`src/validation/elastic2d_rayleigh_validation.py`、`src/validation/elastic2d_void_scattering.py`、`src/validation/elastic_vs_kinematic.py`。
 - 物理目的：进入 Rayleigh/free-surface/void scattering 的核心局部全波场验证。
-- 边界：下一阶段也应先做小域科研验证，不应直接宣称工业级 2D/3D 弹性模拟。
-- 稳定区状态：planned physics forward。
+- 边界：当前仍是小域科研验证，不应宣称工业级 2D/3D 弹性模拟；collocated-grid、近似自由表面和 sponge boundary 都需要后续加固。
+- 稳定区状态：validation forward available，不作为默认定位数据。
 
 ## F4：2.5D / multi-section elastic validation
 
@@ -55,4 +55,4 @@
 
 ## 当前结论
 
-Stage 5B 的 active forward engine 是 `layered_kinematic`。`kinematic_baseline` 只保留为 F0 快速基线；`acoustic2d_prototype` 是 F2 波动方程基础设施验证；`elastic2d` 是下一步 Rayleigh/free-surface/void scattering 的核心方向。当前结果仍应表达为科研候选区和三维不确定性体，不是工程确诊。
+Stage 5C 的 active forward engine 仍是 `layered_kinematic`。`kinematic_baseline` 只保留为 F0 快速基线；`acoustic2d_prototype` 是 F2 波动方程基础设施验证；`elastic2d_prototype` 是 F3 局部物理验证起点。当前结果仍应表达为科研候选区和三维不确定性体，不是工程确诊。

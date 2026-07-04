@@ -305,3 +305,92 @@ def write_acoustic2d_prototype_report(path: Path, result: dict[str, Any]) -> Non
         "- 不能替代 `layered_kinematic` 主流程，也不能替代下一步 `elastic2d`。",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_elastic2d_rayleigh_validation_report(path: Path, result: dict[str, Any]) -> None:
+    """写出 elastic2d Rayleigh-like sanity check 报告。"""
+
+    lines = [
+        "# elastic2d Rayleigh/free-surface 验证报告",
+        "",
+        "本报告基于最小 collocated-grid velocity-stress elastic2d prototype。它是局部物理验证起点，不是工业级 elastic 模拟。",
+        "",
+        f"- CFL stable：`{result['cfl_info']['stable']}`。",
+        f"- CFL number：`{result['cfl_info']['cfl_number']:.4g}`。",
+        f"- estimated surface velocity：`{result['estimated_surface_velocity_mps']:.4g}` m/s。",
+        f"- expected sanity range：`{result['expected_rayleigh_like_range_mps']}` m/s。",
+        f"- rayleigh_like_event_detected：`{result['rayleigh_like_event_detected']}`。",
+        f"- estimation method：`{result['velocity_estimation_method']}`。",
+        "",
+        "## 边界",
+        "",
+        "- 顶部自由表面为近似 traction-free 处理。",
+        "- 当前格式是 collocated-grid minimal prototype，精度和稳定性不等同于 staggered-grid/PML 工业实现。",
+        "- 该结果只能说明出现 Rayleigh-like surface event 的 sanity check，不能作为工程级 Rayleigh 正演。",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_elastic2d_void_scattering_report(path: Path, result: dict[str, Any]) -> None:
+    """写出 elastic2d void-like scattering 报告。"""
+
+    lines = [
+        "# elastic2d void / low Vs scattering 报告",
+        "",
+        "本报告比较背景模型和低 Vp/低 Vs/低密度 void-like 扰动模型的 surface gather。",
+        "",
+        f"- residual_energy：`{result['residual_energy']:.4g}`。",
+        f"- relative_residual_energy：`{result['relative_residual_energy']:.4g}`。",
+        f"- void_residual_visible：`{result['void_residual_visible']}`。",
+        f"- scatter center：x=`{result['scatter_x_m']:.4g}` m, z=`{result['scatter_z_m']:.4g}` m。",
+        "",
+        "## 解释",
+        "",
+        "- 低速扰动可产生可见 residual，但它不是严格空腔边界条件。",
+        "- residual envelope 会与局部 kinematic diffraction curve 做叠加，检查运动学走时在哪些位置仍有解释力。",
+        "- elastic2d 会出现振幅、频率、尾波和多路径等运动学模型没有的效应。",
+        "- 下一步需要更严格 free surface、PML 和 staggered-grid 精度硬化。",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_elastic2d_das_response_report(path: Path, result: dict[str, Any]) -> None:
+    """写出 elastic2d DAS-like gauge response 报告。"""
+
+    lines = [
+        "# elastic2d DAS-like gauge response 报告",
+        "",
+        "本报告从 elastic2d surface velocity 近似派生 point receiver 和 gauge-length strain 响应。",
+        "",
+        "- point_receiver_gather 使用 surface vz。",
+        "- gauge_length_strain_gather 使用 surface vx 沿 x 方向的 gauge-length finite difference。",
+        "- gauge length 会改变局部散射响应，短波长事件可能被增强或削弱。",
+        "- point receiver 和 DAS-like strain 不能混为一谈。",
+        "- 后续三维 receiver polyline 应沿局部切向方向计算 strain。",
+        "",
+        f"- point shape：`{result['point_shape']}`。",
+        f"- strain shape：`{result['strain_shape']}`。",
+        f"- strain_rms / point_rms：`{result['strain_to_point_rms_ratio']:.4g}`。",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_elastic_vs_kinematic_report(path: Path, result: dict[str, Any]) -> None:
+    """写出 elastic2d 与 kinematic 对照报告。"""
+
+    lines = [
+        "# elastic2d 与 layered_kinematic 对照报告",
+        "",
+        "本报告把 elastic2d residual gather 与局部 kinematic diffraction curve 叠加，检查运动学走时对 elastic residual 的解释能力。",
+        "",
+        f"- curve_energy_ratio：`{result['curve_energy_ratio']:.4g}`。",
+        f"- main conclusion：{result['main_conclusion']}",
+        "",
+        "## 结论边界",
+        "",
+        "- layered_kinematic 曲线可解释部分主要到时，但不能解释完整振幅、频率、尾波和多路径。",
+        "- x-y-h 三维定位仍可继续使用 kinematic 主线做快速候选区扫描。",
+        "- 深度、横向 y、振幅和频率解释必须等 elastic validation 更成熟后再推进。",
+        "- 当前结果是科研候选区，不是工程确诊。",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")

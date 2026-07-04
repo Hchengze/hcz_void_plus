@@ -17,8 +17,8 @@ def elastic2d_status() -> dict[str, object]:
 
     return {
         "stage": "F3",
-        "status": "planned",
-        "next_required": "2D velocity-stress elastic FDTD prototype",
+        "status": "minimal_prototype_available",
+        "next_required": "elastic2d accuracy/stability hardening",
         "purpose": "Rayleigh/free-surface/void scattering 局部全波场验证",
-        "implemented_solver": False,
+        "implemented_solver": True,
     }

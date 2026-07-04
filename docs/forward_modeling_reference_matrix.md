@@ -16,4 +16,4 @@
 1. 参考项目只提供结构和物理思路，不无许可证复制实现。
 2. 引入任何外部 solver 前必须写明物理假设、输入输出、适用范围和限制。
 3. 进入 `code/current_3d_algorithm/` 的只能是当前稳定主线或明确的 roadmap，不包含未经验证的大型第三方代码。
-4. 当前真正进入主流程的是 F1 `layered_kinematic`；F2 `acoustic2d_prototype` 只做 validation；F3 `elastic2d` 是下一步核心设计。
+4. 当前真正进入主流程的是 F1 `layered_kinematic`；F2 `acoustic2d_prototype` 只做 validation；F3 `elastic2d_prototype` 已是最小科研验证原型，下一步是精度和稳定性硬化。

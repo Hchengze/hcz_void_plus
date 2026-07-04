@@ -6,7 +6,7 @@ def test_argparse_defaults_can_parse():
     params = args_to_params(args)
 
     assert params.project.task == "debug"
-    assert params.project.run_name == "stage5b_run"
+    assert params.project.run_name == "stage5c_run"
     assert params.fiber.channel_count >= 2
     assert params.source.shot_count >= 1
     assert params.derived.nt == len(params.derived.time_axis)
@@ -33,6 +33,13 @@ def test_argparse_defaults_can_parse():
     assert params.forward.acoustic2d_nx == 201
     assert params.forward.acoustic2d_nz == 101
     assert params.forward.acoustic2d_snapshot_count == 6
+    assert params.forward.elastic2d_enabled is False
+    assert params.forward.elastic2d_nx == 201
+    assert params.forward.elastic2d_nz == 101
+    assert params.forward.elastic2d_snapshot_count == 6
+    assert params.forward.elastic2d_vp_mps == 500.0
+    assert params.forward.elastic2d_vs_mps == 250.0
+    assert params.forward.elastic2d_void_enabled is True
     assert params.velocity.model_type == "layered"
     assert params.velocity.layer_depths_m == [0.3, 1.0, 3.0, 8.0]
     assert params.velocity.layer_rayleigh_velocities_mps == [120.0, 180.0, 260.0, 350.0]
@@ -71,12 +78,23 @@ def test_stage2_visualization_parameter_validation():
         ["--raw-weighted-depth-diff-warning-m", "0"],
         ["--raw-weighted-location-diff-warning-m", "0"],
         ["--forward-engine", "acoustic2d_prototype"],
+        ["--forward-engine", "elastic2d_prototype"],
         ["--acoustic2d-nx", "19"],
         ["--acoustic2d-nz", "19"],
         ["--acoustic2d-dx-m", "0"],
         ["--acoustic2d-dz-m", "0"],
         ["--acoustic2d-duration-s", "0"],
         ["--acoustic2d-snapshot-count", "0"],
+        ["--elastic2d-nx", "19"],
+        ["--elastic2d-nz", "19"],
+        ["--elastic2d-dx-m", "0"],
+        ["--elastic2d-dz-m", "0"],
+        ["--elastic2d-duration-s", "0"],
+        ["--elastic2d-snapshot-count", "0"],
+        ["--elastic2d-vp-mps", "100", "--elastic2d-vs-mps", "100"],
+        ["--elastic2d-rho-kgm3", "0"],
+        ["--elastic2d-void-radius-m", "0"],
+        ["--elastic2d-void-vs-factor", "0"],
     ):
         try:
             args_to_params(parse_arguments(bad_args))

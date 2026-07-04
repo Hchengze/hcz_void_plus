@@ -1,6 +1,6 @@
 """正演引擎注册表。
 
-Stage 5B 将 forward modeling 单独确立为主线。所有正演入口通过本注册表管理，
+Stage 5B/5C 将 forward modeling 单独确立为主线。所有正演入口通过本注册表管理，
 避免 pipeline 随意调用旧函数、混淆 kinematic baseline、layered kinematic 和
 wave-equation prototype。
 """
@@ -56,6 +56,14 @@ FORWARD_ENGINES: dict[str, ForwardEngineSpec] = {
         is_default_localization_forward=False,
         description="二维标量 acoustic FDTD prototype，用于波动方程框架验证。",
         limitation="不能真实模拟 Rayleigh/free-surface/void scattering，不作为默认定位数据。",
+    ),
+    "elastic2d_prototype": ForwardEngineSpec(
+        name="elastic2d_prototype",
+        stage="F3",
+        runner=None,
+        is_default_localization_forward=False,
+        description="二维 velocity-stress elastic prototype，用于 Rayleigh/free-surface/void scattering 局部验证。",
+        limitation="最小科研验证原型，不是工业级 elastic 模拟，不作为默认定位数据。",
     ),
 }
 

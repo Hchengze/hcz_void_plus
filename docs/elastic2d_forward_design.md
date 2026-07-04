@@ -1,6 +1,6 @@
 # 2D Elastic 正演设计
 
-`elastic2d` 是 Stage 5B 后下一阶段 Rayleigh/free-surface/void scattering 的核心局部全波场方向。本文件是设计约束，不代表当前已经完成工业级 elastic solver。
+`elastic2d_prototype` 是 Stage 5C 引入的 Rayleigh/free-surface/void scattering 局部物理验证起点。本文件同时记录设计约束和当前最小实现边界：它不是工业级 elastic solver，也不替代三维主定位流程。
 
 ## 方程
 
@@ -33,4 +33,14 @@
 
 ## 当前边界
 
-当前 Stage 5B 没有实现完整 elastic2d solver。`src/forward/elastic2d/` 只提供设计文档和占位入口，避免后续开发继续绕回单纯 kinematic warning。
+当前 Stage 5C 已实现最小 collocated-grid velocity-stress prototype，状态量包括 `vx / vz / sxx / szz / sxz`，介质参数包括 `Vp / Vs / rho / lambda / mu`。该原型支持 Ricker vertical force、surface receiver line、sponge boundary、近似 free surface、surface gather、wavefield snapshots、CFL 检查和低速 void-like 扰动。
+
+该实现仅用于科研验证：
+
+- collocated-grid 数值精度有限；
+- 顶部 free surface 是近似处理；
+- sponge boundary 不是严格 PML；
+- void-like anomaly 是低速/低密度扰动，不是真实空洞边界条件；
+- DAS-like gauge strain 是由 surface velocity 的有限差分近似，不是真实仪器响应。
+
+下一步应优先加固数值稳定性、自由表面处理、PML、Rayleigh 速度验证和 2.5D 多剖面验证，而不是直接宣称 full 3D elastic 能力。
