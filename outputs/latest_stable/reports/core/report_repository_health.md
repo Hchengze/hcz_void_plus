@@ -1,7 +1,7 @@
 # repository health 报告
 
-- 当前 HEAD commit：`3310520`
-- latest_stable summary commit：`3310520`
+- 当前 HEAD commit：`90c0bd3`
+- latest_stable summary commit：`90c0bd3`
 - latest_stable 是否为 Stage 5E：`True`
 - latest_stable 是否仍包含 Stage 5D 历史说明：`True`
 - figures 根目录 PNG 数量：`0`
@@ -36,11 +36,11 @@
 | `src/forward/acoustic2d/acoustic_fdtd.py` | 88 | 0 | 107 | True |
 | `src/forward/forward_registry.py` | 102 | 0 | 107 | True |
 | `code/current_3d_algorithm/stable_api.py` | 76 | 0 | 123 | True |
-| `outputs/latest_stable/summary.md` | 226 | 0 | 718 | True |
+| `outputs/latest_stable/summary.md` | 228 | 0 | 718 | True |
 | `outputs/latest_stable/reports/core/report_confidence.md` | 64 | 0 | 362 | True |
 | `outputs/latest_stable/reports/core/report_figure_self_check.md` | 64 | 0 | 66 | True |
 | `outputs/latest_stable/reports/core/report_full_pipeline.md` | 73 | 0 | 362 | True |
-| `outputs/latest_stable/reports/core/report_repository_health.md` | 62 | 0 | 110 | True |
+| `outputs/latest_stable/reports/core/report_repository_health.md` | 63 | 0 | 110 | True |
 | `outputs/latest_stable/reports/core/report_scientific_figure_self_check.md` | 33 | 0 | 72 | True |
 | `outputs/latest_stable/reports/diagnostics/report_model_mismatch.md` | 19 | 0 | 164 | True |
 | `outputs/latest_stable/reports/diagnostics/report_velocity_model_ablation.md` | 20 | 0 | 119 | True |
