@@ -4,8 +4,8 @@
 
 - stage = Stage 5I
 - previous_stage = Stage 5H
-- algorithm_commit = `a202fee`
-- latest_stable_commit = `generated_from_algorithm_commit`
+- algorithm_commit = `f22cc22`
+- latest_stable_commit = `8fae3a9`
 - previous_latest_stable_commit = `a202fee`
 - source_run_dir = `outputs\stage5i_run_20260705_132534`
 - generated_time = `2026-07-05T13:27:40`
