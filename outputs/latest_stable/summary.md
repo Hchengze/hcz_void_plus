@@ -1,11 +1,11 @@
-# latest_stable Stage 5H 摘要
+﻿# latest_stable Stage 5H 摘要
 
 ## 当前阶段
 
 - stage = Stage 5H
 - previous_stage = Stage 5G
 - algorithm_commit = `516bf41`
-- latest_stable_commit = `generated_from_algorithm_commit`
+- latest_stable_commit = `aa8ffd9`
 - previous_latest_stable_commit = `4a7eeb1`
 - source_run_dir = `outputs\stage5h_run_20260705_121825`
 - generated_time = `2026-07-05T12:19:19`
