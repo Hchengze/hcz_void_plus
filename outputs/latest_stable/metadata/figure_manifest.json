@@ -6,7 +6,7 @@
   "items": [
     {
       "filename": "fig_geometry_3d_overview.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_geometry_3d_overview.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_geometry_3d_overview.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -15,7 +15,7 @@
       "height_px": 930,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -25,7 +25,7 @@
     },
     {
       "filename": "fig_velocity_model_active_badge.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_active_badge.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_active_badge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -34,7 +34,7 @@
       "height_px": 570,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -44,7 +44,7 @@
     },
     {
       "filename": "fig_velocity_sampling_paths_3d.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_sampling_paths_3d.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_sampling_paths_3d.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -53,7 +53,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -63,7 +63,7 @@
     },
     {
       "filename": "fig_volume_wavefield_xyz_slices.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_xyz_slices.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_xyz_slices.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -72,7 +72,7 @@
       "height_px": 630,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -82,7 +82,7 @@
     },
     {
       "filename": "fig_volume_wavefield_depth_slices.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_depth_slices.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_depth_slices.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -91,7 +91,7 @@
       "height_px": 1080,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -101,7 +101,7 @@
     },
     {
       "filename": "fig_volume_wavefield_3d_energy_proxy.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_3d_energy_proxy.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_3d_energy_proxy.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -110,7 +110,7 @@
       "height_px": 930,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -120,7 +120,7 @@
     },
     {
       "filename": "fig_shot_gather_with_velocity_model.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_with_velocity_model.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_shot_gather_with_velocity_model.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -129,7 +129,7 @@
       "height_px": 780,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -139,7 +139,7 @@
     },
     {
       "filename": "fig_shot_gather_attenuation_comparison.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_attenuation_comparison.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_shot_gather_attenuation_comparison.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -148,7 +148,7 @@
       "height_px": 660,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -158,7 +158,7 @@
     },
     {
       "filename": "fig_elastic2d_rayleigh_benchmark_matrix.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -167,7 +167,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -177,7 +177,7 @@
     },
     {
       "filename": "fig_elastic2d_das_best_case.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_best_case.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_best_case.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -186,7 +186,7 @@
       "height_px": 570,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -196,7 +196,7 @@
     },
     {
       "filename": "fig_scan_x_y_slice.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_scan_x_y_slice.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_scan_x_y_slice.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -205,26 +205,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
-        "forward_engine": "layered_kinematic",
-        "velocity_model_type": "layered",
-        "category": "localization",
-        "required_report": "reports/localization/report_full_pipeline.md",
-        "language": "zh"
-      }
-    },
-    {
-      "filename": "fig_scan_x_depth_slice.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_scan_x_depth_slice.png",
-      "category": "localization",
-      "passed": true,
-      "reasons": [],
-      "size_bytes": 50306,
-      "width_px": 1275,
-      "height_px": 750,
-      "dynamic_range": 1.0,
-      "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -234,7 +215,7 @@
     },
     {
       "filename": "fig_3d_high_score_region.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_high_score_region.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_high_score_region.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -243,7 +224,7 @@
       "height_px": 900,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -253,7 +234,7 @@
     },
     {
       "filename": "fig_recommended_location_3d.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_recommended_location_3d.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_recommended_location_3d.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -262,7 +243,7 @@
       "height_px": 840,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -272,7 +253,7 @@
     },
     {
       "filename": "fig_3d_uncertainty_box.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_uncertainty_box.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_uncertainty_box.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -281,7 +262,7 @@
       "height_px": 870,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -290,17 +271,36 @@
       }
     },
     {
-      "filename": "fig_3d_posterior_volume.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_posterior_volume.png",
+      "filename": "fig_receiver_consistent_imaging_volume.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_receiver_consistent_imaging_volume.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
-      "size_bytes": 238775,
+      "size_bytes": 291698,
       "width_px": 1290,
       "height_px": 900,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/localization/report_full_pipeline.md",
+        "language": "zh"
+      }
+    },
+    {
+      "filename": "fig_kernel_shared_posterior_volume.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_kernel_shared_posterior_volume.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 273615,
+      "width_px": 1290,
+      "height_px": 900,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -310,16 +310,16 @@
     },
     {
       "filename": "fig_3d_uncertainty_ellipsoid.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_uncertainty_ellipsoid.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_uncertainty_ellipsoid.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
-      "size_bytes": 237589,
+      "size_bytes": 234163,
       "width_px": 1200,
       "height_px": 870,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -329,7 +329,7 @@
     },
     {
       "filename": "fig_stage5j_status_badge.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5j_status_badge.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_stage5j_status_badge.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -338,7 +338,7 @@
       "height_px": 705,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -348,7 +348,7 @@
     },
     {
       "filename": "fig_rayleigh_pick_interpretation.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_rayleigh_pick_interpretation.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_rayleigh_pick_interpretation.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -357,7 +357,7 @@
       "height_px": 630,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -367,7 +367,7 @@
     },
     {
       "filename": "fig_elastic2d_das_report_consistency.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_report_consistency.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_report_consistency.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -376,7 +376,7 @@
       "height_px": 570,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -385,17 +385,17 @@
       }
     },
     {
-      "filename": "fig_multi_peak_ambiguity_analysis.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_multi_peak_ambiguity_analysis.png",
+      "filename": "fig_module_coordination_summary.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_module_coordination_summary.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
-      "size_bytes": 50659,
-      "width_px": 1080,
-      "height_px": 630,
+      "size_bytes": 70547,
+      "width_px": 1260,
+      "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -405,7 +405,7 @@
     },
     {
       "filename": "fig_3d_geometry_resolution_analysis.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_geometry_resolution_analysis.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_geometry_resolution_analysis.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -414,7 +414,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -424,7 +424,7 @@
     },
     {
       "filename": "fig_scan_velocity_model_consistency.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_scan_velocity_model_consistency.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_scan_velocity_model_consistency.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -433,7 +433,7 @@
       "height_px": 630,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -442,21 +442,21 @@
       }
     },
     {
-      "filename": "fig_forward_localization_consistency.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_localization_consistency.png",
+      "filename": "fig_receiver_imaging_vs_volume_proxy.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_receiver_imaging_vs_volume_proxy.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
-      "size_bytes": 91975,
-      "width_px": 1575,
-      "height_px": 630,
+      "size_bytes": 58415,
+      "width_px": 1140,
+      "height_px": 690,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
-        "required_report": "reports/error_analysis/report_forward_localization_link.md",
+        "required_report": "reports/localization/report_full_pipeline.md",
         "language": "zh"
       }
     }
@@ -464,7 +464,7 @@
   "passed_items": [
     {
       "filename": "fig_geometry_3d_overview.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_geometry_3d_overview.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_geometry_3d_overview.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -473,7 +473,7 @@
       "height_px": 930,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -483,7 +483,7 @@
     },
     {
       "filename": "fig_velocity_model_active_badge.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_active_badge.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_active_badge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -492,7 +492,7 @@
       "height_px": 570,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -502,7 +502,7 @@
     },
     {
       "filename": "fig_velocity_sampling_paths_3d.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_sampling_paths_3d.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_sampling_paths_3d.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -511,7 +511,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -521,7 +521,7 @@
     },
     {
       "filename": "fig_volume_wavefield_xyz_slices.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_xyz_slices.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_xyz_slices.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -530,7 +530,7 @@
       "height_px": 630,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -540,7 +540,7 @@
     },
     {
       "filename": "fig_volume_wavefield_depth_slices.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_depth_slices.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_depth_slices.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -549,7 +549,7 @@
       "height_px": 1080,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -559,7 +559,7 @@
     },
     {
       "filename": "fig_volume_wavefield_3d_energy_proxy.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_3d_energy_proxy.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_3d_energy_proxy.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -568,7 +568,7 @@
       "height_px": 930,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -578,7 +578,7 @@
     },
     {
       "filename": "fig_shot_gather_with_velocity_model.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_with_velocity_model.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_shot_gather_with_velocity_model.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -587,7 +587,7 @@
       "height_px": 780,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -597,7 +597,7 @@
     },
     {
       "filename": "fig_shot_gather_attenuation_comparison.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_attenuation_comparison.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_shot_gather_attenuation_comparison.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -606,7 +606,7 @@
       "height_px": 660,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -616,7 +616,7 @@
     },
     {
       "filename": "fig_elastic2d_rayleigh_benchmark_matrix.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -625,7 +625,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -635,7 +635,7 @@
     },
     {
       "filename": "fig_elastic2d_das_best_case.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_best_case.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_best_case.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -644,7 +644,7 @@
       "height_px": 570,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "forward",
@@ -654,7 +654,7 @@
     },
     {
       "filename": "fig_scan_x_y_slice.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_scan_x_y_slice.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_scan_x_y_slice.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -663,26 +663,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
-        "forward_engine": "layered_kinematic",
-        "velocity_model_type": "layered",
-        "category": "localization",
-        "required_report": "reports/localization/report_full_pipeline.md",
-        "language": "zh"
-      }
-    },
-    {
-      "filename": "fig_scan_x_depth_slice.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_scan_x_depth_slice.png",
-      "category": "localization",
-      "passed": true,
-      "reasons": [],
-      "size_bytes": 50306,
-      "width_px": 1275,
-      "height_px": 750,
-      "dynamic_range": 1.0,
-      "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -692,7 +673,7 @@
     },
     {
       "filename": "fig_3d_high_score_region.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_high_score_region.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_high_score_region.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -701,7 +682,7 @@
       "height_px": 900,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -711,7 +692,7 @@
     },
     {
       "filename": "fig_recommended_location_3d.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_recommended_location_3d.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_recommended_location_3d.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -720,7 +701,7 @@
       "height_px": 840,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -730,7 +711,7 @@
     },
     {
       "filename": "fig_3d_uncertainty_box.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_uncertainty_box.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_uncertainty_box.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -739,7 +720,7 @@
       "height_px": 870,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -748,17 +729,36 @@
       }
     },
     {
-      "filename": "fig_3d_posterior_volume.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_posterior_volume.png",
+      "filename": "fig_receiver_consistent_imaging_volume.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_receiver_consistent_imaging_volume.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
-      "size_bytes": 238775,
+      "size_bytes": 291698,
       "width_px": 1290,
       "height_px": 900,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
+        "forward_engine": "layered_kinematic",
+        "velocity_model_type": "layered",
+        "category": "localization",
+        "required_report": "reports/localization/report_full_pipeline.md",
+        "language": "zh"
+      }
+    },
+    {
+      "filename": "fig_kernel_shared_posterior_volume.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_kernel_shared_posterior_volume.png",
+      "category": "localization",
+      "passed": true,
+      "reasons": [],
+      "size_bytes": 273615,
+      "width_px": 1290,
+      "height_px": 900,
+      "dynamic_range": 1.0,
+      "metadata": {
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -768,16 +768,16 @@
     },
     {
       "filename": "fig_3d_uncertainty_ellipsoid.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_uncertainty_ellipsoid.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_uncertainty_ellipsoid.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
-      "size_bytes": 237589,
+      "size_bytes": 234163,
       "width_px": 1200,
       "height_px": 870,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "localization",
@@ -787,7 +787,7 @@
     },
     {
       "filename": "fig_stage5j_status_badge.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5j_status_badge.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_stage5j_status_badge.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -796,7 +796,7 @@
       "height_px": 705,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -806,7 +806,7 @@
     },
     {
       "filename": "fig_rayleigh_pick_interpretation.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_rayleigh_pick_interpretation.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_rayleigh_pick_interpretation.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -815,7 +815,7 @@
       "height_px": 630,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -825,7 +825,7 @@
     },
     {
       "filename": "fig_elastic2d_das_report_consistency.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_report_consistency.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_report_consistency.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -834,7 +834,7 @@
       "height_px": 570,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -843,17 +843,17 @@
       }
     },
     {
-      "filename": "fig_multi_peak_ambiguity_analysis.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_multi_peak_ambiguity_analysis.png",
+      "filename": "fig_module_coordination_summary.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_module_coordination_summary.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
-      "size_bytes": 50659,
-      "width_px": 1080,
-      "height_px": 630,
+      "size_bytes": 70547,
+      "width_px": 1260,
+      "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -863,7 +863,7 @@
     },
     {
       "filename": "fig_3d_geometry_resolution_analysis.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_geometry_resolution_analysis.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_geometry_resolution_analysis.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -872,7 +872,7 @@
       "height_px": 720,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -882,7 +882,7 @@
     },
     {
       "filename": "fig_scan_velocity_model_consistency.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_scan_velocity_model_consistency.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_scan_velocity_model_consistency.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -891,7 +891,7 @@
       "height_px": 630,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
@@ -900,21 +900,21 @@
       }
     },
     {
-      "filename": "fig_forward_localization_consistency.png",
-      "path": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_localization_consistency.png",
+      "filename": "fig_receiver_imaging_vs_volume_proxy.png",
+      "path": "outputs\\stage5k_run_20260705_204708\\figures\\fig_receiver_imaging_vs_volume_proxy.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
-      "size_bytes": 91975,
-      "width_px": 1575,
-      "height_px": 630,
+      "size_bytes": 58415,
+      "width_px": 1140,
+      "height_px": 690,
       "dynamic_range": 1.0,
       "metadata": {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "forward_engine": "layered_kinematic",
         "velocity_model_type": "layered",
         "category": "error_analysis",
-        "required_report": "reports/error_analysis/report_forward_localization_link.md",
+        "required_report": "reports/localization/report_full_pipeline.md",
         "language": "zh"
       }
     }
@@ -936,19 +936,19 @@
     "forward/fig_elastic2d_rayleigh_benchmark_matrix.png",
     "forward/fig_elastic2d_das_best_case.png",
     "localization/fig_scan_x_y_slice.png",
-    "localization/fig_scan_x_depth_slice.png",
     "localization/fig_3d_high_score_region.png",
     "localization/fig_recommended_location_3d.png",
     "localization/fig_3d_uncertainty_box.png",
-    "localization/fig_3d_posterior_volume.png",
+    "localization/fig_receiver_consistent_imaging_volume.png",
+    "localization/fig_kernel_shared_posterior_volume.png",
     "localization/fig_3d_uncertainty_ellipsoid.png",
     "error_analysis/fig_stage5j_status_badge.png",
     "error_analysis/fig_rayleigh_pick_interpretation.png",
     "error_analysis/fig_elastic2d_das_report_consistency.png",
-    "error_analysis/fig_multi_peak_ambiguity_analysis.png",
+    "error_analysis/fig_module_coordination_summary.png",
     "error_analysis/fig_3d_geometry_resolution_analysis.png",
     "error_analysis/fig_scan_velocity_model_consistency.png",
-    "error_analysis/fig_forward_localization_consistency.png"
+    "error_analysis/fig_receiver_imaging_vs_volume_proxy.png"
   ],
   "animation_specs": [
     {

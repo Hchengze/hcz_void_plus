@@ -1,21 +1,41 @@
-# latest_stable Stage 5J 摘要
+# latest_stable Stage 5K 摘要
 
 ## 当前阶段
 
-- stage = Stage 5J
-- previous_stage = Stage 5I
-- algorithm_commit = `6534fef`
+- stage = Stage 5K
+- previous_stage = Stage 5J
+- algorithm_commit = `fda2b14`
 - latest_stable_commit = `generated_from_algorithm_commit`
 - previous_latest_stable_commit = `27f000d`
-- source_run_dir = `outputs\stage5j_run_20260705_193045`
-- generated_time = `2026-07-05T19:32:34`
-- 任务名称：`Stage 5J 代码优先的三维运动学正演补强 + 衰减模型`
+- source_run_dir = `outputs\stage5k_run_20260705_204708`
+- generated_time = `2026-07-05T20:49:57`
+- 任务名称：`Stage 5K 统一三维观测算子重构 + 接收一致性成像体 + 模块协同收口`
 - active_velocity_model = `layered`
 - active_forward_engine = `layered_kinematic`
 - validation_forward = `elastic2d/staggered`
 - ready_for_2p5d = `False`
 
-## Stage 5J 三维正演补强主线
+## Stage 5K 统一三维 observation kernel 主线
+
+- observation_kernel_3d_available = `True`
+- forward_observation_kernel_shape = `[9, 121, 7]`
+- observation_kernel_shape = `[9, 121, 2952]`
+- observation_kernel_candidate_grid_shape = `[41, 9, 8]`
+- forward_uses_observation_kernel = `True`
+- localization_uses_observation_kernel = `True`
+- forward_localization_share_kernel = `True`
+- receiver_consistent_imaging_available = `True`
+- imaging_peak_location = `{'x_m': 60.0, 'y_m': 10.0, 'depth_m': 2.5}`
+- imaging_peak_to_truth_distance = `1.118033988749895`
+- imaging_peak_to_posterior_peak_distance = `8.246211251235321`
+- volume_proxy_role = `visualization_only`
+- volume_proxy_used_for_localization = `False`
+- module_coordination_status = `pass`
+- tests_deleted_or_merged_count = `5`
+- new_test_files_count = `2`
+- validation_scripts_added_count = `0`
+
+## Stage 5J 三维正演补强基线
 
 - volume_wavefield_available = `True`
 - volume_wavefield_grid_shape = `[8, 12, 24, 72]`
@@ -29,9 +49,9 @@
 - attenuation_rms_difference = `0.011080776907474723`
 - attenuation_relative_rms_difference = `0.6080739622929309`
 - forward_localization_link_status = `warning`
-- tests_reduced_count = `9`
-- validation_scripts_added_count = `1`
-- new_test_files_count = `3`
+- tests_reduced_count = `5`
+- validation_scripts_added_count = `0`
+- new_test_files_count = `2`
 
 ## Stage 5I 三维反演主线（保留为定位算法基线）
 
@@ -40,8 +60,8 @@
 - multi_attribute_inversion_enabled = `True`
 - posterior_volume_status = `generated`
 - posterior_peak_location = `{'x_m': 52.0, 'y_m': 12.0, 'depth_m': 2.5}`
-- posterior_mean_location = `{'x_m': 65.19784347842014, 'y_m': 10.06710843295581, 'depth_m': 3.7926336938366427}`
-- posterior_uncertainty_axes = `[27.330194619366242, 5.134057900588129, 1.6364233665537635]`
+- posterior_mean_location = `{'x_m': 65.7032442049694, 'y_m': 10.024765553410726, 'depth_m': 3.673373859869884}`
+- posterior_uncertainty_axes = `[27.134180238486536, 5.17488177900087, 1.6218530325650287]`
 - geometry_resolution_status = `computed`
 - ambiguity_warning = `True`
 
@@ -54,7 +74,7 @@
 - 动图总数：`2`
 - 报告总数：`11`
 - latest_stable_tree_snapshot_status：`pass`
-- manual_review_readiness_status：`pass`
+- manual_review_readiness_status：`fail`
 
 ## 三维定位结论
 
@@ -91,9 +111,9 @@
 
 ## 人工复查准备度
 
-- manual_review_figure_count：`10`
+- manual_review_figure_count：`11`
 - manual_review_animation_count：`2`
-- required_3d_figures_present：`True`
+- required_3d_figures_present：`False`
 - required_animations_present：`True`
 
 ## manual_review_figures
@@ -105,9 +125,10 @@
 - figures/forward/fig_volume_wavefield_3d_energy_proxy.png
 - figures/forward/fig_shot_gather_with_velocity_model.png
 - figures/forward/fig_shot_gather_attenuation_comparison.png
-- figures/localization/fig_3d_posterior_volume.png
+- figures/localization/fig_receiver_consistent_imaging_volume.png
+- figures/localization/fig_kernel_shared_posterior_volume.png
 - figures/localization/fig_3d_uncertainty_ellipsoid.png
-- figures/error_analysis/fig_forward_localization_consistency.png
+- figures/error_analysis/fig_module_coordination_summary.png
 
 ## manual_review_animations
 

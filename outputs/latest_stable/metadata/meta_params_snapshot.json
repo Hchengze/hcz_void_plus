@@ -1,7 +1,7 @@
 {
   "project": {
     "task": "full_pipeline",
-    "run_name": "stage5j_run",
+    "run_name": "stage5k_run",
     "random_seed": 20260703
   },
   "road": {
@@ -102,10 +102,10 @@
     "save_arrays": true,
     "save_report": true,
     "figure_language": "zh",
-    "max_shot_gather_figures": 2,
+    "max_shot_gather_figures": 3,
     "save_wavefield_snapshots": true,
     "save_wavefield_animation": true,
-    "wavefield_snapshot_count": 8,
+    "wavefield_snapshot_count": 12,
     "wavefield_grid_nx": 160,
     "wavefield_grid_ny": 80,
     "volume_wavefield_enabled": true,
@@ -122,6 +122,7 @@
   },
   "forward": {
     "engine": "layered_kinematic",
+    "synthesize_from_observation_kernel": true,
     "acoustic2d_enabled": false,
     "acoustic2d_nx": 201,
     "acoustic2d_nz": 101,
@@ -1894,6 +1895,6 @@
     "estimated_wavelength_m": 8.666666666666666,
     "rayleigh_penetration_depth_m": 8.666666666666666,
     "latest_stable_dir": "outputs\\latest_stable",
-    "output_run_dir": "outputs\\stage5j_run_20260705_193045"
+    "output_run_dir": "outputs\\stage5k_run_20260705_204708"
   }
 }

@@ -1,6 +1,6 @@
 {
   "project": "hcz_void_plus",
-  "stage": "Stage 5J 3D kinematic forward volume and attenuation modeling",
+  "stage": "Stage 5K unified 3D observation kernel and receiver-consistent imaging",
   "data_shape": {
     "order": "shot × time × channel",
     "shape": [
@@ -36,7 +36,16 @@
     "rayleigh_depth_sensitivity_included": true,
     "volume_wavefield_is_kinematic_proxy": true,
     "volume_wavefield_uses_depth": true,
-    "forward_engine_note": "Stage 5J 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；本轮新增 x-y-depth 三维运动学体响应 proxy、经验 Q attenuation 和带速度模型上下文的炮集图；elastic2d/staggered 仍只作 validation。"
+    "observation_kernel_3d_available": false,
+    "forward_uses_observation_kernel": false,
+    "localization_uses_observation_kernel": true,
+    "forward_localization_share_kernel": true,
+    "receiver_consistent_imaging_available": true,
+    "volume_proxy_role": "visualization_only",
+    "volume_proxy_used_for_localization": false,
+    "forward_engine_note": "Stage 5J 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；本轮新增 x-y-depth 三维运动学体响应 proxy、经验 Q attenuation 和带速度模型上下文的炮集图；elastic2d/staggered 仍只作 validation。",
+    "observation_kernel_shape": null,
+    "observation_kernel_candidate_grid_shape": null
   },
   "physics": {
     "rayleigh_depth_sensitivity_enabled": true,
@@ -83,20 +92,24 @@
       "warning": null
     },
     "wavefield_info": {
-      "snapshot_count": 8,
+      "snapshot_count": 12,
       "snapshot_files": [
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t000.png",
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t001.png",
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t002.png",
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t003.png",
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t004.png",
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t005.png",
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t006.png",
-        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t007.png"
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t007.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t008.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t009.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t010.png",
+        "outputs\\stage5k_run_20260705_204708\\snapshots\\snap_pseudo_wavefield_t011.png"
       ],
       "animation": {
         "success": true,
-        "path": "outputs\\stage5j_run_20260705_193045\\animations\\anim_pseudo_wavefield.gif",
+        "path": "outputs\\stage5k_run_20260705_204708\\animations\\anim_pseudo_wavefield.gif",
         "reason": null
       },
       "volume_response": {
@@ -116,6 +129,9 @@
         "volume_uses_velocity_path_integration": true,
         "volume_uses_attenuation": true,
         "volume_is_kinematic_proxy": true,
+        "volume_proxy_role": "visualization_only",
+        "volume_proxy_used_for_localization": false,
+        "receiver_consistent_imaging_required_for_localization": true,
         "selected_shot_index": 0,
         "selected_scatter_count": 7,
         "volume_peak_energy": 0.8861728612276573,
@@ -124,11 +140,11 @@
           "y_m": 18.0,
           "depth_m": 0.0
         },
-        "note": "3D kinematic volume response proxy, not 3D elastic wavefield"
+        "note": "3D kinematic volume response proxy for visualization only, not receiver-consistent imaging or 3D elastic wavefield"
       },
       "volume_animation": {
         "success": true,
-        "path": "outputs\\stage5j_run_20260705_193045\\animations\\anim_single_shot_volume_wavefield.gif",
+        "path": "outputs\\stage5k_run_20260705_204708\\animations\\anim_single_shot_volume_wavefield.gif",
         "reason": null
       }
     },
@@ -358,115 +374,126 @@
       "depth_m": 2.5
     },
     "posterior_mean_location": {
-      "x_m": 65.19784347842014,
-      "y_m": 10.06710843295581,
-      "depth_m": 3.7926336938366427
+      "x_m": 65.7032442049694,
+      "y_m": 10.024765553410726,
+      "depth_m": 3.673373859869884
     },
     "posterior_covariance_3x3": [
       [
-        746.9294720262914,
-        -1.9037067474257885,
-        1.9362180248535725
+        736.2506238803197,
+        -1.3854874577953995,
+        2.763421982200848
       ],
       [
-        -1.9037067474257885,
-        26.363446456721633,
-        0.05112190339936781
+        -1.3854874577953995,
+        26.781583957805875,
+        0.10699797136393681
       ],
       [
-        1.9362180248535725,
-        0.05112190339936781,
-        2.6830514106169514
+        2.763421982200848,
+        0.10699797136393681,
+        2.641338062423145
       ]
     ],
     "posterior_uncertainty_axes": [
-      27.330194619366242,
-      5.134057900588129,
-      1.6364233665537635
+      27.134180238486536,
+      5.17488177900087,
+      1.6218530325650287
     ],
     "geometry_resolution_status": "computed",
     "ambiguity_warning": true,
-    "multi_peak_warning": true
+    "multi_peak_warning": true,
+    "localization_uses_observation_kernel": true,
+    "forward_localization_share_kernel": true,
+    "receiver_consistent_imaging_available": true,
+    "imaging_peak_location": {
+      "x_m": 60.0,
+      "y_m": 10.0,
+      "depth_m": 2.5
+    },
+    "imaging_peak_to_truth_distance": 1.118033988749895,
+    "imaging_peak_to_posterior_peak_distance": 8.246211251235321,
+    "posterior_uses_imaging_volume": true
   },
   "diagnostics": {
-    "diffraction_travel_time_curve_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_diffraction_travel_time_curves.png",
-    "path_section_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_source_anomaly_receiver_path_section.png",
-    "depth_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_rayleigh_depth_sensitivity.png",
-    "raw_vs_weighted_best_location_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_raw_vs_weighted_best_location.png",
-    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
-    "y_high_score_width_check_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_y_high_score_width_check.png",
-    "score_method_depth_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_score_method_depth_comparison.png",
-    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_high_score_uncertainty_summary.png",
-    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_x_y_depth_uncertainty_slices.png",
-    "multi_attribute_score_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_multi_attribute_score_comparison.png",
-    "depth_prior_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_depth_prior_sensitivity.png",
-    "preprocessing_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_preprocessing_comparison.png",
-    "preprocessing_ablation_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_preprocessing_ablation_summary.png",
-    "fk_spectrum_before_after_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_fk_spectrum_before_after.png",
-    "fk_filter_effect_on_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_fk_filter_effect_on_gather.png",
-    "matched_wavelet_score_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_matched_wavelet_score_comparison.png",
-    "semblance_score_volume_slice_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_semblance_score_volume_slice.png",
-    "frequency_shift_attribute_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_frequency_shift_attribute.png",
-    "geometry_ablation_best_locations_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_geometry_ablation_best_locations.png",
-    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_geometry_ablation_uncertainty_spans.png",
-    "multi_attribute_ablation_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_multi_attribute_ablation.png",
-    "3d_high_score_components_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_high_score_components.png",
-    "recommendation_decision_flow_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_recommendation_decision_flow.png",
-    "velocity_model_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_comparison.png",
-    "layered_velocity_profile_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_layered_velocity_profile.png",
-    "velocity_model_travel_time_residuals_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_travel_time_residuals.png",
-    "model_mismatch_error_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_model_mismatch_error_summary.png",
-    "forward_engine_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_engine_comparison.png",
-    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
-    "forward_roadmap_status_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_roadmap_status.png",
-    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_acoustic2d_wavefield_snapshots.png",
-    "acoustic2d_shot_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_acoustic2d_shot_gather.png",
-    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
-    "elastic2d_surface_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_surface_gather.png",
-    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
-    "elastic2d_void_scattering_residual_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_scattering_residual.png",
-    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_diffraction_overlay.png",
-    "elastic2d_das_gauge_response_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_gauge_response.png",
-    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vs_kinematic_overlay.png",
-    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
-    "velocity_model_profile_current_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_profile_current.png",
-    "velocity_model_2d_slice_current_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_2d_slice_current.png",
-    "velocity_sampling_paths_current_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_sampling_paths_current.png",
-    "uniform_vs_layered_travel_time_difference_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
-    "velocity_model_active_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_active_badge.png",
-    "elastic2d_rayleigh_pick_diagnostics_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
-    "elastic2d_void_parameter_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
-    "elastic2d_void_residual_energy_map_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_residual_energy_map.png",
-    "elastic2d_das_component_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_component_comparison.png",
-    "elastic2d_das_gauge_length_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
-    "elastic_vs_kinematic_energy_partition_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
-    "stage5e_status_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5e_status_badge.png",
-    "elastic2d_numerical_sensitivity_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_numerical_sensitivity_summary.png",
-    "elastic2d_rayleigh_pick_case_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_pick_case_comparison.png",
-    "elastic2d_das_response_nonzero_check_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_response_nonzero_check.png",
-    "elastic2d_das_force_direction_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_force_direction_comparison.png",
-    "rayleigh_equivalent_vs_elastic_velocity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_rayleigh_equivalent_vs_elastic_velocity.png",
-    "elastic_vp_vs_rho_model_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vp_vs_rho_model.png",
-    "velocity_model_physics_bridge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_physics_bridge.png",
-    "stage5f_status_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5f_status_badge.png",
-    "elastic2d_rayleigh_benchmark_matrix_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
-    "elastic2d_rayleigh_velocity_error_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
-    "elastic2d_surface_event_ridge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_surface_event_ridge.png",
-    "elastic2d_free_surface_mode_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_free_surface_mode_comparison.png",
-    "elastic2d_boundary_reflection_diagnostics_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
-    "elastic2d_das_staggered_vs_collocated_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_staggered_vs_collocated.png",
-    "elastic2d_das_best_case_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_best_case.png",
-    "elastic2d_das_report_consistency_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_report_consistency.png",
-    "bridge_derived_elastic_parameters_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_bridge_derived_elastic_parameters.png",
-    "latest_stable_quality_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_latest_stable_quality_summary.png",
-    "stage5j_status_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5j_status_badge.png",
-    "volume_wavefield_xyz_slices_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_xyz_slices.png",
-    "volume_wavefield_depth_slices_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_depth_slices.png",
-    "volume_wavefield_3d_energy_proxy_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_3d_energy_proxy.png",
-    "shot_gather_with_velocity_model_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_with_velocity_model.png",
-    "shot_gather_uniform_vs_layered_overlay_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_uniform_vs_layered_overlay.png",
-    "shot_gather_attenuation_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_attenuation_comparison.png",
-    "forward_localization_consistency_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_localization_consistency.png"
+    "diffraction_travel_time_curve_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_rayleigh_depth_sensitivity.png",
+    "raw_vs_weighted_best_location_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_raw_vs_weighted_best_location.png",
+    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
+    "y_high_score_width_check_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_y_high_score_width_check.png",
+    "score_method_depth_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_score_method_depth_comparison.png",
+    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_high_score_uncertainty_summary.png",
+    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_x_y_depth_uncertainty_slices.png",
+    "multi_attribute_score_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_multi_attribute_score_comparison.png",
+    "depth_prior_sensitivity_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_depth_prior_sensitivity.png",
+    "preprocessing_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_preprocessing_comparison.png",
+    "preprocessing_ablation_summary_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_preprocessing_ablation_summary.png",
+    "fk_spectrum_before_after_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_fk_spectrum_before_after.png",
+    "fk_filter_effect_on_gather_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_fk_filter_effect_on_gather.png",
+    "matched_wavelet_score_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_matched_wavelet_score_comparison.png",
+    "semblance_score_volume_slice_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_semblance_score_volume_slice.png",
+    "frequency_shift_attribute_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_frequency_shift_attribute.png",
+    "geometry_ablation_best_locations_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_geometry_ablation_best_locations.png",
+    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_geometry_ablation_uncertainty_spans.png",
+    "multi_attribute_ablation_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_multi_attribute_ablation.png",
+    "3d_high_score_components_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_3d_high_score_components.png",
+    "recommendation_decision_flow_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_recommendation_decision_flow.png",
+    "velocity_model_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_comparison.png",
+    "layered_velocity_profile_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_layered_velocity_profile.png",
+    "velocity_model_travel_time_residuals_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_travel_time_residuals.png",
+    "model_mismatch_error_summary_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_model_mismatch_error_summary.png",
+    "forward_engine_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_forward_engine_comparison.png",
+    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
+    "forward_roadmap_status_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_forward_roadmap_status.png",
+    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_acoustic2d_wavefield_snapshots.png",
+    "acoustic2d_shot_gather_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_acoustic2d_shot_gather.png",
+    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
+    "elastic2d_surface_gather_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_surface_gather.png",
+    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
+    "elastic2d_void_scattering_residual_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_void_scattering_residual.png",
+    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_void_diffraction_overlay.png",
+    "elastic2d_das_gauge_response_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_gauge_response.png",
+    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic_vs_kinematic_overlay.png",
+    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
+    "velocity_model_profile_current_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_profile_current.png",
+    "velocity_model_2d_slice_current_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_2d_slice_current.png",
+    "velocity_sampling_paths_current_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_sampling_paths_current.png",
+    "uniform_vs_layered_travel_time_difference_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
+    "velocity_model_active_badge_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_active_badge.png",
+    "elastic2d_rayleigh_pick_diagnostics_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
+    "elastic2d_void_parameter_sensitivity_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
+    "elastic2d_void_residual_energy_map_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_void_residual_energy_map.png",
+    "elastic2d_das_component_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_component_comparison.png",
+    "elastic2d_das_gauge_length_sensitivity_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
+    "elastic_vs_kinematic_energy_partition_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
+    "stage5e_status_badge_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_stage5e_status_badge.png",
+    "elastic2d_numerical_sensitivity_summary_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_numerical_sensitivity_summary.png",
+    "elastic2d_rayleigh_pick_case_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_pick_case_comparison.png",
+    "elastic2d_das_response_nonzero_check_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_response_nonzero_check.png",
+    "elastic2d_das_force_direction_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_force_direction_comparison.png",
+    "rayleigh_equivalent_vs_elastic_velocity_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_rayleigh_equivalent_vs_elastic_velocity.png",
+    "elastic_vp_vs_rho_model_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic_vp_vs_rho_model.png",
+    "velocity_model_physics_bridge_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_velocity_model_physics_bridge.png",
+    "stage5f_status_badge_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_stage5f_status_badge.png",
+    "elastic2d_rayleigh_benchmark_matrix_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
+    "elastic2d_rayleigh_velocity_error_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
+    "elastic2d_surface_event_ridge_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_surface_event_ridge.png",
+    "elastic2d_free_surface_mode_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_free_surface_mode_comparison.png",
+    "elastic2d_boundary_reflection_diagnostics_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
+    "elastic2d_das_staggered_vs_collocated_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_staggered_vs_collocated.png",
+    "elastic2d_das_best_case_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_best_case.png",
+    "elastic2d_das_report_consistency_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_elastic2d_das_report_consistency.png",
+    "bridge_derived_elastic_parameters_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_bridge_derived_elastic_parameters.png",
+    "latest_stable_quality_summary_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_latest_stable_quality_summary.png",
+    "stage5j_status_badge_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_stage5j_status_badge.png",
+    "volume_wavefield_xyz_slices_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_xyz_slices.png",
+    "volume_wavefield_depth_slices_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_depth_slices.png",
+    "volume_wavefield_3d_energy_proxy_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_volume_wavefield_3d_energy_proxy.png",
+    "shot_gather_with_velocity_model_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_shot_gather_with_velocity_model.png",
+    "shot_gather_uniform_vs_layered_overlay_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_shot_gather_uniform_vs_layered_overlay.png",
+    "shot_gather_attenuation_comparison_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_shot_gather_attenuation_comparison.png",
+    "forward_localization_consistency_figure": "outputs\\stage5k_run_20260705_204708\\figures\\fig_forward_localization_consistency.png"
   },
   "confidence": {
     "peak_sharpness": 1.3969755165261222,
@@ -567,7 +594,7 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "6534fef",
+    "commit_id": "fda2b14",
     "push_attempted": true,
     "push_success": false
   },
@@ -798,7 +825,7 @@
           "depth_span_m": 1.0,
           "high_score_region_point_count": 62,
           "high_score_component_count": 3,
-          "diffraction_curve_energy_ratio": 0.2878409141148479,
+          "diffraction_curve_energy_ratio": 0.2878409141148478,
           "direct_wave_residual_ratio": 0.6409912970336942,
           "low_confidence_flag": "low"
         },
@@ -1563,7 +1590,7 @@
         }
       },
       "layered_vs_baseline": {
-        "synthetic_rms_difference": 0.015123138166528199,
+        "synthetic_rms_difference": 0.015123138166528197,
         "synthetic_relative_difference": 1.179936682784054,
         "travel_time_residual_mean_ms": 53.891507874662366,
         "travel_time_residual_rms_ms": 57.07585810059442,
@@ -4291,30 +4318,30 @@
       "depth_m": 2.5
     },
     "posterior_mean_location": {
-      "x_m": 65.19784347842014,
-      "y_m": 10.06710843295581,
-      "depth_m": 3.7926336938366427
+      "x_m": 65.7032442049694,
+      "y_m": 10.024765553410726,
+      "depth_m": 3.673373859869884
     },
     "posterior_uncertainty_axes": [
-      27.330194619366242,
-      5.134057900588129,
-      1.6364233665537635
+      27.134180238486536,
+      5.17488177900087,
+      1.6218530325650287
     ],
     "posterior_covariance_3x3": [
       [
-        746.9294720262914,
-        -1.9037067474257885,
-        1.9362180248535725
+        736.2506238803197,
+        -1.3854874577953995,
+        2.763421982200848
       ],
       [
-        -1.9037067474257885,
-        26.363446456721633,
-        0.05112190339936781
+        -1.3854874577953995,
+        26.781583957805875,
+        0.10699797136393681
       ],
       [
-        1.9362180248535725,
-        0.05112190339936781,
-        2.6830514106169514
+        2.763421982200848,
+        0.10699797136393681,
+        2.641338062423145
       ]
     ],
     "geometry_resolution_status": "computed",
@@ -4367,11 +4394,62 @@
     "new_test_files_count": 3,
     "ready_for_2p5d": false
   },
-  "previous_stage": "Stage 5I",
-  "algorithm_commit": "6534fef",
+  "stage5k_validation": {
+    "observation_kernel_3d_available": true,
+    "forward_observation_kernel_shape": [
+      9,
+      121,
+      7
+    ],
+    "observation_kernel_shape": [
+      9,
+      121,
+      2952
+    ],
+    "observation_kernel_candidate_grid_shape": [
+      41,
+      9,
+      8
+    ],
+    "forward_uses_observation_kernel": true,
+    "localization_uses_observation_kernel": true,
+    "forward_localization_share_kernel": true,
+    "receiver_consistent_imaging_available": true,
+    "imaging_peak_location": {
+      "x_m": 60.0,
+      "y_m": 10.0,
+      "depth_m": 2.5
+    },
+    "imaging_peak_to_truth_distance": 1.118033988749895,
+    "imaging_peak_to_posterior_peak_distance": 8.246211251235321,
+    "volume_proxy_role": "visualization_only",
+    "volume_proxy_used_for_localization": false,
+    "module_coordination_summary": {
+      "observation_kernel_3d_available": true,
+      "forward_uses_observation_kernel": true,
+      "localization_uses_observation_kernel": true,
+      "forward_localization_share_kernel": true,
+      "imaging_uses_receiver_consistent_paths": true,
+      "volume_proxy_used_for_localization": false,
+      "volume_proxy_role": "visualization_only",
+      "attenuation_used_by_forward": true,
+      "attenuation_used_by_imaging": true,
+      "posterior_uses_imaging_volume": true,
+      "geometry_resolution_used_in_recommendation": true,
+      "module_coordination_status": "pass",
+      "ready_for_2p5d": false
+    },
+    "module_coordination_status": "pass",
+    "tests_deleted_or_merged_count": 5,
+    "new_test_files_count": 2,
+    "validation_scripts_added_count": 0,
+    "ready_for_2p5d": false
+  },
+  "previous_stage": "Stage 5J",
+  "algorithm_commit": "fda2b14",
   "latest_stable_commit": "generated_from_algorithm_commit",
   "previous_latest_stable_commit": "27f000d",
-  "source_run_dir": "outputs\\stage5j_run_20260705_193045",
-  "generated_time": "2026-07-05T19:32:34",
+  "source_run_dir": "outputs\\stage5k_run_20260705_204708",
+  "generated_time": "2026-07-05T20:49:57",
   "ready_for_2p5d": false
 }

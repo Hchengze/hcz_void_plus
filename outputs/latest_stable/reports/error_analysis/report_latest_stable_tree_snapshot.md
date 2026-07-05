@@ -19,9 +19,9 @@
 - `latest_stable/archive_manifest.md`
 - `latest_stable/figures/error_analysis/fig_3d_geometry_resolution_analysis.png`
 - `latest_stable/figures/error_analysis/fig_elastic2d_das_report_consistency.png`
-- `latest_stable/figures/error_analysis/fig_forward_localization_consistency.png`
-- `latest_stable/figures/error_analysis/fig_multi_peak_ambiguity_analysis.png`
+- `latest_stable/figures/error_analysis/fig_module_coordination_summary.png`
 - `latest_stable/figures/error_analysis/fig_rayleigh_pick_interpretation.png`
+- `latest_stable/figures/error_analysis/fig_receiver_imaging_vs_volume_proxy.png`
 - `latest_stable/figures/error_analysis/fig_scan_velocity_model_consistency.png`
 - `latest_stable/figures/error_analysis/fig_stage5j_status_badge.png`
 - `latest_stable/figures/forward/fig_elastic2d_das_best_case.png`
@@ -35,11 +35,11 @@
 - `latest_stable/figures/forward/fig_volume_wavefield_depth_slices.png`
 - `latest_stable/figures/forward/fig_volume_wavefield_xyz_slices.png`
 - `latest_stable/figures/localization/fig_3d_high_score_region.png`
-- `latest_stable/figures/localization/fig_3d_posterior_volume.png`
 - `latest_stable/figures/localization/fig_3d_uncertainty_box.png`
 - `latest_stable/figures/localization/fig_3d_uncertainty_ellipsoid.png`
+- `latest_stable/figures/localization/fig_kernel_shared_posterior_volume.png`
+- `latest_stable/figures/localization/fig_receiver_consistent_imaging_volume.png`
 - `latest_stable/figures/localization/fig_recommended_location_3d.png`
-- `latest_stable/figures/localization/fig_scan_x_depth_slice.png`
 - `latest_stable/figures/localization/fig_scan_x_y_slice.png`
 - `latest_stable/metadata/figure_manifest.json`
 - `latest_stable/metadata/meta_params_snapshot.json`
