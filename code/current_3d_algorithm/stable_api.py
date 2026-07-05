@@ -27,7 +27,7 @@ def get_current_algorithm_summary() -> dict[str, Any]:
     }
 
     return {
-        "stage": "Stage 5J",
+        "stage": "Stage 5K",
         "stable_area": "code/current_3d_algorithm",
         "research_area": "src",
         "geometry": "3D source_xyz / receiver_xyz / candidate_xyz",
@@ -101,6 +101,19 @@ def get_current_algorithm_summary() -> dict[str, Any]:
             "forward_localization_link_check",
             "test_suite_reduction",
         ],
+        "stage5k_diagnostics": [
+            "observation_kernel_3d_shared_path_table",
+            "kernel_based_forward_synthesis_smoke",
+            "receiver_consistent_imaging_volume",
+            "posterior_uses_receiver_imaging_volume",
+            "volume_proxy_visualization_only",
+            "module_coordination_summary",
+        ],
+        "observation_kernel_3d_available": True,
+        "forward_localization_share_kernel": True,
+        "receiver_consistent_imaging_available": True,
+        "volume_proxy_role": "visualization_only",
+        "volume_proxy_used_for_localization": False,
         "rayleigh_like_stage5d_status": "not_detected",
         "das_gauge_stage5d_status": "zero_or_too_weak",
         "rayleigh_benchmark_stage5f_status": "not_passed",

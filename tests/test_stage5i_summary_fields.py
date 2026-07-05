@@ -1,11 +1,11 @@
 from pathlib import Path
 
 
-def test_latest_stable_summary_contains_stage5j_algorithm_fields():
+def test_latest_stable_summary_contains_stage5k_algorithm_fields():
     summary = Path("outputs/latest_stable/summary.md")
     assert summary.exists()
     text = summary.read_text(encoding="utf-8")
-    assert "Stage 5J" in text
+    assert "Stage 5K" in text
     for field in [
         "volume_wavefield_available",
         "volume_wavefield_grid_shape",
@@ -18,6 +18,15 @@ def test_latest_stable_summary_contains_stage5j_algorithm_fields():
         "scatter_attenuation_applied",
         "attenuation_rms_difference",
         "forward_localization_link_status",
+        "observation_kernel_3d_available",
+        "forward_uses_observation_kernel",
+        "localization_uses_observation_kernel",
+        "forward_localization_share_kernel",
+        "receiver_consistent_imaging_available",
+        "imaging_peak_location",
+        "volume_proxy_role",
+        "volume_proxy_used_for_localization",
+        "module_coordination_status",
         "scan_candidate_uses_path_integration",
         "scan_uses_representative_velocity",
         "multi_attribute_inversion_enabled",

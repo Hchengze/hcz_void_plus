@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage5j_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5k_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -239,6 +239,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default="layered_kinematic",
         choices=["kinematic_baseline", "layered_kinematic", "acoustic2d_prototype", "elastic2d_prototype"],
         help="正演引擎：layered_kinematic 为当前主线；acoustic2d/elastic2d prototype 仅作 validation。",
+    )
+    forward.add_argument(
+        "--synthesize-from-observation-kernel",
+        type=str_to_bool,
+        default=True,
+        help="是否优先使用统一 3D observation kernel 合成 layered_kinematic gather。",
     )
     forward.add_argument("--acoustic2d-enabled", type=str_to_bool, default=False, help="是否运行 acoustic2d_prototype 验证输出。")
     forward.add_argument("--acoustic2d-nx", type=int, default=201, help="acoustic2d 网格 x 点数。")
@@ -570,6 +576,7 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
         ),
         forward=_namespace(
             engine=args.forward_engine,
+            synthesize_from_observation_kernel=args.synthesize_from_observation_kernel,
             acoustic2d_enabled=args.acoustic2d_enabled,
             acoustic2d_nx=args.acoustic2d_nx,
             acoustic2d_nz=args.acoustic2d_nz,
@@ -1042,7 +1049,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 5J 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5K 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")
@@ -1052,6 +1059,7 @@ def print_params_summary(params: SimpleNamespace) -> None:
     print(f"scan grid: {params.derived.scan_shape}, points={params.derived.scan_grid_point_count}")
     print(f"forward engine: {params.forward.engine}")
     print(f"velocity model: {params.velocity.model_type}")
+    print(f"observation kernel synthesis: {params.forward.synthesize_from_observation_kernel}")
     print(f"attenuation: enabled={params.attenuation.enabled}, q_default={params.attenuation.q_default}")
     print(
         "volume wavefield: "

@@ -106,7 +106,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5J 3D kinematic forward volume and attenuation modeling",
+        "stage": "Stage 5K unified 3D observation kernel and receiver-consistent imaging",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -138,6 +138,13 @@ def build_metadata(
             "rayleigh_depth_sensitivity_included": True,
             "volume_wavefield_is_kinematic_proxy": True,
             "volume_wavefield_uses_depth": True,
+            "observation_kernel_3d_available": False,
+            "forward_uses_observation_kernel": False,
+            "localization_uses_observation_kernel": False,
+            "forward_localization_share_kernel": False,
+            "receiver_consistent_imaging_available": False,
+            "volume_proxy_role": "visualization_only",
+            "volume_proxy_used_for_localization": False,
         },
         "physics": {
             "rayleigh_depth_sensitivity_enabled": True,
@@ -196,6 +203,13 @@ def build_metadata(
             "geometry_resolution_status": None,
             "ambiguity_warning": None,
             "multi_peak_warning": None,
+            "localization_uses_observation_kernel": None,
+            "forward_localization_share_kernel": None,
+            "receiver_consistent_imaging_available": None,
+            "imaging_peak_location": None,
+            "imaging_peak_to_truth_distance": None,
+            "imaging_peak_to_posterior_peak_distance": None,
+            "posterior_uses_imaging_volume": None,
         },
         "diagnostics": {
             "diffraction_travel_time_curve_figure": None,
@@ -295,10 +309,34 @@ def build_metadata(
         metadata["scan"]["geometry_resolution_status"] = geometry_summary.get("geometry_resolution_status")
         metadata["scan"]["ambiguity_warning"] = scan_result.get("ambiguity_warning")
         metadata["scan"]["multi_peak_warning"] = scan_result.get("multi_peak_warning")
+        metadata["scan"]["localization_uses_observation_kernel"] = scan_result.get("localization_uses_observation_kernel")
+        metadata["scan"]["forward_localization_share_kernel"] = scan_result.get("forward_localization_share_kernel")
+        metadata["scan"]["receiver_consistent_imaging_available"] = scan_result.get("receiver_consistent_imaging_available")
+        metadata["scan"]["imaging_peak_location"] = scan_result.get("imaging_peak_location")
+        metadata["scan"]["imaging_peak_to_truth_distance"] = scan_result.get("imaging_peak_to_truth_distance")
+        metadata["scan"]["imaging_peak_to_posterior_peak_distance"] = scan_result.get("imaging_peak_to_posterior_peak_distance")
+        metadata["scan"]["posterior_uses_imaging_volume"] = scan_result.get("posterior_uses_imaging_volume")
+        metadata["approximation"]["localization_uses_observation_kernel"] = bool(
+            scan_result.get("localization_uses_observation_kernel")
+        )
+        metadata["approximation"]["forward_localization_share_kernel"] = bool(
+            scan_result.get("forward_localization_share_kernel")
+        )
+        metadata["approximation"]["receiver_consistent_imaging_available"] = bool(
+            scan_result.get("receiver_consistent_imaging_available")
+        )
+        metadata["approximation"]["volume_proxy_used_for_localization"] = False
     if forward_info is not None:
         metadata["approximation"]["forward_engine"] = forward_info.get("forward_engine")
         metadata["approximation"]["forward_modeling_stage"] = forward_info.get("forward_stage")
         metadata["approximation"]["forward_engine_note"] = forward_info.get("note")
+        kernel_meta = forward_info.get("observation_kernel_3d") or {}
+        metadata["approximation"]["observation_kernel_3d_available"] = bool(kernel_meta)
+        metadata["approximation"]["forward_uses_observation_kernel"] = bool(
+            forward_info.get("forward_uses_observation_kernel")
+        )
+        metadata["approximation"]["observation_kernel_shape"] = kernel_meta.get("path_shape")
+        metadata["approximation"]["observation_kernel_candidate_grid_shape"] = kernel_meta.get("candidate_grid_shape")
     if diagnostics_info is not None:
         metadata["diagnostics"].update(diagnostics_info)
     if confidence_info is not None:

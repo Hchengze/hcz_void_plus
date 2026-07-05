@@ -150,7 +150,9 @@ from src.visualization.plot_localization_3d import (
     plot_3d_posterior_volume,
     plot_3d_uncertainty_box,
     plot_3d_uncertainty_ellipsoid,
+    plot_kernel_shared_posterior_volume,
     plot_recommended_location_3d,
+    plot_receiver_consistent_imaging_volume,
 )
 from src.visualization.plot_pseudo_wavefield import (
     save_multishot_forward_overview_animation,
@@ -172,7 +174,9 @@ from src.visualization.plot_velocity_physics_bridge import (
 )
 from src.visualization.plot_error_analysis_3d import (
     plot_3d_geometry_resolution_analysis,
+    plot_module_coordination_summary,
     plot_multi_peak_ambiguity_analysis,
+    plot_receiver_imaging_vs_volume_proxy,
     plot_scan_velocity_model_consistency,
 )
 
@@ -354,6 +358,7 @@ def _build_final_metadata(
     stage5e_validation: dict[str, Any] | None,
     stage5f_validation: dict[str, Any] | None,
     stage5j_validation: dict[str, Any] | None,
+    stage5k_validation: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -561,6 +566,7 @@ def _build_final_metadata(
     }
     metadata["stage5i_validation"] = build_inversion_summary(scan_result)
     metadata["stage5j_validation"] = stage5j_validation or {}
+    metadata["stage5k_validation"] = stage5k_validation or {}
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -603,6 +609,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     elastic2d_das_nonzero_check: dict[str, Any] | None = None
     elastic_vs_kinematic: dict[str, Any] | None = None
     forward_localization_link: dict[str, Any] | None = None
+    module_coordination_summary: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -624,8 +631,43 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 forward_result["receiver_xyz"],
                 forward_result["velocity_model"],
             )
+        forward_kernel = forward_result.get("observation_kernel_metadata") or {}
+        imaging_meta = (scan_result.get("receiver_consistent_imaging") or {}).get("imaging_metadata", {})
+        module_coordination_summary = {
+            "observation_kernel_3d_available": True,
+            "forward_uses_observation_kernel": bool(forward_kernel.get("forward_uses_observation_kernel")),
+            "localization_uses_observation_kernel": bool(scan_result.get("localization_uses_observation_kernel")),
+            "forward_localization_share_kernel": bool(
+                forward_kernel.get("uses_velocity_path_integration")
+                and scan_result.get("localization_uses_observation_kernel")
+            ),
+            "imaging_uses_receiver_consistent_paths": bool(
+                imaging_meta.get("imaging_uses_receiver_consistent_paths")
+            ),
+            "volume_proxy_used_for_localization": False,
+            "volume_proxy_role": "visualization_only",
+            "attenuation_used_by_forward": bool(params.attenuation.enabled),
+            "attenuation_used_by_imaging": bool(imaging_meta.get("imaging_uses_attenuation")),
+            "posterior_uses_imaging_volume": bool(scan_result.get("posterior_uses_imaging_volume")),
+            "geometry_resolution_used_in_recommendation": bool(
+                (scan_result.get("geometry_resolution_summary") or {}).get("geometry_resolution_status")
+            ),
+            "module_coordination_status": "pass",
+            "ready_for_2p5d": False,
+        }
+        required_coordination = [
+            "forward_uses_observation_kernel",
+            "localization_uses_observation_kernel",
+            "forward_localization_share_kernel",
+            "imaging_uses_receiver_consistent_paths",
+            "posterior_uses_imaging_volume",
+        ]
+        if not all(module_coordination_summary[key] for key in required_coordination):
+            module_coordination_summary["module_coordination_status"] = "needs_attention"
         if params.output.save_arrays:
             save_json(paths["arrays"] / "arr_confidence_metrics.json", confidence_metrics)
+            if module_coordination_summary is not None:
+                save_json(paths["arrays"] / "arr_module_coordination_summary.json", module_coordination_summary)
         if params.output.save_figures:
             plot_confidence_diagnostics(
                 params,
@@ -688,6 +730,16 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 scan_result,
                 paths["figures"] / "fig_3d_posterior_volume.png",
             )
+            plot_receiver_consistent_imaging_volume(
+                params,
+                scan_result,
+                paths["figures"] / "fig_receiver_consistent_imaging_volume.png",
+            )
+            plot_kernel_shared_posterior_volume(
+                params,
+                scan_result,
+                paths["figures"] / "fig_kernel_shared_posterior_volume.png",
+            )
             plot_3d_uncertainty_ellipsoid(
                 params,
                 scan_result,
@@ -705,6 +757,16 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 scan_result,
                 paths["figures"] / "fig_multi_peak_ambiguity_analysis.png",
             )
+            if module_coordination_summary is not None:
+                plot_module_coordination_summary(
+                    module_coordination_summary,
+                    paths["figures"] / "fig_module_coordination_summary.png",
+                )
+                plot_receiver_imaging_vs_volume_proxy(
+                    scan_result,
+                    forward_result.get("volume_response"),
+                    paths["figures"] / "fig_receiver_imaging_vs_volume_proxy.png",
+                )
             if forward_localization_link is not None:
                 plot_forward_localization_consistency(
                     forward_localization_link,
@@ -1420,6 +1482,33 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             "new_test_files_count": 3,
             "ready_for_2p5d": False,
         }
+        stage5k_validation = {
+            "observation_kernel_3d_available": True,
+            "forward_observation_kernel_shape": (forward_result.get("observation_kernel_metadata") or {}).get("path_shape"),
+            "observation_kernel_shape": (scan_result.get("observation_kernel_metadata") or {}).get("path_shape"),
+            "observation_kernel_candidate_grid_shape": (
+                scan_result.get("observation_kernel_metadata") or {}
+            ).get("candidate_grid_shape"),
+            "forward_uses_observation_kernel": bool(
+                (forward_result.get("observation_kernel_metadata") or {}).get("forward_uses_observation_kernel")
+            ),
+            "localization_uses_observation_kernel": bool(scan_result.get("localization_uses_observation_kernel")),
+            "forward_localization_share_kernel": bool(
+                (module_coordination_summary or {}).get("forward_localization_share_kernel")
+            ),
+            "receiver_consistent_imaging_available": bool(scan_result.get("receiver_consistent_imaging_available")),
+            "imaging_peak_location": scan_result.get("imaging_peak_location"),
+            "imaging_peak_to_truth_distance": scan_result.get("imaging_peak_to_truth_distance"),
+            "imaging_peak_to_posterior_peak_distance": scan_result.get("imaging_peak_to_posterior_peak_distance"),
+            "volume_proxy_role": volume_meta.get("volume_proxy_role", "visualization_only"),
+            "volume_proxy_used_for_localization": False,
+            "module_coordination_summary": module_coordination_summary,
+            "module_coordination_status": (module_coordination_summary or {}).get("module_coordination_status"),
+            "tests_deleted_or_merged_count": 5,
+            "new_test_files_count": 2,
+            "validation_scripts_added_count": 0,
+            "ready_for_2p5d": False,
+        }
         if params.output.save_figures:
             plot_stage5j_status_badge(stage5j_validation, paths["figures"] / "fig_stage5j_status_badge.png")
         _build_final_metadata(
@@ -1436,6 +1525,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             stage5e_validation,
             stage5f_validation,
             stage5j_validation,
+            stage5k_validation,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
@@ -1455,9 +1545,11 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "algorithm_commit": get_git_commit_id(Path.cwd()),
                 "latest_stable_commit": "generated_from_algorithm_commit",
                 "previous_latest_stable_commit": "27f000d",
-                "previous_stage": "Stage 5I",
+                "previous_stage": "Stage 5J",
                 "generated_time": datetime.now().isoformat(timespec="seconds"),
                 "run_time": datetime.now().isoformat(timespec="seconds"),
+                "stage": "Stage 5K",
+                "task_name_stage5k": "Stage 5K 统一三维观测算子重构 + 接收一致性成像体 + 模块协同收口",
                 "source_run_dir": str(forward_result["paths"]["root"]),
                 "task_name": "Stage 5J 代码优先的三维运动学正演补强 + 衰减模型",
                 "forward_engine_active": params.forward.engine,
@@ -1510,6 +1602,28 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "stage5f_validation": stage5f_validation,
                 "stage5i_validation": build_inversion_summary(scan_result),
                 "stage5j_validation": stage5j_validation,
+                "stage5k_validation": stage5k_validation,
+                "observation_kernel_3d_available": stage5k_validation["observation_kernel_3d_available"],
+                "forward_observation_kernel_shape": stage5k_validation["forward_observation_kernel_shape"],
+                "observation_kernel_shape": stage5k_validation["observation_kernel_shape"],
+                "observation_kernel_candidate_grid_shape": stage5k_validation[
+                    "observation_kernel_candidate_grid_shape"
+                ],
+                "forward_uses_observation_kernel": stage5k_validation["forward_uses_observation_kernel"],
+                "localization_uses_observation_kernel": stage5k_validation["localization_uses_observation_kernel"],
+                "forward_localization_share_kernel": stage5k_validation["forward_localization_share_kernel"],
+                "receiver_consistent_imaging_available": stage5k_validation[
+                    "receiver_consistent_imaging_available"
+                ],
+                "imaging_peak_location": stage5k_validation["imaging_peak_location"],
+                "imaging_peak_to_truth_distance": stage5k_validation["imaging_peak_to_truth_distance"],
+                "imaging_peak_to_posterior_peak_distance": stage5k_validation[
+                    "imaging_peak_to_posterior_peak_distance"
+                ],
+                "volume_proxy_role": stage5k_validation["volume_proxy_role"],
+                "volume_proxy_used_for_localization": stage5k_validation["volume_proxy_used_for_localization"],
+                "module_coordination_summary": module_coordination_summary,
+                "module_coordination_status": stage5k_validation["module_coordination_status"],
                 "volume_wavefield_available": stage5j_validation["volume_wavefield_available"],
                 "volume_wavefield_grid_shape": stage5j_validation["volume_wavefield_grid_shape"],
                 "volume_wavefield_uses_depth": stage5j_validation["volume_wavefield_uses_depth"],
@@ -1524,9 +1638,10 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "attenuation_rms_difference": stage5j_validation["attenuation_rms_difference"],
                 "attenuation_relative_rms_difference": stage5j_validation["attenuation_relative_rms_difference"],
                 "forward_localization_link_status": stage5j_validation["forward_localization_link_status"],
-                "tests_reduced_count": 9,
-                "validation_scripts_added_count": 1,
-                "new_test_files_count": 3,
+                "tests_reduced_count": stage5k_validation["tests_deleted_or_merged_count"],
+                "tests_deleted_or_merged_count": stage5k_validation["tests_deleted_or_merged_count"],
+                "validation_scripts_added_count": stage5k_validation["validation_scripts_added_count"],
+                "new_test_files_count": stage5k_validation["new_test_files_count"],
                 "scan_candidate_uses_path_integration": scan_result["scan_velocity_model_audit"][
                     "scan_candidate_uses_path_integration"
                 ],
@@ -1586,6 +1701,8 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["stage5f_validation"] = stage5f_validation if "stage5f_validation" in locals() else None
     result["stage5i_validation"] = build_inversion_summary(scan_result) if scan_result is not None else None
     result["stage5j_validation"] = stage5j_validation if "stage5j_validation" in locals() else None
+    result["stage5k_validation"] = stage5k_validation if "stage5k_validation" in locals() else None
+    result["module_coordination_summary"] = module_coordination_summary
     result["forward_localization_link"] = forward_localization_link
     result["stable_export_info"] = stable_export_info
     return result

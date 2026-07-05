@@ -136,6 +136,7 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     velocity_model = forward_result["velocity_model"]
     synthetic_data = forward_result["synthetic_data"]
     attenuation_summary = forward_result.get("attenuation_summary", {})
+    observation_kernel_metadata = forward_result.get("observation_kernel_metadata", {})
     volume_response = None
     if params.output.volume_wavefield_enabled:
         volume_response = compute_kinematic_volume_response(
@@ -257,7 +258,9 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "Stage 5J 当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation；正演新增 x-y-depth 体响应 proxy 和经验 Q attenuation，但仍不是 3D elastic wavefield。",
+            "observation_kernel_3d": observation_kernel_metadata,
+            "forward_uses_observation_kernel": bool(observation_kernel_metadata.get("forward_uses_observation_kernel")),
+            "note": "Stage 5K 当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation；正演和定位优先共享 3D observation kernel，x-y-depth 体响应 proxy 只用于可视化，不是 3D elastic wavefield。",
         },
     )
     save_json(paths["metadata"] / "params_snapshot.json", params)
@@ -278,13 +281,15 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         )
 
     log_text = (
-        "Stage 5J forward pipeline completed.\n"
+        "Stage 5K forward pipeline completed.\n"
         "Approximation: kinematic approximation + DAS-like response approximation.\n"
-        "Volume response: 3D kinematic volume response proxy, not true elastic wave equation snapshot.\n"
+        "Observation kernel: shared 3D source-candidate-receiver path table for forward/localization.\n"
+        "Volume response: visualization_only 3D kinematic proxy, not receiver-consistent imaging and not true elastic wave equation snapshot.\n"
         f"Output directory: {paths['root']}\n"
         f"Data shape: {synthetic_data.shape} (shot × time × channel)\n"
         f"Volume shape: {None if volume_response is None else volume_response['metadata']['volume_grid_shape']}\n"
         f"Attenuation enabled: {params.attenuation.enabled}\n"
+        f"Forward uses observation kernel: {bool(observation_kernel_metadata.get('forward_uses_observation_kernel'))}\n"
     )
     (paths["logs"] / "log_run.txt").write_text(log_text, encoding="utf-8")
 
@@ -302,6 +307,8 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         "scatter_weight": scatter_weight,
         "synthetic_data_no_attenuation": forward_result.get("synthetic_data_no_attenuation"),
         "attenuation_summary": attenuation_summary,
+        "observation_paths_3d": forward_result.get("observation_paths_3d"),
+        "observation_kernel_metadata": observation_kernel_metadata,
         "volume_response": volume_response,
         "volume_response_metadata": None if volume_response is None else volume_response["metadata"],
         "gather_velocity_context": gather_context,

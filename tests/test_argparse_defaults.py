@@ -6,7 +6,7 @@ def test_argparse_defaults_can_parse():
     params = args_to_params(args)
 
     assert params.project.task == "debug"
-    assert params.project.run_name == "stage5j_run"
+    assert params.project.run_name == "stage5k_run"
     assert params.fiber.channel_count >= 2
     assert params.source.shot_count >= 1
     assert params.derived.nt == len(params.derived.time_axis)
@@ -37,6 +37,7 @@ def test_argparse_defaults_can_parse():
     assert params.scan.velocity_ablation_enabled is True
     assert params.scan.rayleigh_penetration_factor == 1.0
     assert params.forward.engine == "layered_kinematic"
+    assert params.forward.synthesize_from_observation_kernel is True
     assert params.forward.acoustic2d_enabled is False
     assert params.forward.acoustic2d_nx == 201
     assert params.forward.acoustic2d_nz == 101

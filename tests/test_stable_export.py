@@ -24,8 +24,8 @@ def _write_valid_png(path: Path):
     plt.close(fig)
 
 
-def test_export_latest_stable_outputs_creates_stage5j_three_category_directory(tmp_path):
-    run_dir = tmp_path / "stage5j_run_20260705_000000"
+def test_export_latest_stable_outputs_creates_stage5k_three_category_directory(tmp_path):
+    run_dir = tmp_path / "stage5k_run_20260705_000000"
     latest = tmp_path / "latest_stable"
     for spec in STAGE5J_FIGURE_SPECS:
         _write_valid_png(run_dir / "figures" / spec.filename)
@@ -74,6 +74,21 @@ def test_export_latest_stable_outputs_creates_stage5j_three_category_directory(t
                 "scatter_attenuation_applied": True,
                 "ready_for_2p5d": False,
             },
+            "stage5k_validation": {
+                "observation_kernel_3d_available": True,
+                "forward_uses_observation_kernel": True,
+                "localization_uses_observation_kernel": True,
+                "forward_localization_share_kernel": True,
+                "receiver_consistent_imaging_available": True,
+                "volume_proxy_used_for_localization": False,
+                "ready_for_2p5d": False,
+            },
+            "observation_kernel_3d_available": True,
+            "forward_uses_observation_kernel": True,
+            "localization_uses_observation_kernel": True,
+            "forward_localization_share_kernel": True,
+            "receiver_consistent_imaging_available": True,
+            "volume_proxy_used_for_localization": False,
             "confidence": {"high_score_region": {}},
         },
     )
@@ -96,7 +111,8 @@ def test_export_latest_stable_outputs_creates_stage5j_three_category_directory(t
     assert (latest / "metadata" / "meta_params_snapshot.json").exists()
     assert (latest / "metadata" / "latest_stable_tree_snapshot.txt").exists()
     summary = (latest / "summary.md").read_text(encoding="utf-8")
-    assert "Stage 5J" in summary
+    assert "Stage 5K" in summary
+    assert "observation_kernel_3d_available" in summary
     assert "algorithm_commit = `abc1234`" in summary
     assert "latest_stable_commit" in summary
     assert info["copied"]

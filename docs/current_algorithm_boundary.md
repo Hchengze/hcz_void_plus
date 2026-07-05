@@ -88,9 +88,9 @@ Stage 5G 不继续堆功能，而是收敛输出体系并强化三维主线。
 - DAS gauge 统一结论为 `nonzero_but_weak_not_for_default_localization`，不得默认用于定位。
 - 2D elastic 仍只是服务三维道路 DAS-like 场景的局部 validation，不能替代三维 x-y-h 定位。
 
-## Stage 5J 边界
+## Stage 5K 边界
 
-Stage 5J 不进入 2.5D，也不继续堆图，而是优先补强三维运动学正演生产代码：x-y-depth 体响应 proxy、速度模型路径积分炮集上下文、经验 Q attenuation 和 forward-localization link。`layered_kinematic` 仍是当前主定位 forward，`elastic2d/staggered` 仍只作 validation。
+Stage 5K 不进入 2.5D，也不继续堆图，而是优先统一三维观测算子：forward 和 localization 共用 source→candidate→receiver 走时、振幅、衰减和取样逻辑。`layered_kinematic` 仍是当前主定位 forward，`elastic2d/staggered` 仍只作 validation，`kinematic_volume_response` 只作为 visualization_only proxy。
 
 - summary 必须同时记录 `algorithm_commit`、`latest_stable_commit`、`previous_stage`、`source_run_dir` 和 `generated_time`。
 - latest_stable 必须生成 `metadata/latest_stable_tree_snapshot.txt` 和 `report_latest_stable_tree_snapshot.md`，以本地文件树为准。

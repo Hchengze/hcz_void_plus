@@ -284,3 +284,102 @@ def plot_3d_uncertainty_ellipsoid(
     ax.legend(loc="upper left", fontsize=8)
     ax.view_init(elev=24, azim=-58)
     _save(fig, output_path)
+
+
+def _plot_candidate_cloud_from_volume(
+    params: SimpleNamespace,
+    volume: np.ndarray,
+    scan_result: dict[str, Any],
+    output_path: Path,
+    *,
+    title: str,
+    colorbar_label: str,
+    note: str,
+    peak_key: str,
+) -> None:
+    """按体值抽取高值候选点云，用于 Stage 5K 接收一致性成像和共享 posterior 图。
+
+    这里只画三维定位候选空间，不把 2D elastic validation 解释成三维弹性正演。
+    """
+
+    setup_chinese_matplotlib()
+    values_volume = np.asarray(volume, dtype=float)
+    finite = values_volume[np.isfinite(values_volume)]
+    threshold = float(np.percentile(finite, 96.0)) if finite.size else 0.0
+    indices = np.argwhere(values_volume >= threshold)
+    if indices.shape[0] > 900:
+        values_all = values_volume[indices[:, 0], indices[:, 1], indices[:, 2]]
+        keep = np.argsort(values_all)[-900:]
+        indices = indices[keep]
+    if indices.size:
+        values = values_volume[indices[:, 0], indices[:, 1], indices[:, 2]]
+        points = np.column_stack(
+            [
+                params.derived.scan_x_grid[indices[:, 0]],
+                params.derived.scan_y_grid[indices[:, 1]],
+                params.derived.scan_depth_grid[indices[:, 2]],
+            ]
+        )
+    else:
+        values = np.empty(0)
+        points = np.empty((0, 3))
+
+    truth = np.array([params.anomaly.x0_m, params.anomaly.y0_m, params.anomaly.depth_m], dtype=float)
+    peak = _location_array(scan_result.get(peak_key), truth)
+    posterior = _location_array(scan_result.get("posterior_peak_location"), peak)
+
+    fig = plt.figure(figsize=(8.6, 6.0), dpi=150)
+    ax = fig.add_subplot(111, projection="3d")
+    if points.size:
+        scatter = ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=values, cmap="viridis", s=22, alpha=0.72, label="高值候选点")
+        fig.colorbar(scatter, ax=ax, fraction=0.04, pad=0.06, label=colorbar_label)
+    ax.scatter([truth[0]], [truth[1]], [truth[2]], marker="x", s=95, color="black", linewidths=2.0, label="真值位置")
+    ax.scatter([peak[0]], [peak[1]], [peak[2]], marker="*", s=135, color="#e15759", label="本图峰值")
+    ax.scatter([posterior[0]], [posterior[1]], [posterior[2]], marker="o", s=75, facecolors="none", edgecolors="#4e79a7", linewidths=2.0, label="posterior peak")
+    ax.set_xlabel("x / m")
+    ax.set_ylabel("y / m")
+    ax.set_zlabel("深度 h / m")
+    ax.invert_zaxis()
+    ax.set_title(title)
+    ax.text2D(0.02, 0.02, note, transform=ax.transAxes, fontsize=8.5, color="#e15759")
+    ax.legend(loc="upper left", fontsize=8)
+    ax.view_init(elev=24, azim=-58)
+    _save(fig, output_path)
+
+
+def plot_receiver_consistent_imaging_volume(
+    params: SimpleNamespace,
+    scan_result: dict[str, Any],
+    output_path: Path,
+) -> None:
+    """绘制 Stage 5K 接收一致性三维成像体。"""
+
+    _plot_candidate_cloud_from_volume(
+        params,
+        scan_result["imaging_volume_combined"],
+        scan_result,
+        output_path,
+        title="接收一致性三维成像体：source-candidate-receiver 路径叠加",
+        colorbar_label="成像体得分",
+        note="说明：该体沿接收记录的散射到时取样；不是 source→voxel 可视化 proxy，也不是 3D elastic 成像。",
+        peak_key="imaging_peak_location",
+    )
+
+
+def plot_kernel_shared_posterior_volume(
+    params: SimpleNamespace,
+    scan_result: dict[str, Any],
+    output_path: Path,
+) -> None:
+    """绘制共享 observation kernel 后的 posterior-like 体。"""
+
+    _plot_candidate_cloud_from_volume(
+        params,
+        scan_result["posterior_input_volume"],
+        scan_result,
+        output_path,
+        title="共享 observation kernel 的 posterior-like 输入体",
+        colorbar_label="融合得分",
+        note="说明：posterior-like 体融合多属性扫描和接收一致性成像；它是规则型诊断，不是严格贝叶斯反演。",
+        peak_key="posterior_peak_location",
+    )

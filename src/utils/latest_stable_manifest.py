@@ -32,7 +32,7 @@ class StableAnimationSpec:
     required_report: str
 
 
-STAGE5J_FIGURE_SPECS: list[StableFigureSpec] = [
+STAGE5K_FIGURE_SPECS: list[StableFigureSpec] = [
     StableFigureSpec("forward", "fig_geometry_3d_overview.png", "reports/forward/report_full_pipeline.md"),
     StableFigureSpec("forward", "fig_velocity_model_active_badge.png", "reports/forward/report_velocity_model_audit.md"),
     StableFigureSpec("forward", "fig_velocity_sampling_paths_3d.png", "reports/forward/report_velocity_model_visualization.md"),
@@ -44,23 +44,23 @@ STAGE5J_FIGURE_SPECS: list[StableFigureSpec] = [
     StableFigureSpec("forward", "fig_elastic2d_rayleigh_benchmark_matrix.png", "reports/forward/report_elastic2d_rayleigh_benchmark.md"),
     StableFigureSpec("forward", "fig_elastic2d_das_best_case.png", "reports/forward/report_elastic2d_das_response.md"),
     StableFigureSpec("localization", "fig_scan_x_y_slice.png", "reports/localization/report_full_pipeline.md"),
-    StableFigureSpec("localization", "fig_scan_x_depth_slice.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_3d_high_score_region.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_recommended_location_3d.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_3d_uncertainty_box.png", "reports/localization/report_full_pipeline.md"),
-    StableFigureSpec("localization", "fig_3d_posterior_volume.png", "reports/localization/report_full_pipeline.md"),
+    StableFigureSpec("localization", "fig_receiver_consistent_imaging_volume.png", "reports/localization/report_full_pipeline.md"),
+    StableFigureSpec("localization", "fig_kernel_shared_posterior_volume.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_3d_uncertainty_ellipsoid.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("error_analysis", "fig_stage5j_status_badge.png", "reports/error_analysis/report_manual_review_readiness.md"),
     StableFigureSpec("error_analysis", "fig_rayleigh_pick_interpretation.png", "reports/forward/report_elastic2d_rayleigh_benchmark.md"),
     StableFigureSpec("error_analysis", "fig_elastic2d_das_report_consistency.png", "reports/forward/report_elastic2d_das_response.md"),
-    StableFigureSpec("error_analysis", "fig_multi_peak_ambiguity_analysis.png", "reports/localization/report_full_pipeline.md"),
+    StableFigureSpec("error_analysis", "fig_module_coordination_summary.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("error_analysis", "fig_3d_geometry_resolution_analysis.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("error_analysis", "fig_scan_velocity_model_consistency.png", "reports/localization/report_full_pipeline.md"),
-    StableFigureSpec("error_analysis", "fig_forward_localization_consistency.png", "reports/error_analysis/report_forward_localization_link.md"),
+    StableFigureSpec("error_analysis", "fig_receiver_imaging_vs_volume_proxy.png", "reports/localization/report_full_pipeline.md"),
 ]
 
 
-STAGE5J_ANIMATION_SPECS: list[StableAnimationSpec] = [
+STAGE5K_ANIMATION_SPECS: list[StableAnimationSpec] = [
     StableAnimationSpec("forward", "anim_multishot_forward_overview.gif", "reports/forward/report_full_pipeline.md"),
     StableAnimationSpec("forward", "anim_single_shot_volume_wavefield.gif", "reports/forward/report_full_pipeline.md"),
 ]
@@ -70,7 +70,7 @@ def specs_by_category() -> dict[str, list[str]]:
     """返回静态图 category -> filename 清单。"""
 
     grouped: dict[str, list[str]] = {}
-    for spec in STAGE5J_FIGURE_SPECS:
+    for spec in STAGE5K_FIGURE_SPECS:
         grouped.setdefault(spec.category, []).append(spec.filename)
     return grouped
 
@@ -79,7 +79,7 @@ def animation_specs_by_category() -> dict[str, list[str]]:
     """返回动图 category -> filename 清单。"""
 
     grouped: dict[str, list[str]] = {}
-    for spec in STAGE5J_ANIMATION_SPECS:
+    for spec in STAGE5K_ANIMATION_SPECS:
         grouped.setdefault(spec.category, []).append(spec.filename)
     return grouped
 
@@ -93,7 +93,7 @@ def build_figure_metadata(
     """生成每张精选图的审计 metadata。"""
 
     metadata: dict[str, dict[str, Any]] = {}
-    for spec in STAGE5J_FIGURE_SPECS:
+    for spec in STAGE5K_FIGURE_SPECS:
         metadata[spec.filename] = {
             "stage": stage,
             "forward_engine": forward_engine,
@@ -108,10 +108,14 @@ def build_figure_metadata(
 def expected_category_for_filename(filename: str) -> str | None:
     """查找图件应该进入的 Stage 5J latest_stable 子目录。"""
 
-    for spec in STAGE5J_FIGURE_SPECS:
+    for spec in STAGE5K_FIGURE_SPECS:
         if spec.filename == Path(filename).name:
             return spec.category
     return None
+
+
+STAGE5J_FIGURE_SPECS = STAGE5K_FIGURE_SPECS
+STAGE5J_ANIMATION_SPECS = STAGE5K_ANIMATION_SPECS
 
 
 # 兼容旧测试或旧导入名。实际清单以 Stage 5J 为准。
@@ -122,3 +126,10 @@ STAGE5G_ANIMATION_SPECS = STAGE5J_ANIMATION_SPECS
 STAGE5F_FIGURE_SPECS = STAGE5J_FIGURE_SPECS
 STAGE5E_FIGURE_SPECS = STAGE5J_FIGURE_SPECS
 STAGE5D_FIGURE_SPECS = STAGE5J_FIGURE_SPECS
+STAGE5H_FIGURE_SPECS = STAGE5K_FIGURE_SPECS
+STAGE5H_ANIMATION_SPECS = STAGE5K_ANIMATION_SPECS
+STAGE5G_FIGURE_SPECS = STAGE5K_FIGURE_SPECS
+STAGE5G_ANIMATION_SPECS = STAGE5K_ANIMATION_SPECS
+STAGE5F_FIGURE_SPECS = STAGE5K_FIGURE_SPECS
+STAGE5E_FIGURE_SPECS = STAGE5K_FIGURE_SPECS
+STAGE5D_FIGURE_SPECS = STAGE5K_FIGURE_SPECS

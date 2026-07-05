@@ -159,7 +159,12 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
             "arr_score_volume_frequency_shift.npy": "score_volume_frequency_shift",
             "arr_score_volume_combined.npy": "score_volume_combined",
             "arr_posterior_probability_volume.npy": "posterior_probability_volume",
+            "arr_posterior_input_volume.npy": "posterior_input_volume",
             "arr_geometry_resolution_volume.npy": "geometry_resolution_volume",
+            "arr_imaging_volume_energy.npy": "imaging_volume_energy",
+            "arr_imaging_volume_envelope.npy": "imaging_volume_envelope",
+            "arr_imaging_volume_semblance.npy": "imaging_volume_semblance",
+            "arr_imaging_volume_combined.npy": "imaging_volume_combined",
         }
         for filename, key in stage5i_volume_aliases.items():
             if key in scan_result and scan_result[key] is not None:
@@ -262,10 +267,13 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
     save_json(paths["metadata"] / "meta_run.json", metadata)
 
     scan_log = (
-        "Stage 5I scan pipeline completed.\n"
+        "Stage 5K scan pipeline completed.\n"
         f"Score method: {params.scan.score_method}\n"
         f"Scan candidate uses path integration: {scan_result['scan_velocity_model_audit']['scan_candidate_uses_path_integration']}\n"
         f"Scan uses representative velocity: {scan_result['scan_velocity_model_audit']['scan_uses_representative_velocity']}\n"
+        f"Localization uses observation kernel: {scan_result.get('localization_uses_observation_kernel')}\n"
+        f"Receiver-consistent imaging available: {scan_result.get('receiver_consistent_imaging_available')}\n"
+        f"Imaging peak location: {scan_result.get('imaging_peak_location')}\n"
         f"Posterior volume status: {scan_result['posterior_volume_status']}\n"
         f"Best location: {scan_result['best_location']}\n"
         f"Truth error: {scan_result['truth_error']}\n"

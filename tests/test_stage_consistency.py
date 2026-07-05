@@ -10,7 +10,7 @@ if CODE_DIR not in sys.path:
 from current_3d_algorithm.stable_api import get_current_algorithm_summary
 
 
-def test_stage5j_is_declared_in_all_current_entrypoints():
+def test_stage5k_is_declared_in_all_current_entrypoints():
     files = [
         Path("README.md"),
         Path("docs/current_status.md"),
@@ -19,36 +19,41 @@ def test_stage5j_is_declared_in_all_current_entrypoints():
     ]
     for path in files:
         text = path.read_text(encoding="utf-8")
-        assert "Stage 5J" in text
+        assert "Stage 5K" in text
         assert "layered_kinematic" in text
 
     summary = get_current_algorithm_summary()
-    assert summary["stage"] == "Stage 5J"
+    assert summary["stage"] == "Stage 5K"
     assert summary["velocity_default"] == "layered"
     assert summary["stable_forward_engine"] == "layered_kinematic"
+    assert summary["observation_kernel_3d_available"] is True
+    assert summary["volume_proxy_used_for_localization"] is False
     assert summary["ready_for_2p5d"] is False
 
 
-def test_latest_stable_summary_stage5j_after_refresh():
+def test_latest_stable_summary_stage5k_after_refresh():
     summary_path = Path("outputs/latest_stable/summary.md")
     assert summary_path.exists()
     text = summary_path.read_text(encoding="utf-8")
-    assert "Stage 5J" in text
-    assert "previous_stage = Stage 5I" in text
+    assert "Stage 5K" in text
+    assert "previous_stage = Stage 5J" in text
     assert "algorithm_commit" in text
     assert "latest_stable_commit" in text
     assert "active_velocity_model" in text
     assert "ready_for_2p5d" in text
     assert "manual_review_figures" in text
+    assert "observation_kernel_3d_available" in text
+    assert "receiver_consistent_imaging_available" in text
+    assert "volume_proxy_used_for_localization" in text
     if "rayleigh_like_event_detected：`False`" in text or "rayleigh_like_event_detected：`False`" in text:
         assert "ready_for_2p5d = `False`" in text or "ready_for_2p5d：`False`" in text
 
 
-def test_latest_stable_metadata_records_stage5j():
+def test_latest_stable_metadata_records_stage5k():
     meta_path = Path("outputs/latest_stable/metadata/meta_run.json")
     assert meta_path.exists()
     metadata = json.loads(meta_path.read_text(encoding="utf-8"))
-    assert metadata["stage"] == "Stage 5J 3D kinematic forward volume and attenuation modeling"
+    assert metadata["stage"] == "Stage 5K unified 3D observation kernel and receiver-consistent imaging"
     assert metadata["algorithm_commit"]
     assert "latest_stable_commit" in metadata
     assert metadata["approximation"]["forward_engine"] == "layered_kinematic"
@@ -56,6 +61,8 @@ def test_latest_stable_metadata_records_stage5j():
     assert metadata["stage5h_validation"]["ready_for_2p5d"] is False
     assert metadata["stage5i_validation"]["ready_for_2p5d"] is False
     assert metadata["stage5j_validation"]["ready_for_2p5d"] is False
+    assert metadata["stage5k_validation"]["ready_for_2p5d"] is False
+    assert metadata["stage5k_validation"]["volume_proxy_used_for_localization"] is False
     assert metadata["stage5g_validation"]["latest_stable_categories"] == [
         "forward",
         "localization",

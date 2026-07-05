@@ -10,6 +10,7 @@ import numpy as np
 from src.das_like.das_response_level import apply_das_like_response
 from src.forward.amplitude_model import attenuation_comparison_summary
 from src.forward.direct_wave import simulate_direct_wave
+from src.forward.observation_kernel_3d import build_observation_paths_3d, synthesize_gather_from_observation_paths
 from src.forward.scatter_kinematic import simulate_scatter_wave
 from src.model.attenuation_model import attenuation_metadata, build_attenuation_model
 from src.model.velocity_model import KinematicVelocityModel
@@ -74,10 +75,27 @@ def synthesize_multishot_forward(
     """
 
     attenuation_model = build_attenuation_model(params)
-    direct_data = simulate_direct_wave(params, source_xyz, receiver_xyz, velocity_model)
-    scatter_data = simulate_scatter_wave(
-        params, source_xyz, receiver_xyz, scatter_xyz, scatter_weight, velocity_model
+    observation_paths = build_observation_paths_3d(
+        source_xyz,
+        receiver_xyz,
+        scatter_xyz,
+        velocity_model,
+        attenuation_model,
+        params,
+        candidate_weight=scatter_weight,
     )
+    if bool(getattr(params.forward, "synthesize_from_observation_kernel", True)):
+        # Stage 5K 后，主正演优先从统一 observation kernel 合成，避免 direct/scatter 与定位各自维护路径表。
+        kernel_synthetic = synthesize_gather_from_observation_paths(params, observation_paths)
+        direct_data = kernel_synthetic["direct_data"]
+        scatter_data = kernel_synthetic["scatter_data"]
+        forward_uses_kernel = True
+    else:
+        direct_data = simulate_direct_wave(params, source_xyz, receiver_xyz, velocity_model)
+        scatter_data = simulate_scatter_wave(
+            params, source_xyz, receiver_xyz, scatter_xyz, scatter_weight, velocity_model
+        )
+        forward_uses_kernel = False
     combined = direct_data + scatter_data
     das_like_data = apply_das_like_response(combined, params)
 
@@ -89,10 +107,19 @@ def synthesize_multishot_forward(
         # 不作为 active synthetic_data。
         reference_params = deepcopy(params)
         reference_params.attenuation.enabled = False
-        reference_direct = simulate_direct_wave(reference_params, source_xyz, receiver_xyz, velocity_model)
-        reference_scatter = simulate_scatter_wave(
-            reference_params, source_xyz, receiver_xyz, scatter_xyz, scatter_weight, velocity_model
+        reference_attenuation = build_attenuation_model(reference_params)
+        reference_paths = build_observation_paths_3d(
+            source_xyz,
+            receiver_xyz,
+            scatter_xyz,
+            velocity_model,
+            reference_attenuation,
+            reference_params,
+            candidate_weight=scatter_weight,
         )
+        reference_synthetic = synthesize_gather_from_observation_paths(reference_params, reference_paths)
+        reference_direct = reference_synthetic["direct_data"]
+        reference_scatter = reference_synthetic["scatter_data"]
         no_attenuation_data = apply_das_like_response(reference_direct + reference_scatter, reference_params)
         attenuation_summary.update(attenuation_comparison_summary(das_like_data, no_attenuation_data))
 
@@ -108,4 +135,11 @@ def synthesize_multishot_forward(
         "synthetic_data": synthetic_data,
         "synthetic_data_no_attenuation": no_attenuation_data,
         "attenuation_summary": attenuation_summary,
+        "observation_paths_3d": observation_paths,
+        "observation_kernel_metadata": {
+            **observation_paths.metadata,
+            "forward_uses_observation_kernel": bool(forward_uses_kernel),
+            "kernel_based_synthesis_smoke": True,
+            "direct_scatter_legacy_available": True,
+        },
     }

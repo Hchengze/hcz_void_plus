@@ -1,8 +1,8 @@
-# 当前状态：Stage 5J
+# 当前状态：Stage 5K
 
 ## 最新事实
 
-1. Stage 5I 已完成，当前进入 **Stage 5J：代码优先的三维运动学正演补强 + 衰减模型 + 炮集速度模型上下文 + 测试收缩**。
+1. Stage 5J 已完成，当前进入 **Stage 5K：统一三维观测算子重构 + 接收一致性成像体 + 模块协同收口**。
 2. 当前 active velocity model 是 `layered`，不是 `uniform`。
 3. 当前 active forward engine 是 `layered_kinematic`，它仍是 straight-ray kinematic approximation。
 4. `elastic2d_prototype` 与 staggered-grid benchmark 都只属于 validation forward，不替代主定位 forward。
@@ -10,9 +10,10 @@
 6. Rayleigh-like benchmark 尚未通过；未通过前 `ready_for_2p5d=False`。
 7. DAS-like gauge strain 统一口径为 `nonzero_but_weak_not_for_default_localization`，不能默认用于定位。
 8. latest_stable 是当前精选成果目录，不是历史图件堆积目录。
-9. Stage 5J 不再把主要精力放在图件治理上；当前重点是 x-y-depth 三维运动学体响应 proxy、速度模型约束炮集、经验 Q attenuation 和 forward-localization link。
-10. 三维场景仍是项目主问题：`source_xyz / receiver_xyz / candidate_xyz / x-y-depth high-score region` 必须保留。
-11. 2D elastic 只是服务三维道路 DAS-like 场景的局部物理验证，不得替代三维 x-y-h 定位。
+9. Stage 5K 不再新增零散审计脚本；当前重点是统一 `observation_kernel_3d`，让 forward 和 localization 共用 source→candidate→receiver 走时、振幅、衰减和接收取样逻辑。
+10. `kinematic_volume_response` 现在只作为 `visualization_only` 体响应 proxy，不作为定位依据；定位主线优先使用 receiver-consistent imaging volume。
+11. 三维场景仍是项目主问题：`source_xyz / receiver_xyz / candidate_xyz / x-y-depth high-score region` 必须保留。
+12. 2D elastic 只是服务三维道路 DAS-like 场景的局部物理验证，不得替代三维 x-y-h 定位。
 
 ## 当前默认主线
 

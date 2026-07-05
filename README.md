@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-当前推进到 **Stage 5J：代码优先的三维运动学正演补强 + 衰减模型 + 炮集速度模型上下文 + 测试收缩**。
+当前推进到 **Stage 5K：统一三维观测算子重构 + 接收一致性成像体 + 模块协同收口**。
 
 当前主依据：
 
@@ -34,7 +34,8 @@
 - F1 `layered_kinematic`：当前主定位 forward，通过 velocity model travel-time 接口计算 direct / scatter / scan。
 - F2 `acoustic2d_prototype`：声学波动方程基础设施验证，不能代表 Rayleigh 波。
 - F3 `elastic2d_prototype`：Rayleigh/free-surface/void scattering 的局部科研验证起点。
-- Stage 5J `kinematic_volume_response`：新增 x-y-depth 三维运动学体响应 proxy、速度模型约束炮集和经验 Q attenuation；`staggered_elastic2d_benchmark` 继续只作为 validation forward。
+- Stage 5J `kinematic_volume_response`：新增 x-y-depth 三维运动学体响应 proxy、速度模型约束炮集和经验 Q attenuation；该体响应在 Stage 5K 起降级为 `visualization_only`。
+- Stage 5K `observation_kernel_3d`：统一 forward 与 localization 的 source→candidate→receiver 三维走时、振幅、衰减和接收取样；`receiver_consistent_imaging` 生成接收一致性三维成像体。
 - F4-F6：2.5D、多剖面、局部 3D elastic 是长期方向；Rayleigh benchmark 未通过前不建议进入。
 
 ## 三维场景边界
@@ -50,7 +51,7 @@
 
 ## latest_stable 治理
 
-`outputs/latest_stable/` 是当前精选成果目录，不是历史输出仓库。Stage 5J 后，进入该目录的图件必须服务三维算法主线：
+`outputs/latest_stable/` 是当前精选成果目录，不是历史输出仓库。Stage 5K 后，进入该目录的图件必须服务三维算法主线：
 
 - 文件级 figure self-check
 - 空图/低质量图检查

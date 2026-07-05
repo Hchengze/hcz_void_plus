@@ -44,4 +44,7 @@ def run_layered_kinematic_forward(
     result["forward_engine"] = FORWARD_ENGINE_NAME
     result["velocity_model"] = velocity_model
     result["forward_stage"] = "F1"
+    result["forward_uses_observation_kernel"] = bool(
+        (result.get("observation_kernel_metadata") or {}).get("forward_uses_observation_kernel", False)
+    )
     return result

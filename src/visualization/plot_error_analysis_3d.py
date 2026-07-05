@@ -151,6 +151,90 @@ def plot_multi_peak_ambiguity_analysis(scan_result: dict[str, Any], output_path:
     _save(fig, output_path)
 
 
+def plot_module_coordination_summary(summary: dict[str, Any], output_path: Path) -> None:
+    """绘制 Stage 5K 模块协同摘要。
+
+    该图重点检查 forward、localization、posterior 是否围绕同一套三维 observation kernel 协同。
+    """
+
+    setup_chinese_matplotlib()
+    items = [
+        ("正演使用 kernel", summary.get("forward_uses_observation_kernel")),
+        ("定位使用 kernel", summary.get("localization_uses_observation_kernel")),
+        ("正演定位同核", summary.get("forward_localization_share_kernel")),
+        ("接收一致性成像", summary.get("imaging_uses_receiver_consistent_paths")),
+        ("proxy 不参与定位", not summary.get("volume_proxy_used_for_localization", True)),
+        ("posterior 融合成像", summary.get("posterior_uses_imaging_volume")),
+        ("几何诊断参与推荐", summary.get("geometry_resolution_used_in_recommendation")),
+    ]
+    labels = [item[0] for item in items]
+    values = [1.0 if bool(item[1]) else 0.0 for item in items]
+    fig, ax = plt.subplots(figsize=(8.4, 4.8), dpi=150)
+    colors = ["#59a14f" if value > 0.5 else "#e15759" for value in values]
+    ax.barh(np.arange(len(labels)), values, color=colors)
+    ax.set_yticks(np.arange(len(labels)))
+    ax.set_yticklabels(labels, fontsize=9)
+    ax.set_xlim(0.0, 1.15)
+    ax.set_xlabel("协同契约是否满足")
+    ax.set_title("Stage 5K 模块协同：统一三维 observation kernel")
+    ax.text(
+        0.02,
+        0.05,
+        f"coordination_status={summary.get('module_coordination_status')}\n"
+        f"volume_proxy_role={summary.get('volume_proxy_role')}\n"
+        f"ready_for_2p5d={summary.get('ready_for_2p5d')}",
+        transform=ax.transAxes,
+        fontsize=9,
+        bbox={"facecolor": "white", "alpha": 0.82, "edgecolor": "0.8"},
+    )
+    ax.grid(axis="x", alpha=0.25)
+    _save(fig, output_path)
+
+
+def _location_vector(location: dict[str, Any] | None) -> np.ndarray | None:
+    if not location:
+        return None
+    return np.array([location["x_m"], location["y_m"], location["depth_m"]], dtype=float)
+
+
+def plot_receiver_imaging_vs_volume_proxy(
+    scan_result: dict[str, Any],
+    volume_response: dict[str, Any] | None,
+    output_path: Path,
+) -> None:
+    """对比接收一致性成像峰值与旧体响应 proxy 峰值。
+
+    Stage 5K 后，定位解释优先看 receiver-consistent imaging；volume proxy 只保留作 forward 可读性图。
+    """
+
+    setup_chinese_matplotlib()
+    imaging_peak = _location_vector(scan_result.get("imaging_peak_location"))
+    posterior_peak = _location_vector(scan_result.get("posterior_peak_location"))
+    proxy_peak = _location_vector((volume_response or {}).get("metadata", {}).get("volume_peak_xyz_m"))
+    labels = ["成像峰值-后验峰值", "proxy峰值-后验峰值"]
+    imaging_distance = (
+        float(np.linalg.norm(imaging_peak - posterior_peak)) if imaging_peak is not None and posterior_peak is not None else 0.0
+    )
+    proxy_distance = (
+        float(np.linalg.norm(proxy_peak - posterior_peak)) if proxy_peak is not None and posterior_peak is not None else 0.0
+    )
+    fig, ax = plt.subplots(figsize=(7.6, 4.6), dpi=150)
+    ax.bar(labels, [imaging_distance, proxy_distance], color=["#59a14f", "#f28e2b"])
+    ax.set_ylabel("与 posterior peak 的距离 / m")
+    ax.set_title("接收一致性成像 vs 三维体响应 proxy")
+    ax.text(
+        0.02,
+        0.95,
+        "结论口径：volume proxy = visualization_only；定位依据优先使用 receiver-consistent imaging。",
+        transform=ax.transAxes,
+        va="top",
+        fontsize=9,
+        bbox={"facecolor": "white", "alpha": 0.82, "edgecolor": "0.8"},
+    )
+    ax.grid(axis="y", alpha=0.25)
+    _save(fig, output_path)
+
+
 __all__ = [
     "plot_model_mismatch_error_summary_3d",
     "plot_rayleigh_pick_interpretation",
@@ -159,4 +243,6 @@ __all__ = [
     "plot_scan_velocity_model_consistency",
     "plot_3d_geometry_resolution_analysis",
     "plot_multi_peak_ambiguity_analysis",
+    "plot_module_coordination_summary",
+    "plot_receiver_imaging_vs_volume_proxy",
 ]

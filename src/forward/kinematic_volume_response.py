@@ -120,11 +120,14 @@ def compute_kinematic_volume_response(
         "volume_uses_velocity_path_integration": True,
         "volume_uses_attenuation": bool(params.attenuation.enabled),
         "volume_is_kinematic_proxy": True,
+        "volume_proxy_role": "visualization_only",
+        "volume_proxy_used_for_localization": False,
+        "receiver_consistent_imaging_required_for_localization": True,
         "selected_shot_index": shot_id,
         "selected_scatter_count": int(scatter.shape[0]),
         "volume_peak_energy": float(np.max(energy)),
         "volume_peak_xyz_m": _peak_xyz_from_energy(energy, grid),
-        "note": "3D kinematic volume response proxy, not 3D elastic wavefield",
+        "note": "3D kinematic volume response proxy for visualization only, not receiver-consistent imaging or 3D elastic wavefield",
     }
     return {
         "volume_frames": frames,

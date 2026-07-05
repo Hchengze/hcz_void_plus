@@ -67,9 +67,10 @@ MANUAL_REVIEW_FIGURES = [
     "figures/forward/fig_volume_wavefield_3d_energy_proxy.png",
     "figures/forward/fig_shot_gather_with_velocity_model.png",
     "figures/forward/fig_shot_gather_attenuation_comparison.png",
-    "figures/localization/fig_3d_posterior_volume.png",
+    "figures/localization/fig_receiver_consistent_imaging_volume.png",
+    "figures/localization/fig_kernel_shared_posterior_volume.png",
     "figures/localization/fig_3d_uncertainty_ellipsoid.png",
-    "figures/error_analysis/fig_forward_localization_consistency.png",
+    "figures/error_analysis/fig_module_coordination_summary.png",
 ]
 
 MANUAL_REVIEW_ANIMATIONS = [
@@ -205,8 +206,8 @@ def _update_latest_meta_run(path: Path, summary_info: dict[str, Any]) -> None:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         payload = {}
-    payload["stage"] = "Stage 5J 3D kinematic forward volume and attenuation modeling"
-    payload["previous_stage"] = "Stage 5I"
+    payload["stage"] = "Stage 5K unified 3D observation kernel and receiver-consistent imaging"
+    payload["previous_stage"] = "Stage 5J"
     payload["algorithm_commit"] = summary_info.get("algorithm_commit")
     payload["latest_stable_commit"] = summary_info.get("latest_stable_commit")
     payload["previous_latest_stable_commit"] = summary_info.get("previous_latest_stable_commit")
@@ -214,6 +215,7 @@ def _update_latest_meta_run(path: Path, summary_info: dict[str, Any]) -> None:
     payload["generated_time"] = summary_info.get("generated_time")
     payload["ready_for_2p5d"] = False
     payload["stage5j_validation"] = summary_info.get("stage5j_validation", {})
+    payload["stage5k_validation"] = summary_info.get("stage5k_validation", {})
     payload["stage5i_validation"] = summary_info.get("stage5i_validation", {})
     payload["stage5h_validation"] = {
         "metadata_consistency": True,
@@ -244,24 +246,44 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     ready_for_2p5d = bool(stage5j_validation.get("ready_for_2p5d", stage5f_validation.get("ready_for_2p5d", False)))
     algorithm_commit = summary_info.get("algorithm_commit") or summary_info.get("commit_id", "unknown")
     latest_stable_commit = summary_info.get("latest_stable_commit", "generated_from_algorithm_commit")
-    content = f"""# latest_stable Stage 5J 摘要
+    content = f"""# latest_stable Stage 5K 摘要
 
 ## 当前阶段
 
-- stage = Stage 5J
-- previous_stage = Stage 5I
+- stage = Stage 5K
+- previous_stage = Stage 5J
 - algorithm_commit = `{algorithm_commit}`
 - latest_stable_commit = `{latest_stable_commit}`
 - previous_latest_stable_commit = `{summary_info.get("previous_latest_stable_commit", "27f000d")}`
 - source_run_dir = `{summary_info.get("source_run_dir", "unknown")}`
 - generated_time = `{summary_info.get("generated_time", summary_info.get("run_time", datetime.now().isoformat(timespec="seconds")))}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5J")}`
+- 任务名称：`{summary_info.get("task_name_stage5k", summary_info.get("task_name", "Stage 5K"))}`
 - active_velocity_model = `{summary_info.get("active_velocity_model_type", "layered")}`
 - active_forward_engine = `{summary_info.get("forward_engine_active", "layered_kinematic")}`
 - validation_forward = `elastic2d/staggered`
 - ready_for_2p5d = `{ready_for_2p5d}`
 
-## Stage 5J 三维正演补强主线
+## Stage 5K 统一三维 observation kernel 主线
+
+- observation_kernel_3d_available = `{_fmt(summary_info.get("observation_kernel_3d_available"))}`
+- forward_observation_kernel_shape = `{_fmt(summary_info.get("forward_observation_kernel_shape"))}`
+- observation_kernel_shape = `{_fmt(summary_info.get("observation_kernel_shape"))}`
+- observation_kernel_candidate_grid_shape = `{_fmt(summary_info.get("observation_kernel_candidate_grid_shape"))}`
+- forward_uses_observation_kernel = `{_fmt(summary_info.get("forward_uses_observation_kernel"))}`
+- localization_uses_observation_kernel = `{_fmt(summary_info.get("localization_uses_observation_kernel"))}`
+- forward_localization_share_kernel = `{_fmt(summary_info.get("forward_localization_share_kernel"))}`
+- receiver_consistent_imaging_available = `{_fmt(summary_info.get("receiver_consistent_imaging_available"))}`
+- imaging_peak_location = `{_fmt(summary_info.get("imaging_peak_location"))}`
+- imaging_peak_to_truth_distance = `{_fmt(summary_info.get("imaging_peak_to_truth_distance"))}`
+- imaging_peak_to_posterior_peak_distance = `{_fmt(summary_info.get("imaging_peak_to_posterior_peak_distance"))}`
+- volume_proxy_role = `{_fmt(summary_info.get("volume_proxy_role"))}`
+- volume_proxy_used_for_localization = `{_fmt(summary_info.get("volume_proxy_used_for_localization"))}`
+- module_coordination_status = `{_fmt(summary_info.get("module_coordination_status"))}`
+- tests_deleted_or_merged_count = `{_fmt(summary_info.get("tests_deleted_or_merged_count"))}`
+- new_test_files_count = `{_fmt(summary_info.get("new_test_files_count"))}`
+- validation_scripts_added_count = `{_fmt(summary_info.get("validation_scripts_added_count"))}`
+
+## Stage 5J 三维正演补强基线
 
 - volume_wavefield_available = `{_fmt(summary_info.get("volume_wavefield_available", stage5j_validation.get("volume_wavefield_available")))}`
 - volume_wavefield_grid_shape = `{_fmt(summary_info.get("volume_wavefield_grid_shape", stage5j_validation.get("volume_wavefield_grid_shape")))}`
@@ -379,10 +401,10 @@ def export_latest_stable_outputs(
     summary_info.setdefault("algorithm_commit", summary_info.get("commit_id", get_git_commit_id(Path.cwd())))
     summary_info.setdefault("latest_stable_commit", "generated_from_algorithm_commit")
     summary_info.setdefault("previous_latest_stable_commit", "27f000d")
-    summary_info.setdefault("previous_stage", "Stage 5I")
+    summary_info.setdefault("previous_stage", "Stage 5J")
     summary_info.setdefault("generated_time", datetime.now().isoformat(timespec="seconds"))
     figure_metadata = build_figure_metadata(
-        stage="Stage 5J",
+        stage="Stage 5K",
         forward_engine=str(summary_info.get("forward_engine_active", "layered_kinematic")),
         velocity_model_type=str(summary_info.get("active_velocity_model_type", "layered")),
     )

@@ -17,7 +17,7 @@ def test_current_3d_algorithm_directory_exists():
 
 def test_stable_api_reports_current_algorithm_line():
     summary = get_current_algorithm_summary()
-    assert summary["stage"] == "Stage 5J"
+    assert summary["stage"] == "Stage 5K"
     assert summary["velocity_default"] == "layered"
     assert summary["main_localization"] == "multi_attribute_3d_posterior_like"
     assert summary["stable_forward_engine"] == "layered_kinematic"
@@ -27,6 +27,10 @@ def test_stable_api_reports_current_algorithm_line():
     assert summary["velocity_model_audit"] == "direct/scatter/scan travel-time must use the velocity_model interface"
     assert summary["latest_stable_policy"] == "three-category curated outputs only after figure self-check"
     assert summary["scientific_latest_stable_policy"]
+    assert summary["observation_kernel_3d_available"] is True
+    assert summary["forward_localization_share_kernel"] is True
+    assert summary["receiver_consistent_imaging_available"] is True
+    assert summary["volume_proxy_used_for_localization"] is False
     assert summary["ready_for_2p5d"] is False
     assert summary["not_engineering_diagnosis"] is True
 
