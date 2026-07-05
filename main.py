@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage5h_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5i_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -329,11 +329,24 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="用于轻量对比的 score_method 列表，逗号分隔，必须来自 main.py 允许的扫描方法。",
     )
     scan.add_argument("--scan-score-mode", default="multi_attribute", choices=["energy", "multi_attribute"], help="定位评分模式：energy 为单属性能量，multi_attribute 为多属性加权组合。")
+    scan.add_argument("--scan-use-multi-attribute", type=str_to_bool, default=True, help="Stage 5I 三维多属性反演开关；关闭时退回单属性能量扫描。")
+    scan.add_argument("--scan-posterior-temperature", type=float, default=0.2, help="把 combined score 转为 posterior-like 体的 softmax 温度；仅为规则型诊断参数。")
+    scan.add_argument(
+        "--scan-attribute-normalization",
+        default="robust_minmax",
+        choices=["robust_minmax", "zscore_percentile"],
+        help="多属性体归一化方式。robust_minmax 使用分位数 0-1 映射，zscore_percentile 使用稳健 z-score。",
+    )
     scan.add_argument("--score-weight-energy", type=float, default=1.0, help="多属性 energy_score 权重。")
+    scan.add_argument("--scan-attribute-weight-energy", dest="score_weight_energy", type=float, default=argparse.SUPPRESS, help="Stage 5I 参数别名：energy 属性权重。")
     scan.add_argument("--score-weight-normalized-energy", type=float, default=0.5, help="多属性 normalized_energy_score 权重。")
+    scan.add_argument("--scan-attribute-weight-normalized-energy", dest="score_weight_normalized_energy", type=float, default=argparse.SUPPRESS, help="Stage 5I 参数别名：normalized energy 属性权重。")
     scan.add_argument("--score-weight-matched-wavelet", type=float, default=1.0, help="多属性 matched_wavelet_score 权重。")
+    scan.add_argument("--scan-attribute-weight-matched-wavelet", dest="score_weight_matched_wavelet", type=float, default=argparse.SUPPRESS, help="Stage 5I 参数别名：matched wavelet 属性权重。")
     scan.add_argument("--score-weight-semblance", type=float, default=0.5, help="多属性 semblance_score 权重。")
+    scan.add_argument("--scan-attribute-weight-semblance", dest="score_weight_semblance", type=float, default=argparse.SUPPRESS, help="Stage 5I 参数别名：semblance 属性权重。")
     scan.add_argument("--score-weight-frequency-shift", type=float, default=0.0, help="频移属性预留权重，本轮默认不参与。")
+    scan.add_argument("--scan-attribute-weight-frequency-shift", dest="score_weight_frequency_shift", type=float, default=argparse.SUPPRESS, help="Stage 5I 参数别名：frequency shift 属性权重。")
     scan.add_argument("--depth-prior-sensitivity-enabled", type=str_to_bool, default=True, help="是否输出 depth prior 强度轻量敏感性诊断。")
     scan.add_argument("--depth-prior-factor-list", default="0.5,1.0,2.0,off", help="depth prior 敏感性因子列表，逗号分隔，off 表示不加深度权重。")
     scan.add_argument(
@@ -583,6 +596,9 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             compare_score_methods=args.compare_score_methods,
             score_method_list=[item.strip() for item in args.score_method_list.split(",") if item.strip()],
             score_mode=args.scan_score_mode,
+            use_multi_attribute=args.scan_use_multi_attribute,
+            posterior_temperature=args.scan_posterior_temperature,
+            attribute_normalization=args.scan_attribute_normalization,
             weight_energy=args.score_weight_energy,
             weight_normalized_energy=args.score_weight_normalized_energy,
             weight_matched_wavelet=args.score_weight_matched_wavelet,
@@ -827,6 +843,15 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         params.scan.weight_frequency_shift,
     ) < 0:
         raise ValueError("score weight 错误：多属性评分权重不能为负。")
+    if params.scan.posterior_temperature <= 0:
+        raise ValueError(
+            f"scan_posterior_temperature 错误：当前值为 {params.scan.posterior_temperature}，合理条件是 > 0。"
+        )
+    if params.scan.attribute_normalization not in {"robust_minmax", "zscore_percentile"}:
+        raise ValueError(
+            "scan_attribute_normalization 错误："
+            f"当前值为 {params.scan.attribute_normalization}，只能是 robust_minmax 或 zscore_percentile。"
+        )
     if not params.scan.depth_prior_factor_list:
         raise ValueError("depth_prior_factor_list 错误：至少需要一个因子或 off。")
     if params.task.wavelet_frequency_hz <= 0:
@@ -975,7 +1000,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 5H 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5I 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")

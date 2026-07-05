@@ -7,7 +7,7 @@ def test_manual_review_readiness_passes_current_latest_stable():
     latest = Path("outputs/latest_stable")
     result = run_manual_review_readiness(latest)
 
-    assert result["stage"] == "Stage 5H"
+    assert result["stage"] == "Stage 5I"
     assert result["status"] == "pass"
     assert 8 <= result["manual_review_figure_count"] <= 10
     assert 2 <= result["manual_review_animation_count"] <= 4

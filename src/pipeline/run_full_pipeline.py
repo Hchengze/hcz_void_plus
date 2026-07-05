@@ -13,6 +13,7 @@ from src.confidence.confidence_report import build_confidence_metrics, write_con
 from src.localization.scan_grid import build_scan_grid
 from src.localization.travel_time import compute_candidate_diffraction_times
 from src.localization.depth_prior_sensitivity import run_depth_prior_sensitivity
+from src.localization.inversion_summary import build_inversion_summary
 from src.localization.score_method_comparison import run_score_method_comparison
 from src.pipeline.run_forward_pipeline import run_forward_pipeline
 from src.pipeline.run_scan_pipeline import run_scan_pipeline
@@ -135,11 +136,14 @@ from src.visualization.plot_elastic2d import (
     plot_stage5f_status_badge,
     plot_stage5g_status_badge,
     plot_stage5h_status_badge,
+    plot_stage5i_status_badge,
 )
 from src.visualization.plot_geometry_3d import plot_geometry_3d_overview, plot_velocity_sampling_paths_3d
 from src.visualization.plot_localization_3d import (
     plot_3d_high_score_region,
+    plot_3d_posterior_volume,
     plot_3d_uncertainty_box,
+    plot_3d_uncertainty_ellipsoid,
     plot_recommended_location_3d,
 )
 from src.visualization.plot_pseudo_wavefield import (
@@ -159,6 +163,11 @@ from src.visualization.plot_velocity_physics_bridge import (
     plot_bridge_derived_elastic_parameters,
     plot_rayleigh_equivalent_vs_elastic_velocity,
     plot_velocity_model_physics_bridge,
+)
+from src.visualization.plot_error_analysis_3d import (
+    plot_3d_geometry_resolution_analysis,
+    plot_multi_peak_ambiguity_analysis,
+    plot_scan_velocity_model_consistency,
 )
 
 
@@ -504,7 +513,7 @@ def _build_final_metadata(
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "Stage 5H 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d/staggered 只作 validation，本轮加固 metadata、人工复查入口和 Rayleigh/DAS 解释。",
+            "note": "Stage 5I 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；本轮重点修复 scan travel-time 与 forward path integration 一致性，并增强三维多属性 posterior-like 反演；elastic2d/staggered 仍只作 validation。",
         },
         output_info=output_info,
         git_info=git_info,
@@ -529,6 +538,7 @@ def _build_final_metadata(
         "rayleigh_das_interpretation_hardened": True,
         "ready_for_2p5d": False,
     }
+    metadata["stage5i_validation"] = build_inversion_summary(scan_result)
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -639,6 +649,29 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 params,
                 confidence_metrics,
                 paths["figures"] / "fig_3d_uncertainty_box.png",
+            )
+            plot_3d_posterior_volume(
+                params,
+                scan_result["posterior_probability_volume"],
+                scan_result,
+                paths["figures"] / "fig_3d_posterior_volume.png",
+            )
+            plot_3d_uncertainty_ellipsoid(
+                params,
+                scan_result,
+                paths["figures"] / "fig_3d_uncertainty_ellipsoid.png",
+            )
+            plot_scan_velocity_model_consistency(
+                scan_result["scan_velocity_model_audit"],
+                paths["figures"] / "fig_scan_velocity_model_consistency.png",
+            )
+            plot_3d_geometry_resolution_analysis(
+                scan_result,
+                paths["figures"] / "fig_3d_geometry_resolution_analysis.png",
+            )
+            plot_multi_peak_ambiguity_analysis(
+                scan_result,
+                paths["figures"] / "fig_multi_peak_ambiguity_analysis.png",
             )
             save_single_shot_wavefield_snapshots_figure(
                 params,
@@ -1066,6 +1099,15 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             }
             plot_stage5g_status_badge(stage5g_status, paths["figures"] / "fig_stage5g_status_badge.png")
             plot_stage5h_status_badge(stage5g_status, paths["figures"] / "fig_stage5h_status_badge.png")
+            stage5i_status = {
+                **stage5g_status,
+                "scan_candidate_uses_path_integration": scan_result["scan_velocity_model_audit"][
+                    "scan_candidate_uses_path_integration"
+                ],
+                "posterior_volume_status": scan_result.get("posterior_volume_status"),
+                "ready_for_2p5d": False,
+            }
+            plot_stage5i_status_badge(stage5i_status, paths["figures"] / "fig_stage5i_status_badge.png")
             plot_elastic2d_rayleigh_benchmark_matrix(
                 elastic2d_rayleigh_benchmark,
                 paths["figures"] / "fig_elastic2d_rayleigh_benchmark_matrix.png",
@@ -1344,12 +1386,12 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "commit_id": get_git_commit_id(Path.cwd()),
                 "algorithm_commit": get_git_commit_id(Path.cwd()),
                 "latest_stable_commit": "generated_from_algorithm_commit",
-                "previous_latest_stable_commit": "4a7eeb1",
-                "previous_stage": "Stage 5G",
+                "previous_latest_stable_commit": "a202fee",
+                "previous_stage": "Stage 5H",
                 "generated_time": datetime.now().isoformat(timespec="seconds"),
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
-                "task_name": "Stage 5H Stage 5G 成果校验 + metadata 修复 + 人工复查入口加固",
+                "task_name": "Stage 5I 三维运动学正演-定位一致性修复 + 三维多属性反演增强",
                 "forward_engine_active": params.forward.engine,
                 "forward_engine_available": [
                     "kinematic_baseline",
@@ -1398,6 +1440,23 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "stage5d_validation": stage5d_validation,
                 "stage5e_validation": stage5e_validation,
                 "stage5f_validation": stage5f_validation,
+                "stage5i_validation": build_inversion_summary(scan_result),
+                "scan_candidate_uses_path_integration": scan_result["scan_velocity_model_audit"][
+                    "scan_candidate_uses_path_integration"
+                ],
+                "scan_uses_representative_velocity": scan_result["scan_velocity_model_audit"][
+                    "scan_uses_representative_velocity"
+                ],
+                "multi_attribute_inversion_enabled": scan_result["multi_attribute_inversion_enabled"],
+                "posterior_volume_status": scan_result["posterior_volume_status"],
+                "posterior_peak_location": scan_result["posterior_peak_location"],
+                "posterior_mean_location": scan_result["posterior_mean_location"],
+                "posterior_uncertainty_axes": scan_result["uncertainty_ellipsoid_axes"],
+                "posterior_covariance_3x3": scan_result["posterior_covariance_3x3"],
+                "geometry_resolution_status": scan_result["geometry_resolution_summary"]["geometry_resolution_status"],
+                "ambiguity_warning": scan_result["ambiguity_warning"],
+                "geometry_resolution_summary": scan_result["geometry_resolution_summary"],
+                "scan_velocity_model_audit": scan_result["scan_velocity_model_audit"],
                 "das_gauge_final_status": stage5f_validation.get("das_gauge_final_status"),
                 "das_best_velocity_gauge_rms": (elastic2d_das_nonzero_check or {}).get(
                     "best_velocity_gauge_rms"
@@ -1439,5 +1498,6 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["stage5d_validation"] = stage5d_validation if "stage5d_validation" in locals() else None
     result["stage5e_validation"] = stage5e_validation if "stage5e_validation" in locals() else None
     result["stage5f_validation"] = stage5f_validation if "stage5f_validation" in locals() else None
+    result["stage5i_validation"] = build_inversion_summary(scan_result) if scan_result is not None else None
     result["stable_export_info"] = stable_export_info
     return result

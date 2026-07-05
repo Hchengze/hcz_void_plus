@@ -674,6 +674,45 @@ def plot_stage5h_status_badge(summary: dict[str, Any], output_path: Path) -> Non
     _save(fig, output_path)
 
 
+def plot_stage5i_status_badge(summary: dict[str, Any], output_path: Path) -> None:
+    """绘制 Stage 5I 状态徽章。
+
+    Stage 5I 的主线回到三维运动学正演-定位一致性、多属性三维反演和 posterior-like
+    不确定性体；elastic2d/staggered 仍然只是 validation forward。
+    """
+
+    setup_chinese_matplotlib()
+    fig, ax = plt.subplots(figsize=(8.0, 4.5), dpi=150)
+    ax.axis("off")
+    ready = bool(summary.get("ready_for_2p5d", False))
+    scan_path = summary.get("scan_candidate_uses_path_integration")
+    posterior = summary.get("posterior_volume_status", "generated")
+    ax.text(0.5, 0.84, "Stage 5I 当前状态", ha="center", va="center", fontsize=20, fontweight="bold")
+    ax.text(
+        0.5,
+        0.56,
+        "主定位 forward：layered_kinematic\n"
+        "active velocity model：layered\n"
+        "本轮重点：scan 路径积分一致性 / 三维多属性体 / posterior-like 不确定性\n"
+        f"scan_candidate_uses_path_integration：{scan_path}\n"
+        f"posterior_volume_status：{posterior}\n"
+        f"ready_for_2p5d：{ready}",
+        ha="center",
+        va="center",
+        fontsize=11.2,
+    )
+    ax.text(
+        0.5,
+        0.12,
+        "2D elastic 仍只作局部 validation；三维主变量仍是 source_xyz / receiver_xyz / candidate_xyz / score_volume(x,y,depth)。",
+        ha="center",
+        va="center",
+        fontsize=9.3,
+        color="#e15759",
+    )
+    _save(fig, output_path)
+
+
 def plot_rayleigh_pick_interpretation(result: dict[str, Any], output_path: Path) -> None:
     """绘制 Rayleigh 拾取解释图。
 

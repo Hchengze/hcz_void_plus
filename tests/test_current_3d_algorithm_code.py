@@ -17,9 +17,9 @@ def test_current_3d_algorithm_directory_exists():
 
 def test_stable_api_reports_current_algorithm_line():
     summary = get_current_algorithm_summary()
-    assert summary["stage"] == "Stage 5H"
+    assert summary["stage"] == "Stage 5I"
     assert summary["velocity_default"] == "layered"
-    assert summary["main_localization"] == "multi_attribute_unweighted"
+    assert summary["main_localization"] == "multi_attribute_3d_posterior_like"
     assert summary["stable_forward_engine"] == "layered_kinematic"
     assert "elastic2d_prototype" in summary["available_validation_forward"]
     assert "staggered_elastic2d_benchmark" in summary["available_validation_forward"]

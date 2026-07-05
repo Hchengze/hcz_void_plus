@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def test_latest_stable_stage5h_file_counts_are_curated():
+def test_latest_stable_stage5i_file_counts_are_curated():
     latest = Path("outputs/latest_stable")
     assert latest.exists()
     assert len(list((latest / "figures").glob("*.png"))) == 0
@@ -16,7 +16,7 @@ def test_latest_stable_stage5h_file_counts_are_curated():
     assert 5 <= len(list((latest / "figures" / "error_analysis").glob("*.png"))) <= 7
 
 
-def test_latest_stable_stage5h_required_files_exist():
+def test_latest_stable_stage5i_required_files_exist():
     latest = Path("outputs/latest_stable")
     required = [
         "figures/forward/fig_geometry_3d_overview.png",
@@ -26,7 +26,12 @@ def test_latest_stable_stage5h_required_files_exist():
         "figures/localization/fig_3d_high_score_region.png",
         "figures/localization/fig_recommended_location_3d.png",
         "figures/localization/fig_3d_uncertainty_box.png",
-        "figures/error_analysis/fig_stage5h_status_badge.png",
+        "figures/localization/fig_3d_posterior_volume.png",
+        "figures/localization/fig_3d_uncertainty_ellipsoid.png",
+        "figures/error_analysis/fig_stage5i_status_badge.png",
+        "figures/error_analysis/fig_scan_velocity_model_consistency.png",
+        "figures/error_analysis/fig_3d_geometry_resolution_analysis.png",
+        "figures/error_analysis/fig_multi_peak_ambiguity_analysis.png",
         "figures/error_analysis/fig_latest_stable_quality_summary.png",
         "animations/forward/anim_multishot_forward_overview.gif",
         "animations/forward/anim_single_shot_wavefield.gif",

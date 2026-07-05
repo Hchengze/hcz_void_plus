@@ -1,4 +1,4 @@
-"""导出 Stage 5H latest_stable 三类精选成果。"""
+"""导出 Stage 5I latest_stable 三类精选成果。"""
 
 from __future__ import annotations
 
@@ -68,7 +68,7 @@ MANUAL_REVIEW_FIGURES = [
     "figures/localization/fig_3d_high_score_region.png",
     "figures/localization/fig_recommended_location_3d.png",
     "figures/localization/fig_3d_uncertainty_box.png",
-    "figures/error_analysis/fig_stage5h_status_badge.png",
+    "figures/error_analysis/fig_stage5i_status_badge.png",
 ]
 
 MANUAL_REVIEW_ANIMATIONS = [
@@ -78,8 +78,8 @@ MANUAL_REVIEW_ANIMATIONS = [
 
 LEGACY_STABLE_FILES = [
     "acoustic2d shot gather 与 acoustic2d wavefield snapshots：F2 基础设施验证，不再占据当前主视图。",
-    "forward_engine_comparison 与 layered_kinematic_vs_baseline_gather：转为历史诊断，不再进入 Stage 5H 精选。",
-    "Stage 5E sensitivity/pick 旧图：由 Stage 5H Rayleigh benchmark 矩阵和速度误差图替代。",
+    "forward_engine_comparison 与 layered_kinematic_vs_baseline_gather：转为历史诊断，不再进入 Stage 5I 精选。",
+    "Stage 5E sensitivity/pick 旧图：由 Stage 5I Rayleigh benchmark 矩阵、速度误差图和三维反演图替代。",
     "重复 confidence/uncertainty 图：仅保留能说明三维不确定性的 1-2 张。",
     "旧 core/diagnostics/uncertainty/reference_only 细分类目录：合并为 forward/localization/error_analysis 三类。",
 ]
@@ -152,7 +152,7 @@ def _write_latest_stable_readme(path: Path) -> None:
     lines = [
         "# latest_stable",
         "",
-        "Stage 5H 继续执行三类精选治理：本目录只保留当前人工复查最需要、且 metadata 可审计的成果。",
+        "Stage 5I 继续保持三类精选治理：本目录只保留当前人工复查最需要、且 metadata 可审计的三维运动学反演成果。",
         "",
         "## 三类结果",
         "",
@@ -169,7 +169,7 @@ def _write_archive_manifest(path: Path) -> None:
     lines = [
         "# archive manifest",
         "",
-        "Stage 5H 不再把历史图件堆进 latest_stable 当前精选目录。",
+        "Stage 5I 不再把历史图件堆进 latest_stable 当前精选目录。",
         "",
         "## 已移出当前精选视图的内容",
         "",
@@ -189,7 +189,7 @@ def _manual_list(items: list[str]) -> str:
 
 
 def _update_latest_meta_run(path: Path, summary_info: dict[str, Any]) -> None:
-    """补写 latest_stable metadata 的 Stage 5H 审计字段。
+    """补写 latest_stable metadata 的 Stage 5I 审计字段。
 
     时间戳运行目录中的 meta_run.json 记录的是算法运行时刻；导出到 latest_stable
     后需要额外记录本轮稳定输出的来源提交、上一轮稳定提交和当前阶段，方便人工
@@ -202,14 +202,15 @@ def _update_latest_meta_run(path: Path, summary_info: dict[str, Any]) -> None:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         payload = {}
-    payload["stage"] = "Stage 5H metadata/manual-review hardening"
-    payload["previous_stage"] = "Stage 5G"
+    payload["stage"] = "Stage 5I 3D kinematic inversion and scan velocity consistency"
+    payload["previous_stage"] = "Stage 5H"
     payload["algorithm_commit"] = summary_info.get("algorithm_commit")
     payload["latest_stable_commit"] = summary_info.get("latest_stable_commit")
     payload["previous_latest_stable_commit"] = summary_info.get("previous_latest_stable_commit")
     payload["source_run_dir"] = summary_info.get("source_run_dir")
     payload["generated_time"] = summary_info.get("generated_time")
     payload["ready_for_2p5d"] = False
+    payload["stage5i_validation"] = summary_info.get("stage5i_validation", {})
     payload["stage5h_validation"] = {
         "metadata_consistency": True,
         "tree_snapshot_required": True,
@@ -237,22 +238,34 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     ready_for_2p5d = bool(stage5f_validation.get("ready_for_2p5d", False))
     algorithm_commit = summary_info.get("algorithm_commit") or summary_info.get("commit_id", "unknown")
     latest_stable_commit = summary_info.get("latest_stable_commit", "generated_from_algorithm_commit")
-    content = f"""# latest_stable Stage 5H 摘要
+    content = f"""# latest_stable Stage 5I 摘要
 
 ## 当前阶段
 
-- stage = Stage 5H
-- previous_stage = Stage 5G
+- stage = Stage 5I
+- previous_stage = Stage 5H
 - algorithm_commit = `{algorithm_commit}`
 - latest_stable_commit = `{latest_stable_commit}`
 - previous_latest_stable_commit = `{summary_info.get("previous_latest_stable_commit", "4a7eeb1")}`
 - source_run_dir = `{summary_info.get("source_run_dir", "unknown")}`
 - generated_time = `{summary_info.get("generated_time", summary_info.get("run_time", datetime.now().isoformat(timespec="seconds")))}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5H")}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5I")}`
 - active_velocity_model = `{summary_info.get("active_velocity_model_type", "layered")}`
 - active_forward_engine = `{summary_info.get("forward_engine_active", "layered_kinematic")}`
 - validation_forward = `elastic2d/staggered`
 - ready_for_2p5d = `{ready_for_2p5d}`
+
+## Stage 5I 三维反演主线
+
+- scan_candidate_uses_path_integration = `{_fmt(summary_info.get("scan_candidate_uses_path_integration"))}`
+- scan_uses_representative_velocity = `{_fmt(summary_info.get("scan_uses_representative_velocity"))}`
+- multi_attribute_inversion_enabled = `{_fmt(summary_info.get("multi_attribute_inversion_enabled"))}`
+- posterior_volume_status = `{_fmt(summary_info.get("posterior_volume_status"))}`
+- posterior_peak_location = `{_fmt(summary_info.get("posterior_peak_location"))}`
+- posterior_mean_location = `{_fmt(summary_info.get("posterior_mean_location"))}`
+- posterior_uncertainty_axes = `{_fmt(summary_info.get("posterior_uncertainty_axes"))}`
+- geometry_resolution_status = `{_fmt(summary_info.get("geometry_resolution_status"))}`
+- ambiguity_warning = `{_fmt(summary_info.get("ambiguity_warning"))}`
 
 ## 三类精选结果
 
@@ -334,18 +347,18 @@ def export_latest_stable_outputs(
     latest_stable_dir: Path,
     summary_info: dict[str, Any],
 ) -> dict[str, Any]:
-    """导出 Stage 5H 三类 latest_stable 精选成果。"""
+    """导出 Stage 5I 三类 latest_stable 精选成果。"""
 
     run_output_dir = Path(run_output_dir)
     latest_stable_dir = Path(latest_stable_dir)
     summary_info = dict(summary_info)
     summary_info.setdefault("algorithm_commit", summary_info.get("commit_id", get_git_commit_id(Path.cwd())))
     summary_info.setdefault("latest_stable_commit", "generated_from_algorithm_commit")
-    summary_info.setdefault("previous_latest_stable_commit", "4a7eeb1")
-    summary_info.setdefault("previous_stage", "Stage 5G")
+    summary_info.setdefault("previous_latest_stable_commit", "a202fee")
+    summary_info.setdefault("previous_stage", "Stage 5H")
     summary_info.setdefault("generated_time", datetime.now().isoformat(timespec="seconds"))
     figure_metadata = build_figure_metadata(
-        stage="Stage 5H",
+        stage="Stage 5I",
         forward_engine=str(summary_info.get("forward_engine_active", "layered_kinematic")),
         velocity_model_type=str(summary_info.get("active_velocity_model_type", "layered")),
     )

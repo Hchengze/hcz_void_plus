@@ -1,4 +1,4 @@
-"""Stage 5H latest_stable 三类结果数量和目录快照审计。"""
+"""Stage 5I latest_stable 三类结果数量和目录快照审计。"""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def _outside_window(counts: dict[str, int], limits: dict[str, tuple[int, int]]) 
 
 
 def audit_latest_stable_files(latest_stable_dir: Path) -> dict[str, Any]:
-    """统计 Stage 5H latest_stable 三类目录数量。"""
+    """统计 Stage 5I latest_stable 三类目录数量。"""
 
     latest = Path(latest_stable_dir)
     figure_counts = _count_files(latest, "figures", ".png", FIGURE_LIMITS)
@@ -76,7 +76,7 @@ def audit_latest_stable_files(latest_stable_dir: Path) -> dict[str, Any]:
         else "warning"
     )
     return {
-        "stage": "Stage 5H",
+        "stage": "Stage 5I",
         "figure_counts": figure_counts,
         "animation_counts": animation_counts,
         "report_counts": report_counts,
@@ -126,7 +126,7 @@ def write_latest_stable_file_audit_report(path: Path, result: dict[str, Any]) ->
             f"- 超出或低于范围的动图分类：`{result['out_of_range_animations']}`",
             f"- 超出或低于范围的报告分类：`{result['out_of_range_reports']}`",
             "",
-            "Stage 5H 的 latest_stable 只服务人工查看当前进度，不作为历史输出仓库。",
+            "Stage 5I 的 latest_stable 只服务人工查看当前三维运动学反演进度，不作为历史输出仓库。",
         ]
     )
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -168,7 +168,7 @@ def build_latest_stable_tree_snapshot(latest_stable_dir: Path) -> dict[str, Any]
         for category in REPORT_LIMITS
     }
     return {
-        "stage": "Stage 5H",
+        "stage": "Stage 5I",
         "tree_lines": rows,
         "figure_counts": figure_counts,
         "animation_counts": animation_counts,

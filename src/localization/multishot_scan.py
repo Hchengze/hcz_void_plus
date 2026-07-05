@@ -8,8 +8,13 @@ from typing import Any
 import numpy as np
 
 from src.localization.travel_time import compute_candidate_diffraction_times
-from src.localization.attribute_scoring import combine_attribute_scores, score_candidate_attributes
-from src.localization.multi_attribute_scan import score_weights_from_params
+from src.localization.attribute_scoring import score_candidate_attributes
+from src.localization.geometry_sensitivity import compute_geometry_resolution_volume
+from src.localization.multi_attribute_scan import build_multi_attribute_score_volumes, score_weights_from_params
+from src.localization.posterior_volume import build_posterior_from_score
+from src.localization.recommendation_3d import build_posterior_recommendation
+from src.localization.scan_velocity_model_audit import run_scan_velocity_model_audit
+from src.localization.uncertainty_volume import high_probability_region, summarize_uncertainty_volume
 from src.model.velocity_model import KinematicVelocityModel
 from src.physics.rayleigh import estimate_penetration_depth, rayleigh_depth_weight
 
@@ -170,6 +175,10 @@ def run_multishot_scan(
     trace_energy = cumulative_energy[:, -1, :]
     penetration_depth_m = estimate_penetration_depth(params)
     attribute_weights = score_weights_from_params(params)
+    multi_attribute_enabled = bool(
+        getattr(params.scan, "use_multi_attribute", params.scan.score_mode == "multi_attribute")
+        or params.scan.score_mode == "multi_attribute"
+    )
 
     for ix, x_m in enumerate(x_grid):
         for iy, y_m in enumerate(y_grid):
@@ -178,7 +187,7 @@ def run_multishot_scan(
                 candidate_times = compute_candidate_diffraction_times(
                     candidate_xyz, source_xyz, receiver_xyz, velocity_model, t0_s=params.time.t0_s
                 )
-                if params.scan.score_mode == "multi_attribute":
+                if multi_attribute_enabled:
                     attrs = score_candidate_attributes(
                         data,
                         cumulative_energy,
@@ -191,7 +200,6 @@ def run_multishot_scan(
                     )
                     for name, value in attrs.items():
                         attribute_volumes[name][ix, iy, iz] = value
-                    score_volume_unweighted[ix, iy, iz] = combine_attribute_scores(attrs, attribute_weights)
                 elif params.scan.score_method == "normalized_energy_stack":
                     score_volume_unweighted[ix, iy, iz] = _score_candidate_normalized_fast(
                         cumulative_energy,
@@ -204,6 +212,15 @@ def run_multishot_scan(
                     score_volume_unweighted[ix, iy, iz] = _score_candidate_fast(
                         cumulative_energy, time_axis, candidate_times, params.scan.time_window_half_width_s
                     )
+
+    multi_attribute_volumes: dict[str, Any] = {}
+    if multi_attribute_enabled:
+        multi_attribute_volumes = build_multi_attribute_score_volumes(
+            attribute_volumes,
+            attribute_weights,
+            normalization=getattr(params.scan, "attribute_normalization", "robust_minmax"),
+        )
+        score_volume_unweighted = multi_attribute_volumes["score_volume_combined"]
 
     depth_weights = rayleigh_depth_weight(depth_grid, penetration_depth_m)
     score_volume_depth_weighted = score_volume_unweighted * depth_weights[None, None, :]
@@ -218,6 +235,38 @@ def run_multishot_scan(
     unweighted_best = _best_from_volume(score_volume_unweighted, x_grid, y_grid, depth_grid, truth)
     weighted_best = _best_from_volume(score_volume_depth_weighted, x_grid, y_grid, depth_grid, truth)
     active_best = weighted_best if params.scan.active_score_kind == "depth_weighted" else unweighted_best
+    posterior_result = build_posterior_from_score(
+        score_volume_unweighted,
+        x_grid,
+        y_grid,
+        depth_grid,
+        temperature=getattr(params.scan, "posterior_temperature", 0.2),
+    )
+    high_probability = high_probability_region(
+        posterior_result["posterior_probability_volume"],
+        x_grid,
+        y_grid,
+        depth_grid,
+        mass_threshold=0.9,
+    )
+    uncertainty_summary = summarize_uncertainty_volume(posterior_result["posterior_summary"], high_probability)
+    posterior_recommendation = build_posterior_recommendation(posterior_result["posterior_summary"], uncertainty_summary)
+    geometry_resolution = compute_geometry_resolution_volume(source_xyz, receiver_xyz, x_grid, y_grid, depth_grid)
+    active_best_candidate = np.array(
+        [
+            active_best["best_location"]["x_m"],
+            active_best["best_location"]["y_m"],
+            active_best["best_location"]["depth_m"],
+        ],
+        dtype=float,
+    )
+    scan_velocity_model_audit = run_scan_velocity_model_audit(
+        active_best_candidate,
+        source_xyz,
+        receiver_xyz,
+        velocity_model,
+        t0_s=params.time.t0_s,
+    )
     raw_location = unweighted_best["best_location"]
     weighted_location = weighted_best["best_location"]
     raw_weighted_vector = np.array(
@@ -247,6 +296,40 @@ def run_multishot_scan(
         "score_volume_raw": score_volume_unweighted,
         "score_volume_depth_weighted": score_volume_depth_weighted,
         "attribute_score_volumes": attribute_volumes,
+        "multi_attribute_inversion_enabled": bool(multi_attribute_enabled),
+        "multi_attribute_volumes": multi_attribute_volumes,
+        "score_volume_energy": multi_attribute_volumes.get("score_volume_energy", attribute_volumes["energy_score"]),
+        "score_volume_normalized_energy": multi_attribute_volumes.get(
+            "score_volume_normalized_energy", attribute_volumes["normalized_energy_score"]
+        ),
+        "score_volume_matched_wavelet": multi_attribute_volumes.get(
+            "score_volume_matched_wavelet", attribute_volumes["matched_wavelet_score"]
+        ),
+        "score_volume_semblance": multi_attribute_volumes.get("score_volume_semblance", attribute_volumes["semblance_score"]),
+        "score_volume_frequency_shift": multi_attribute_volumes.get(
+            "score_volume_frequency_shift", attribute_volumes["frequency_shift_score"]
+        ),
+        "score_volume_combined": score_volume_unweighted,
+        "attribute_normalization": getattr(params.scan, "attribute_normalization", "robust_minmax"),
+        "attribute_weights": attribute_weights,
+        "posterior_probability_volume": posterior_result["posterior_probability_volume"],
+        "posterior_volume_status": "generated",
+        "posterior_summary": posterior_result["posterior_summary"],
+        "posterior_peak_location": posterior_result["posterior_peak_location"],
+        "posterior_mean_location": posterior_result["posterior_mean_location"],
+        "posterior_covariance_3x3": posterior_result["posterior_covariance_3x3"],
+        "uncertainty_ellipsoid_axes": posterior_result["uncertainty_ellipsoid_axes"],
+        "high_probability_region": {key: value for key, value in high_probability.items() if key != "mask"},
+        "high_probability_mask": high_probability["mask"],
+        "uncertainty_summary": uncertainty_summary,
+        "posterior_recommendation": posterior_recommendation,
+        "connected_components_3d": uncertainty_summary["connected_components_3d"],
+        "ambiguity_warning": uncertainty_summary["ambiguity_warning"],
+        "multi_peak_warning": uncertainty_summary["multi_peak_warning"],
+        "geometry_resolution_volume": geometry_resolution["geometry_resolution_volume"],
+        "geometry_resolution": geometry_resolution,
+        "geometry_resolution_summary": geometry_resolution["geometry_resolution_summary"],
+        "scan_velocity_model_audit": scan_velocity_model_audit,
         "depth_weights": depth_weights,
         "depth_weight_enabled": params.scan.use_depth_weight,
         "penetration_depth_m": penetration_depth_m,

@@ -151,6 +151,19 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
         np.save(paths["arrays"] / "arr_score_volume_unweighted.npy", scan_result["score_volume_unweighted"])
         np.save(paths["arrays"] / "arr_score_volume_raw.npy", scan_result["score_volume_raw"])
         np.save(paths["arrays"] / "arr_score_volume_depth_weighted.npy", scan_result["score_volume_depth_weighted"])
+        stage5i_volume_aliases = {
+            "arr_score_volume_energy.npy": "score_volume_energy",
+            "arr_score_volume_normalized_energy.npy": "score_volume_normalized_energy",
+            "arr_score_volume_matched_wavelet.npy": "score_volume_matched_wavelet",
+            "arr_score_volume_semblance.npy": "score_volume_semblance",
+            "arr_score_volume_frequency_shift.npy": "score_volume_frequency_shift",
+            "arr_score_volume_combined.npy": "score_volume_combined",
+            "arr_posterior_probability_volume.npy": "posterior_probability_volume",
+            "arr_geometry_resolution_volume.npy": "geometry_resolution_volume",
+        }
+        for filename, key in stage5i_volume_aliases.items():
+            if key in scan_result and scan_result[key] is not None:
+                np.save(paths["arrays"] / filename, scan_result[key])
         for name, volume in scan_result.get("attribute_score_volumes", {}).items():
             np.save(paths["arrays"] / f"arr_{name}.npy", volume)
         attribute_aliases = {
@@ -249,8 +262,11 @@ def run_scan_pipeline(params: SimpleNamespace, forward_result: dict[str, Any] | 
     save_json(paths["metadata"] / "meta_run.json", metadata)
 
     scan_log = (
-        "Stage 5A scan pipeline completed.\n"
+        "Stage 5I scan pipeline completed.\n"
         f"Score method: {params.scan.score_method}\n"
+        f"Scan candidate uses path integration: {scan_result['scan_velocity_model_audit']['scan_candidate_uses_path_integration']}\n"
+        f"Scan uses representative velocity: {scan_result['scan_velocity_model_audit']['scan_uses_representative_velocity']}\n"
+        f"Posterior volume status: {scan_result['posterior_volume_status']}\n"
         f"Best location: {scan_result['best_location']}\n"
         f"Truth error: {scan_result['truth_error']}\n"
         f"Preprocessing: {preprocessing_info}\n"

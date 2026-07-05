@@ -48,14 +48,15 @@ STAGE5H_FIGURE_SPECS: list[StableFigureSpec] = [
     StableFigureSpec("localization", "fig_3d_high_score_region.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_recommended_location_3d.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_3d_uncertainty_box.png", "reports/localization/report_full_pipeline.md"),
-    StableFigureSpec("localization", "fig_x_y_depth_uncertainty_slices.png", "reports/localization/report_full_pipeline.md"),
-    StableFigureSpec("error_analysis", "fig_stage5h_status_badge.png", "reports/error_analysis/report_manual_review_readiness.md"),
+    StableFigureSpec("localization", "fig_3d_posterior_volume.png", "reports/localization/report_full_pipeline.md"),
+    StableFigureSpec("localization", "fig_3d_uncertainty_ellipsoid.png", "reports/localization/report_full_pipeline.md"),
+    StableFigureSpec("error_analysis", "fig_stage5i_status_badge.png", "reports/error_analysis/report_manual_review_readiness.md"),
     StableFigureSpec("error_analysis", "fig_latest_stable_quality_summary.png", "reports/error_analysis/report_figure_quality_check.md"),
     StableFigureSpec("error_analysis", "fig_rayleigh_pick_interpretation.png", "reports/forward/report_elastic2d_rayleigh_benchmark.md"),
     StableFigureSpec("error_analysis", "fig_elastic2d_das_report_consistency.png", "reports/forward/report_elastic2d_das_response.md"),
-    StableFigureSpec("error_analysis", "fig_elastic_vs_kinematic_energy_partition.png", "reports/error_analysis/report_elastic_vs_kinematic.md"),
-    StableFigureSpec("error_analysis", "fig_confidence_diagnostics.png", "reports/localization/report_full_pipeline.md"),
-    StableFigureSpec("error_analysis", "fig_model_mismatch_error_summary.png", "reports/error_analysis/report_model_mismatch.md"),
+    StableFigureSpec("error_analysis", "fig_multi_peak_ambiguity_analysis.png", "reports/localization/report_full_pipeline.md"),
+    StableFigureSpec("error_analysis", "fig_3d_geometry_resolution_analysis.png", "reports/localization/report_full_pipeline.md"),
+    StableFigureSpec("error_analysis", "fig_scan_velocity_model_consistency.png", "reports/localization/report_full_pipeline.md"),
 ]
 
 

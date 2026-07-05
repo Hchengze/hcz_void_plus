@@ -8,11 +8,11 @@ from src.validation.scientific_figure_self_check import (
 )
 
 
-def test_readme_and_current_status_are_stage5h():
+def test_readme_and_current_status_are_stage5i():
     readme = Path("README.md").read_text(encoding="utf-8")
     status = Path("docs/current_status.md").read_text(encoding="utf-8")
-    assert "Stage 5H" in readme
-    assert "Stage 5H" in status
+    assert "Stage 5I" in readme
+    assert "Stage 5I" in status
     assert "active velocity model" in readme
     assert "active forward engine" in readme
     assert "ready_for_2p5d=False" in status or "ready_for_2p5d" in readme

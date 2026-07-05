@@ -240,11 +240,15 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "figures" / "forward" / "fig_elastic2d_rayleigh_velocity_error.png").exists()
     assert (latest_stable / "figures" / "forward" / "fig_elastic2d_surface_event_ridge.png").exists()
     assert (latest_stable / "figures" / "forward" / "fig_elastic2d_das_best_case.png").exists()
-    assert (latest_stable / "figures" / "error_analysis" / "fig_elastic_vs_kinematic_energy_partition.png").exists()
+    assert (latest_stable / "figures" / "error_analysis" / "fig_scan_velocity_model_consistency.png").exists()
+    assert (latest_stable / "figures" / "error_analysis" / "fig_3d_geometry_resolution_analysis.png").exists()
+    assert (latest_stable / "figures" / "error_analysis" / "fig_multi_peak_ambiguity_analysis.png").exists()
     assert (latest_stable / "figures" / "localization" / "fig_scan_x_depth_slice.png").exists()
     assert (latest_stable / "figures" / "localization" / "fig_3d_high_score_region.png").exists()
     assert (latest_stable / "figures" / "localization" / "fig_recommended_location_3d.png").exists()
     assert (latest_stable / "figures" / "localization" / "fig_3d_uncertainty_box.png").exists()
+    assert (latest_stable / "figures" / "localization" / "fig_3d_posterior_volume.png").exists()
+    assert (latest_stable / "figures" / "localization" / "fig_3d_uncertainty_ellipsoid.png").exists()
     assert (latest_stable / "figures" / "error_analysis" / "fig_latest_stable_quality_summary.png").exists()
     assert (latest_stable / "figures" / "forward" / "fig_velocity_model_physics_bridge.png").exists()
     assert (latest_stable / "reports" / "forward" / "report_full_pipeline.md").exists()
@@ -269,6 +273,12 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["scan"]["weighted_best_location"] is not None
     assert metadata["scan"]["raw_weighted_difference"] is not None
     assert metadata["scan"]["recommended_location"] is not None
+    assert metadata["scan"]["scan_candidate_uses_path_integration"] is True
+    assert metadata["scan"]["scan_uses_representative_velocity"] is False
+    assert metadata["scan"]["posterior_volume_status"] == "generated"
+    assert metadata["scan"]["posterior_peak_location"] is not None
+    assert metadata["scan"]["posterior_mean_location"] is not None
+    assert metadata["stage5i_validation"]["ready_for_2p5d"] is False
     assert metadata["scan"]["score_method_comparison"] is not None
     assert metadata["diagnostics"]["diffraction_travel_time_curve_figure"]
     assert metadata["confidence"]["peak_sharpness"] is not None
@@ -288,7 +298,7 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["stage5b_validation"]["elastic2d_das_response"] is not None
     assert metadata["stage5b_validation"]["elastic_vs_kinematic"] is not None
     assert metadata["approximation"]["forward_engine"] == "layered_kinematic"
-    assert metadata["stage"] == "Stage 5H metadata/manual-review hardening on Stage 5G three-category outputs"
+    assert metadata["stage"] == "Stage 5I 3D kinematic inversion and scan velocity consistency"
     assert metadata["stage5e_validation"]["elastic2d_numerical_sensitivity"] is not None
     assert metadata["stage5e_validation"]["velocity_model_physics_bridge"] is not None
     assert metadata["stage5e_validation"]["elastic2d_das_nonzero_check"] is not None

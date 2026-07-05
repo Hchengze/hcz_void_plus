@@ -1,4 +1,4 @@
-"""Stage 5H 人工复查入口检查。
+"""Stage 5I 人工复查入口检查。
 
 本模块不再为每一张图写单独测试，而是检查 summary 中的
 manual_review_figures / manual_review_animations 是否真实、受控、属于
@@ -26,7 +26,7 @@ REQUIRED_ANIMATIONS = {
 }
 
 RECOMMENDED_REVIEW_ORDER = [
-    "figures/error_analysis/fig_stage5h_status_badge.png",
+    "figures/error_analysis/fig_stage5i_status_badge.png",
     "figures/forward/fig_geometry_3d_overview.png",
     "animations/forward/anim_multishot_forward_overview.gif",
     "animations/forward/anim_single_shot_wavefield.gif",
@@ -126,7 +126,7 @@ def run_manual_review_readiness(latest_stable_dir: Path) -> dict[str, Any]:
         warnings.append("人工建议查看顺序中存在缺失项，请检查 latest_stable 精选清单。")
 
     return {
-        "stage": "Stage 5H",
+        "stage": "Stage 5I",
         "manual_review_figure_count": len(figures),
         "manual_review_animation_count": len(animations),
         "manual_review_figures": figures,
@@ -147,7 +147,7 @@ def write_manual_review_readiness_report(path: Path, result: dict[str, Any]) -> 
     lines = [
         "# manual review readiness 报告",
         "",
-        "本报告检查 Stage 5H 的人工复查入口是否清晰、受控、真实存在。",
+        "本报告检查 Stage 5I 的人工复查入口是否清晰、受控、真实存在。",
         "",
         f"- stage：`{result['stage']}`",
         f"- manual_review_figures 数量：`{result['manual_review_figure_count']}`",

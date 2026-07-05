@@ -23,7 +23,7 @@ def test_document_cleanup_report_and_archive_exist():
 
 def test_current_status_is_not_stale_stage5a_or_stage5c():
     status = Path("docs/current_status.md").read_text(encoding="utf-8")
-    assert "Stage 5H" in status
+    assert "Stage 5I" in status
     assert "active velocity model" in status
     assert "active forward engine" in status
     assert "当前进入 Stage 5A" not in status
@@ -35,7 +35,7 @@ def test_current_entrypoints_are_stage_consistent():
     status = Path("docs/current_status.md").read_text(encoding="utf-8")
     boundary = Path("docs/current_algorithm_boundary.md").read_text(encoding="utf-8")
     summary = get_current_algorithm_summary()
-    assert "Stage 5H" in readme
-    assert "Stage 5H" in status
-    assert "Stage 5H" in boundary
-    assert summary["stage"] == "Stage 5H"
+    assert "Stage 5I" in readme
+    assert "Stage 5I" in status
+    assert "Stage 5I" in boundary
+    assert summary["stage"] == "Stage 5I"

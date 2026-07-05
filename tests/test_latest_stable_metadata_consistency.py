@@ -13,7 +13,7 @@ def test_summary_manual_review_files_exist():
         "figures/localization/fig_3d_high_score_region.png",
         "figures/localization/fig_recommended_location_3d.png",
         "figures/localization/fig_3d_uncertainty_box.png",
-        "figures/error_analysis/fig_stage5h_status_badge.png",
+        "figures/error_analysis/fig_stage5i_status_badge.png",
     ]
     manual_animations = [
         "animations/forward/anim_multishot_forward_overview.gif",

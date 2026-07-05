@@ -104,7 +104,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5H metadata/manual-review hardening on Stage 5G three-category outputs",
+        "stage": "Stage 5I 3D kinematic inversion and scan velocity consistency",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -179,6 +179,17 @@ def build_metadata(
             "score_volume_depth_weighted_saved": False,
             "score_method_comparison": None,
             "depth_prior_sensitivity": None,
+            "scan_candidate_uses_path_integration": None,
+            "scan_uses_representative_velocity": None,
+            "multi_attribute_inversion_enabled": None,
+            "posterior_volume_status": None,
+            "posterior_peak_location": None,
+            "posterior_mean_location": None,
+            "posterior_covariance_3x3": None,
+            "posterior_uncertainty_axes": None,
+            "geometry_resolution_status": None,
+            "ambiguity_warning": None,
+            "multi_peak_warning": None,
         },
         "diagnostics": {
             "diffraction_travel_time_curve_figure": None,
@@ -263,6 +274,20 @@ def build_metadata(
         metadata["scan"]["score_volume_raw_saved"] = True
         metadata["scan"]["score_volume_unweighted_saved"] = True
         metadata["scan"]["score_volume_depth_weighted_saved"] = True
+        scan_audit = scan_result.get("scan_velocity_model_audit", {})
+        posterior_summary = scan_result.get("posterior_summary", {})
+        geometry_summary = scan_result.get("geometry_resolution_summary", {})
+        metadata["scan"]["scan_candidate_uses_path_integration"] = scan_audit.get("scan_candidate_uses_path_integration")
+        metadata["scan"]["scan_uses_representative_velocity"] = scan_audit.get("scan_uses_representative_velocity")
+        metadata["scan"]["multi_attribute_inversion_enabled"] = scan_result.get("multi_attribute_inversion_enabled")
+        metadata["scan"]["posterior_volume_status"] = scan_result.get("posterior_volume_status")
+        metadata["scan"]["posterior_peak_location"] = posterior_summary.get("posterior_peak_location")
+        metadata["scan"]["posterior_mean_location"] = posterior_summary.get("posterior_mean_location")
+        metadata["scan"]["posterior_covariance_3x3"] = posterior_summary.get("posterior_covariance_3x3")
+        metadata["scan"]["posterior_uncertainty_axes"] = posterior_summary.get("uncertainty_ellipsoid_axes")
+        metadata["scan"]["geometry_resolution_status"] = geometry_summary.get("geometry_resolution_status")
+        metadata["scan"]["ambiguity_warning"] = scan_result.get("ambiguity_warning")
+        metadata["scan"]["multi_peak_warning"] = scan_result.get("multi_peak_warning")
     if forward_info is not None:
         metadata["approximation"]["forward_engine"] = forward_info.get("forward_engine")
         metadata["approximation"]["forward_modeling_stage"] = forward_info.get("forward_stage")
