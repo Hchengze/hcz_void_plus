@@ -713,6 +713,48 @@ def plot_stage5i_status_badge(summary: dict[str, Any], output_path: Path) -> Non
     _save(fig, output_path)
 
 
+def plot_stage5j_status_badge(summary: dict[str, Any], output_path: Path) -> None:
+    """绘制 Stage 5J 状态徽章。
+
+    Stage 5J 的主线从文档治理回到三维运动学正演：x-y-depth 体响应 proxy、
+    velocity-model path integration 炮集到时叠加，以及经验 Q attenuation。这里必须
+    清楚说明该体响应不是 3D elastic wavefield，避免把 validation forward 误当成主定位 forward。
+    """
+
+    setup_chinese_matplotlib()
+    fig, ax = plt.subplots(figsize=(8.4, 4.7), dpi=150)
+    ax.axis("off")
+    ready = bool(summary.get("ready_for_2p5d", False))
+    volume_shape = summary.get("volume_wavefield_grid_shape")
+    attenuation = summary.get("attenuation_model_enabled")
+    overlay = summary.get("shot_gather_velocity_overlay_available")
+    ax.text(0.5, 0.86, "Stage 5J 当前状态", ha="center", va="center", fontsize=20, fontweight="bold")
+    ax.text(
+        0.5,
+        0.57,
+        "主定位 forward：layered_kinematic\n"
+        "active velocity model：layered\n"
+        "本轮重点：三维运动学体响应 proxy / 速度模型约束炮集 / 经验 Q attenuation\n"
+        f"volume grid (depth,y,x)：{volume_shape}\n"
+        f"shot gather velocity overlay：{overlay}\n"
+        f"attenuation_model_enabled：{attenuation}\n"
+        f"ready_for_2p5d：{ready}",
+        ha="center",
+        va="center",
+        fontsize=11.0,
+    )
+    ax.text(
+        0.5,
+        0.13,
+        "三维体响应用于 source_xyz / receiver_xyz / candidate_xyz 主线验证；不是 3D elastic wavefield，也不替代 elastic2d validation。",
+        ha="center",
+        va="center",
+        fontsize=9.3,
+        color="#e15759",
+    )
+    _save(fig, output_path)
+
+
 def plot_rayleigh_pick_interpretation(result: dict[str, Any], output_path: Path) -> None:
     """绘制 Rayleigh 拾取解释图。
 

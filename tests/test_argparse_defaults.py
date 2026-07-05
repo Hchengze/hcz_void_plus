@@ -6,7 +6,7 @@ def test_argparse_defaults_can_parse():
     params = args_to_params(args)
 
     assert params.project.task == "debug"
-    assert params.project.run_name == "stage5i_run"
+    assert params.project.run_name == "stage5j_run"
     assert params.fiber.channel_count >= 2
     assert params.source.shot_count >= 1
     assert params.derived.nt == len(params.derived.time_axis)
@@ -18,6 +18,14 @@ def test_argparse_defaults_can_parse():
     assert params.output.wavefield_snapshot_count == 12
     assert params.output.wavefield_grid_nx == 160
     assert params.output.wavefield_grid_ny == 80
+    assert params.output.volume_wavefield_enabled is True
+    assert params.output.volume_wavefield_nx == 72
+    assert params.output.volume_wavefield_ny == 24
+    assert params.output.volume_wavefield_nh == 12
+    assert params.output.volume_wavefield_frame_count == 8
+    assert params.attenuation.enabled is True
+    assert params.attenuation.q_default == 35.0
+    assert params.attenuation.layer_q == [25.0, 35.0, 50.0, 80.0]
     assert params.scan.enabled is True
     assert params.scan.score_method == "diffraction_energy_stack"
     assert params.scan.direct_mute_mode == "taper"

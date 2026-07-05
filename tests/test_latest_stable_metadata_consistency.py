@@ -6,18 +6,18 @@ def test_summary_manual_review_files_exist():
     manual_figures = [
         "figures/forward/fig_geometry_3d_overview.png",
         "figures/forward/fig_velocity_model_active_badge.png",
-        "figures/forward/fig_velocity_model_physics_bridge.png",
-        "figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png",
-        "figures/forward/fig_elastic2d_rayleigh_velocity_error.png",
-        "figures/forward/fig_elastic2d_das_best_case.png",
-        "figures/localization/fig_3d_high_score_region.png",
-        "figures/localization/fig_recommended_location_3d.png",
-        "figures/localization/fig_3d_uncertainty_box.png",
-        "figures/error_analysis/fig_stage5i_status_badge.png",
+        "figures/forward/fig_velocity_sampling_paths_3d.png",
+        "figures/forward/fig_volume_wavefield_xyz_slices.png",
+        "figures/forward/fig_volume_wavefield_3d_energy_proxy.png",
+        "figures/forward/fig_shot_gather_with_velocity_model.png",
+        "figures/forward/fig_shot_gather_attenuation_comparison.png",
+        "figures/localization/fig_3d_posterior_volume.png",
+        "figures/localization/fig_3d_uncertainty_ellipsoid.png",
+        "figures/error_analysis/fig_forward_localization_consistency.png",
     ]
     manual_animations = [
+        "animations/forward/anim_single_shot_volume_wavefield.gif",
         "animations/forward/anim_multishot_forward_overview.gif",
-        "animations/forward/anim_single_shot_wavefield.gif",
     ]
     summary = (latest / "summary.md").read_text(encoding="utf-8")
     assert "algorithm_commit" in summary

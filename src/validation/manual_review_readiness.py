@@ -1,4 +1,4 @@
-"""Stage 5I 人工复查入口检查。
+"""Stage 5J 人工复查入口检查。
 
 本模块不再为每一张图写单独测试，而是检查 summary 中的
 manual_review_figures / manual_review_animations 是否真实、受控、属于
@@ -15,29 +15,31 @@ ALLOWED_CATEGORIES = {"forward", "localization", "error_analysis"}
 
 REQUIRED_3D_FIGURES = {
     "figures/forward/fig_geometry_3d_overview.png",
-    "figures/localization/fig_3d_high_score_region.png",
-    "figures/localization/fig_recommended_location_3d.png",
-    "figures/localization/fig_3d_uncertainty_box.png",
+    "figures/forward/fig_volume_wavefield_xyz_slices.png",
+    "figures/forward/fig_shot_gather_with_velocity_model.png",
+    "figures/localization/fig_3d_posterior_volume.png",
+    "figures/localization/fig_3d_uncertainty_ellipsoid.png",
+    "figures/error_analysis/fig_forward_localization_consistency.png",
 }
 
 REQUIRED_ANIMATIONS = {
+    "animations/forward/anim_single_shot_volume_wavefield.gif",
     "animations/forward/anim_multishot_forward_overview.gif",
-    "animations/forward/anim_single_shot_wavefield.gif",
 }
 
 RECOMMENDED_REVIEW_ORDER = [
-    "figures/error_analysis/fig_stage5i_status_badge.png",
+    "figures/error_analysis/fig_stage5j_status_badge.png",
     "figures/forward/fig_geometry_3d_overview.png",
-    "animations/forward/anim_multishot_forward_overview.gif",
-    "animations/forward/anim_single_shot_wavefield.gif",
-    "figures/forward/fig_velocity_model_active_badge.png",
-    "figures/forward/fig_velocity_model_physics_bridge.png",
-    "figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png",
-    "figures/forward/fig_elastic2d_das_best_case.png",
-    "figures/localization/fig_3d_high_score_region.png",
-    "figures/localization/fig_recommended_location_3d.png",
-    "figures/localization/fig_3d_uncertainty_box.png",
+    "figures/forward/fig_volume_wavefield_xyz_slices.png",
+    "figures/forward/fig_volume_wavefield_3d_energy_proxy.png",
+    "figures/forward/fig_shot_gather_with_velocity_model.png",
+    "figures/forward/fig_shot_gather_attenuation_comparison.png",
+    "figures/error_analysis/fig_forward_localization_consistency.png",
+    "figures/localization/fig_3d_posterior_volume.png",
+    "figures/localization/fig_3d_uncertainty_ellipsoid.png",
     "figures/error_analysis/fig_rayleigh_pick_interpretation.png",
+    "animations/forward/anim_single_shot_volume_wavefield.gif",
+    "animations/forward/anim_multishot_forward_overview.gif",
 ]
 
 
@@ -126,7 +128,7 @@ def run_manual_review_readiness(latest_stable_dir: Path) -> dict[str, Any]:
         warnings.append("人工建议查看顺序中存在缺失项，请检查 latest_stable 精选清单。")
 
     return {
-        "stage": "Stage 5I",
+        "stage": "Stage 5J",
         "manual_review_figure_count": len(figures),
         "manual_review_animation_count": len(animations),
         "manual_review_figures": figures,
@@ -147,7 +149,7 @@ def write_manual_review_readiness_report(path: Path, result: dict[str, Any]) -> 
     lines = [
         "# manual review readiness 报告",
         "",
-        "本报告检查 Stage 5I 的人工复查入口是否清晰、受控、真实存在。",
+        "本报告检查 Stage 5J 的人工复查入口是否清晰、受控、真实存在。",
         "",
         f"- stage：`{result['stage']}`",
         f"- manual_review_figures 数量：`{result['manual_review_figure_count']}`",

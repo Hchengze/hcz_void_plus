@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from src.forward.amplitude_model import compute_scatter_amplitude
 from src.forward.wavelet import shifted_ricker
-from src.geometry.distance import source_scatter_receiver_path_distance
 from src.model.velocity_model import KinematicVelocityModel, compute_scatter_travel_time
 
 
@@ -40,26 +40,33 @@ def simulate_scatter_wave(
 
     近似条件和限制：
         多散射点只是运动学等效散射近似，不是真实边界散射、模式转换或完整
-        三维弹性全波场。几何扩散采用 1/sqrt(path+1) 的简化振幅衰减。
+        三维弹性全波场。振幅采用几何扩散、经验 Q attenuation 和深度敏感性衰减。
     """
 
     time_axis = params.derived.time_axis
     n_shot = source_xyz.shape[0]
     n_time = params.derived.nt
     n_channel = receiver_xyz.shape[0]
-    path_distance = source_scatter_receiver_path_distance(source_xyz, scatter_xyz, receiver_xyz)
     travel_times = compute_scatter_travel_time(source_xyz, scatter_xyz, receiver_xyz, velocity_model)
+    amplitudes = compute_scatter_amplitude(
+        params,
+        source_xyz[:, None, None, :],
+        scatter_xyz[None, :, None, :],
+        receiver_xyz[None, None, :, :],
+        travel_times,
+        scatter_weight[None, :, None],
+    )
     data = np.zeros((n_shot, n_time, n_channel), dtype=float)
 
     for i_shot in range(n_shot):
         for i_scatter in range(scatter_xyz.shape[0]):
             for i_channel in range(n_channel):
-                path = path_distance[i_shot, i_scatter, i_channel]
                 # 散射波走时通过 source->scatter 与 scatter->receiver 两段路径分别积分。
                 # 对 layered / heterogeneous 模型，异常体深度和局部低速会改变该走时；
                 # 但路径仍是直线段，因此仍属于运动学近似。
                 arrival = params.time.t0_s + travel_times[i_shot, i_scatter, i_channel]
-                amplitude = scatter_weight[i_scatter] / np.sqrt(path + 1.0)
+                # Stage 5J 后，散射振幅统一经过 amplitude_model，包含 Q attenuation。
+                amplitude = amplitudes[i_shot, i_scatter, i_channel]
                 data[i_shot, :, i_channel] += amplitude * shifted_ricker(
                     time_axis, arrival, params.task.wavelet_frequency_hz
                 )

@@ -20,14 +20,14 @@ def get_current_algorithm_summary() -> dict[str, Any]:
         "F0": "kinematic_baseline：快速均匀速度运动学基线，不是当前主正演。",
         "F1": "layered_kinematic：当前主定位 forward，straight-ray kinematic approximation。",
         "F2": "acoustic2d_prototype：声学波动方程基础设施验证，不代表 Rayleigh 波。",
-        "F3": "elastic2d_prototype：Rayleigh/free-surface/void scattering 局部物理验证起点，Stage 5I 仍只作为 validation，不替代三维运动学定位主线。",
+        "F3": "elastic2d_prototype：Rayleigh/free-surface/void scattering 局部物理验证起点，Stage 5J 仍只作为 validation，不替代三维运动学定位主线。",
         "F4": "2.5D / multi-section elastic validation。",
         "F5": "local small-domain 3D elastic validation。",
         "F6": "external solver adapters，不复制第三方代码。",
     }
 
     return {
-        "stage": "Stage 5I",
+        "stage": "Stage 5J",
         "stable_area": "code/current_3d_algorithm",
         "research_area": "src",
         "geometry": "3D source_xyz / receiver_xyz / candidate_xyz",
@@ -93,6 +93,13 @@ def get_current_algorithm_summary() -> dict[str, Any]:
             "uncertainty_ellipsoid_axes",
             "geometry_resolution_volume",
             "3d_connected_components",
+        ],
+        "stage5j_diagnostics": [
+            "x_y_depth_kinematic_volume_response_proxy",
+            "shot_gather_velocity_model_context",
+            "empirical_q_attenuation_model",
+            "forward_localization_link_check",
+            "test_suite_reduction",
         ],
         "rayleigh_like_stage5d_status": "not_detected",
         "das_gauge_stage5d_status": "zero_or_too_weak",

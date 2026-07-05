@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage5i_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5j_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -186,6 +186,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     noise.add_argument("--noise-enabled", type=str_to_bool, default=False, help="是否加入高斯白噪声。")
     noise.add_argument("--noise-snr-db", type=float, default=20.0, help="目标信噪比，单位 dB。")
 
+    attenuation = parser.add_argument_group("attenuation 路径衰减参数组")
+    attenuation.add_argument("--attenuation-enabled", type=str_to_bool, default=True, help="是否启用经验 Q attenuation。")
+    attenuation.add_argument("--attenuation-q-default", type=float, default=35.0, help="默认 Q 值；这是经验衰减参数，不是粘弹性反演结果。")
+    attenuation.add_argument("--attenuation-layer-q", default="25,35,50,80", help="分层 Q 值，逗号分隔；按 depth 向下为正。")
+    attenuation.add_argument("--attenuation-frequency-dependent", type=str_to_bool, default=True, help="是否使用 exp(-pi*f*t/Q) 频率相关衰减。")
+    attenuation.add_argument("--attenuation-geometric-spreading-power", type=float, default=0.5, help="几何扩散指数 p，对应 1/(path+1)^p。")
+    attenuation.add_argument("--attenuation-min-amplitude", type=float, default=1.0e-8, help="经验衰减振幅下限，避免数值下溢。")
+
     output = parser.add_argument_group("output 输出参数组")
     output.add_argument("--output-root-dir", default="outputs", help="输出根目录。")
     output.add_argument("--save-figures", type=str_to_bool, default=True, help="是否保存静态图。")
@@ -198,6 +206,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     output.add_argument("--wavefield-snapshot-count", type=int, default=12, help="保存伪波场快照帧数。")
     output.add_argument("--wavefield-grid-nx", type=int, default=160, help="伪波场 x 方向网格数。")
     output.add_argument("--wavefield-grid-ny", type=int, default=80, help="伪波场 y 方向网格数。")
+    output.add_argument("--volume-wavefield-enabled", type=str_to_bool, default=True, help="是否生成 x-y-depth 三维运动学体响应 proxy。")
+    output.add_argument("--volume-wavefield-nx", type=int, default=72, help="三维体响应 x 方向网格数。")
+    output.add_argument("--volume-wavefield-ny", type=int, default=24, help="三维体响应 y 方向网格数。")
+    output.add_argument("--volume-wavefield-nh", type=int, default=12, help="三维体响应 depth/h 方向网格数，深度向下为正。")
+    output.add_argument("--volume-wavefield-frame-count", type=int, default=8, help="三维体响应动图/切片帧数。")
+    output.add_argument("--volume-wavefield-max-scatter-points", type=int, default=24, help="三维体响应 proxy 最多使用的等效散射点数。")
     output.add_argument("--wavefield-animation-fps", type=float, default=4.0, help="伪波场 GIF 帧率。")
     output.add_argument("--wavefield-shot-index", type=int, default=0, help="用于伪波场展示的炮点索引，从 0 开始。")
     output.add_argument("--output-prefix-style", default="compact", choices=["compact"], help="输出文件前缀规则，当前使用 compact。")
@@ -522,6 +536,14 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             strain_rate=args.strain_rate,
         ),
         noise=_namespace(enabled=args.noise_enabled, snr_db=args.noise_snr_db),
+        attenuation=_namespace(
+            enabled=args.attenuation_enabled,
+            q_default=args.attenuation_q_default,
+            layer_q=[float(item.strip()) for item in args.attenuation_layer_q.split(",") if item.strip()],
+            frequency_dependent=args.attenuation_frequency_dependent,
+            geometric_spreading_power=args.attenuation_geometric_spreading_power,
+            min_amplitude=args.attenuation_min_amplitude,
+        ),
         output=_namespace(
             root_dir=args.output_root_dir,
             save_figures=args.save_figures,
@@ -534,6 +556,12 @@ def args_to_params(args: argparse.Namespace) -> SimpleNamespace:
             wavefield_snapshot_count=args.wavefield_snapshot_count,
             wavefield_grid_nx=args.wavefield_grid_nx,
             wavefield_grid_ny=args.wavefield_grid_ny,
+            volume_wavefield_enabled=args.volume_wavefield_enabled,
+            volume_wavefield_nx=args.volume_wavefield_nx,
+            volume_wavefield_ny=args.volume_wavefield_ny,
+            volume_wavefield_nh=args.volume_wavefield_nh,
+            volume_wavefield_frame_count=args.volume_wavefield_frame_count,
+            volume_wavefield_max_scatter_points=args.volume_wavefield_max_scatter_points,
             wavefield_animation_fps=args.wavefield_animation_fps,
             wavefield_shot_index=args.wavefield_shot_index,
             prefix_style=args.output_prefix_style,
@@ -770,6 +798,12 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         raise ValueError(f"wavefield_grid_nx 错误：当前值为 {params.output.wavefield_grid_nx}，合理条件是 >= 10。")
     if params.output.wavefield_grid_ny < 10:
         raise ValueError(f"wavefield_grid_ny 错误：当前值为 {params.output.wavefield_grid_ny}，合理条件是 >= 10。")
+    if params.output.volume_wavefield_nx < 8 or params.output.volume_wavefield_ny < 6 or params.output.volume_wavefield_nh < 4:
+        raise ValueError("volume_wavefield_nx/ny/nh 错误：三维体响应 proxy 网格过小，至少需要 8/6/4。")
+    if params.output.volume_wavefield_frame_count < 2:
+        raise ValueError("volume_wavefield_frame_count 错误：至少需要 2 帧。")
+    if params.output.volume_wavefield_max_scatter_points < 1:
+        raise ValueError("volume_wavefield_max_scatter_points 错误：至少需要 1 个散射点。")
     if params.output.wavefield_animation_fps <= 0:
         raise ValueError(
             f"wavefield_animation_fps 错误：当前值为 {params.output.wavefield_animation_fps}，合理条件是 > 0。"
@@ -860,6 +894,14 @@ def validate_raw_params(params: SimpleNamespace) -> None:
         raise ValueError(
             f"wavelet_dominant_frequency_hz 错误：当前值为 {params.task.wavelet_dominant_frequency_hz}，合理条件是 > 0。"
         )
+    if params.attenuation.q_default <= 0:
+        raise ValueError("attenuation_q_default 错误：Q 必须 > 0。")
+    if not params.attenuation.layer_q or any(value <= 0 for value in params.attenuation.layer_q):
+        raise ValueError("attenuation_layer_q 错误：至少需要一个 >0 的 Q 值。")
+    if params.attenuation.geometric_spreading_power < 0:
+        raise ValueError("attenuation_geometric_spreading_power 错误：不能为负。")
+    if params.attenuation.min_amplitude < 0:
+        raise ValueError("attenuation_min_amplitude 错误：不能为负。")
     if not (0.0 < params.confidence.threshold_ratio <= 1.0):
         raise ValueError(
             f"confidence_threshold_ratio 错误：当前值为 {params.confidence.threshold_ratio}，合理条件是 0 < ratio <= 1。"
@@ -1000,7 +1042,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 5I 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5J 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")
@@ -1010,6 +1052,13 @@ def print_params_summary(params: SimpleNamespace) -> None:
     print(f"scan grid: {params.derived.scan_shape}, points={params.derived.scan_grid_point_count}")
     print(f"forward engine: {params.forward.engine}")
     print(f"velocity model: {params.velocity.model_type}")
+    print(f"attenuation: enabled={params.attenuation.enabled}, q_default={params.attenuation.q_default}")
+    print(
+        "volume wavefield: "
+        f"enabled={params.output.volume_wavefield_enabled}, "
+        f"shape=({params.output.volume_wavefield_frame_count}, "
+        f"{params.output.volume_wavefield_nh}, {params.output.volume_wavefield_ny}, {params.output.volume_wavefield_nx})"
+    )
     print(
         "rayleigh depth sensitivity: "
         f"wavelength={params.derived.estimated_wavelength_m:.3f} m, "

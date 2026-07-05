@@ -9,6 +9,8 @@ from typing import Any
 
 import numpy as np
 
+from src.model.attenuation_model import attenuation_metadata, build_attenuation_model
+
 
 def to_serializable(obj: Any) -> Any:
     """将 params、numpy 数组和 Path 转换为 JSON 可保存对象。"""
@@ -104,7 +106,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5I 3D kinematic inversion and scan velocity consistency",
+        "stage": "Stage 5J 3D kinematic forward volume and attenuation modeling",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),
@@ -134,6 +136,8 @@ def build_metadata(
             "is_true_elastic_wavefield": False,
             "is_true_wave_equation_snapshot": False,
             "rayleigh_depth_sensitivity_included": True,
+            "volume_wavefield_is_kinematic_proxy": True,
+            "volume_wavefield_uses_depth": True,
         },
         "physics": {
             "rayleigh_depth_sensitivity_enabled": True,
@@ -144,6 +148,7 @@ def build_metadata(
             "velocity_model_type": params.velocity.model_type,
             "layer_depths_m": params.velocity.layer_depths_m,
             "layer_rayleigh_velocities_mps": params.velocity.layer_rayleigh_velocities_mps,
+            "attenuation": attenuation_metadata(build_attenuation_model(params)),
             "note": "这是 Rayleigh 波深度敏感性的简化权重，不是严格 Rayleigh 模态深度核。",
         },
         "visualization": {
@@ -152,6 +157,7 @@ def build_metadata(
             "save_wavefield_animation": params.output.save_wavefield_animation,
             "font_info": font_info or {},
             "wavefield_info": wavefield_info or {},
+            "volume_wavefield_available": bool(params.output.volume_wavefield_enabled),
         },
         "scan": {
             "enabled": params.scan.enabled,
@@ -236,6 +242,7 @@ def build_metadata(
             "不是完整三维弹性波全波场模拟。",
             "gauge length 当前进入参数和 metadata，但 point_receiver 模式下不参与波形计算。",
             "运动学伪波场快照只是传播示意，不是真实弹性波方程数值模拟。",
+            "Stage 5J 三维体响应是 x-y-depth kinematic proxy，不是真实 3D elastic wavefield。",
             "运动学地表响应图不是地下点源真实波场，只是 Rayleigh 波走时控制的地表响应示意。",
             "Rayleigh 深度敏感性权重不是严格模态深度核。",
             "基础扫描 best_location 不能作为工程确诊结论。",

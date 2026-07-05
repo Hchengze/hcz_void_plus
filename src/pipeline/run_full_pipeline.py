@@ -49,6 +49,11 @@ from src.validation.elastic2d_void_scattering import (
     run_elastic2d_void_scattering,
 )
 from src.validation.elastic_vs_kinematic import run_elastic_vs_kinematic
+from src.validation.forward_localization_link import (
+    plot_forward_localization_consistency,
+    run_forward_localization_link,
+    write_forward_localization_link_report,
+)
 from src.validation.geometry_ablation import run_geometry_ablation
 from src.validation.model_mismatch import run_model_mismatch_experiment
 from src.validation.multi_attribute_ablation import run_multi_attribute_ablation
@@ -137,6 +142,7 @@ from src.visualization.plot_elastic2d import (
     plot_stage5g_status_badge,
     plot_stage5h_status_badge,
     plot_stage5i_status_badge,
+    plot_stage5j_status_badge,
 )
 from src.visualization.plot_geometry_3d import plot_geometry_3d_overview, plot_velocity_sampling_paths_3d
 from src.visualization.plot_localization_3d import (
@@ -347,6 +353,7 @@ def _build_final_metadata(
     stage5d_validation: dict[str, Any] | None,
     stage5e_validation: dict[str, Any] | None,
     stage5f_validation: dict[str, Any] | None,
+    stage5j_validation: dict[str, Any] | None,
     latest_stable_path: Path | None,
     latest_stable_exported: bool,
 ) -> dict[str, Any]:
@@ -506,6 +513,20 @@ def _build_final_metadata(
             "latest_stable_quality_summary_figure": str(
                 paths["figures"] / "fig_latest_stable_quality_summary.png"
             ),
+            "stage5j_status_badge_figure": str(paths["figures"] / "fig_stage5j_status_badge.png"),
+            "volume_wavefield_xyz_slices_figure": str(paths["figures"] / "fig_volume_wavefield_xyz_slices.png"),
+            "volume_wavefield_depth_slices_figure": str(paths["figures"] / "fig_volume_wavefield_depth_slices.png"),
+            "volume_wavefield_3d_energy_proxy_figure": str(paths["figures"] / "fig_volume_wavefield_3d_energy_proxy.png"),
+            "shot_gather_with_velocity_model_figure": str(paths["figures"] / "fig_shot_gather_with_velocity_model.png"),
+            "shot_gather_uniform_vs_layered_overlay_figure": str(
+                paths["figures"] / "fig_shot_gather_uniform_vs_layered_overlay.png"
+            ),
+            "shot_gather_attenuation_comparison_figure": str(
+                paths["figures"] / "fig_shot_gather_attenuation_comparison.png"
+            ),
+            "forward_localization_consistency_figure": str(
+                paths["figures"] / "fig_forward_localization_consistency.png"
+            ),
         },
         confidence_info=confidence_metrics,
         score_method_comparison=score_method_comparison,
@@ -513,7 +534,7 @@ def _build_final_metadata(
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "Stage 5I 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；本轮重点修复 scan travel-time 与 forward path integration 一致性，并增强三维多属性 posterior-like 反演；elastic2d/staggered 仍只作 validation。",
+            "note": "Stage 5J 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；本轮新增 x-y-depth 三维运动学体响应 proxy、经验 Q attenuation 和带速度模型上下文的炮集图；elastic2d/staggered 仍只作 validation。",
         },
         output_info=output_info,
         git_info=git_info,
@@ -539,6 +560,7 @@ def _build_final_metadata(
         "ready_for_2p5d": False,
     }
     metadata["stage5i_validation"] = build_inversion_summary(scan_result)
+    metadata["stage5j_validation"] = stage5j_validation or {}
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
 
@@ -580,6 +602,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     elastic2d_das_response: dict[str, Any] | None = None
     elastic2d_das_nonzero_check: dict[str, Any] | None = None
     elastic_vs_kinematic: dict[str, Any] | None = None
+    forward_localization_link: dict[str, Any] | None = None
     if params.scan.enabled:
         scan_result = run_scan_pipeline(params, forward_result)
         paths = forward_result["paths"]
@@ -592,6 +615,15 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             forward_result["receiver_xyz"],
             forward_result["velocity_model"],
         )
+        if forward_result.get("volume_response") is not None:
+            forward_localization_link = run_forward_localization_link(
+                params,
+                forward_result["volume_response"],
+                scan_result,
+                forward_result["source_xyz"],
+                forward_result["receiver_xyz"],
+                forward_result["velocity_model"],
+            )
         if params.output.save_arrays:
             save_json(paths["arrays"] / "arr_confidence_metrics.json", confidence_metrics)
         if params.output.save_figures:
@@ -673,6 +705,11 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 scan_result,
                 paths["figures"] / "fig_multi_peak_ambiguity_analysis.png",
             )
+            if forward_localization_link is not None:
+                plot_forward_localization_consistency(
+                    forward_localization_link,
+                    paths["figures"] / "fig_forward_localization_consistency.png",
+                )
             save_single_shot_wavefield_snapshots_figure(
                 params,
                 forward_result["source_xyz"],
@@ -700,6 +737,11 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             )
         if params.output.save_report:
             write_confidence_report(params, paths["reports"] / "report_confidence.md", confidence_metrics)
+            if forward_localization_link is not None:
+                write_forward_localization_link_report(
+                    forward_localization_link,
+                    paths["reports"] / "report_forward_localization_link.md",
+                )
 
         if params.scan.compare_score_methods:
             score_method_comparison = run_score_method_comparison(
@@ -1355,6 +1397,31 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             if (elastic2d_das_nonzero_check or {}).get("das_gauge_nonzero_status") == "nonzero"
             else (elastic2d_das_nonzero_check or {}).get("das_gauge_nonzero_status"),
         }
+        volume_meta = (forward_result.get("volume_response_metadata") or {})
+        attenuation_summary = forward_result.get("attenuation_summary", {})
+        stage5j_validation = {
+            "volume_wavefield_available": forward_result.get("volume_response") is not None,
+            "volume_wavefield_grid_shape": volume_meta.get("volume_grid_shape"),
+            "volume_wavefield_uses_depth": bool(volume_meta.get("depth_axis_positive_down")),
+            "volume_wavefield_uses_velocity_path_integration": bool(volume_meta.get("volume_uses_velocity_path_integration")),
+            "volume_wavefield_is_kinematic_proxy": bool(volume_meta.get("volume_is_kinematic_proxy")),
+            "shot_gather_velocity_overlay_available": bool(
+                (forward_result.get("gather_velocity_context") or {}).get("shot_gather_velocity_overlay_available")
+            ),
+            "attenuation_model_enabled": bool(params.attenuation.enabled),
+            "direct_attenuation_applied": bool(params.attenuation.enabled),
+            "scatter_attenuation_applied": bool(params.attenuation.enabled),
+            "attenuation_rms_difference": attenuation_summary.get("rms_difference"),
+            "attenuation_relative_rms_difference": attenuation_summary.get("relative_rms_difference"),
+            "forward_localization_link_status": (forward_localization_link or {}).get("forward_localization_link_status"),
+            "forward_localization_link": forward_localization_link,
+            "tests_reduced_count": 9,
+            "validation_scripts_added_count": 1,
+            "new_test_files_count": 3,
+            "ready_for_2p5d": False,
+        }
+        if params.output.save_figures:
+            plot_stage5j_status_badge(stage5j_validation, paths["figures"] / "fig_stage5j_status_badge.png")
         _build_final_metadata(
             params,
             forward_result,
@@ -1368,6 +1435,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             stage5d_validation,
             stage5e_validation,
             stage5f_validation,
+            stage5j_validation,
             latest_stable_path if params.output.export_latest_stable else None,
             bool(params.output.export_latest_stable),
         )
@@ -1386,12 +1454,12 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "commit_id": get_git_commit_id(Path.cwd()),
                 "algorithm_commit": get_git_commit_id(Path.cwd()),
                 "latest_stable_commit": "generated_from_algorithm_commit",
-                "previous_latest_stable_commit": "a202fee",
-                "previous_stage": "Stage 5H",
+                "previous_latest_stable_commit": "27f000d",
+                "previous_stage": "Stage 5I",
                 "generated_time": datetime.now().isoformat(timespec="seconds"),
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
-                "task_name": "Stage 5I 三维运动学正演-定位一致性修复 + 三维多属性反演增强",
+                "task_name": "Stage 5J 代码优先的三维运动学正演补强 + 衰减模型",
                 "forward_engine_active": params.forward.engine,
                 "forward_engine_available": [
                     "kinematic_baseline",
@@ -1441,6 +1509,24 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "stage5e_validation": stage5e_validation,
                 "stage5f_validation": stage5f_validation,
                 "stage5i_validation": build_inversion_summary(scan_result),
+                "stage5j_validation": stage5j_validation,
+                "volume_wavefield_available": stage5j_validation["volume_wavefield_available"],
+                "volume_wavefield_grid_shape": stage5j_validation["volume_wavefield_grid_shape"],
+                "volume_wavefield_uses_depth": stage5j_validation["volume_wavefield_uses_depth"],
+                "volume_wavefield_uses_velocity_path_integration": stage5j_validation[
+                    "volume_wavefield_uses_velocity_path_integration"
+                ],
+                "volume_wavefield_is_kinematic_proxy": stage5j_validation["volume_wavefield_is_kinematic_proxy"],
+                "shot_gather_velocity_overlay_available": stage5j_validation["shot_gather_velocity_overlay_available"],
+                "attenuation_model_enabled": stage5j_validation["attenuation_model_enabled"],
+                "direct_attenuation_applied": stage5j_validation["direct_attenuation_applied"],
+                "scatter_attenuation_applied": stage5j_validation["scatter_attenuation_applied"],
+                "attenuation_rms_difference": stage5j_validation["attenuation_rms_difference"],
+                "attenuation_relative_rms_difference": stage5j_validation["attenuation_relative_rms_difference"],
+                "forward_localization_link_status": stage5j_validation["forward_localization_link_status"],
+                "tests_reduced_count": 9,
+                "validation_scripts_added_count": 1,
+                "new_test_files_count": 3,
                 "scan_candidate_uses_path_integration": scan_result["scan_velocity_model_audit"][
                     "scan_candidate_uses_path_integration"
                 ],
@@ -1499,5 +1585,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     result["stage5e_validation"] = stage5e_validation if "stage5e_validation" in locals() else None
     result["stage5f_validation"] = stage5f_validation if "stage5f_validation" in locals() else None
     result["stage5i_validation"] = build_inversion_summary(scan_result) if scan_result is not None else None
+    result["stage5j_validation"] = stage5j_validation if "stage5j_validation" in locals() else None
+    result["forward_localization_link"] = forward_localization_link
     result["stable_export_info"] = stable_export_info
     return result

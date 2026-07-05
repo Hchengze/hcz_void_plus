@@ -8,13 +8,20 @@ from typing import Any
 
 import numpy as np
 
+from src.forward.kinematic_volume_response import compute_kinematic_volume_response
 from src.forward.forward_registry import get_forward_engine_spec, run_registered_forward
 from src.geometry.acquisition_geometry import generate_receiver_xyz, generate_source_xyz
 from src.model.anomalies import anomaly_to_scatter_points, build_anomaly_from_params
 from src.utils.metadata import build_metadata, save_json
 from src.utils.path_manager import ensure_output_subdirs
 from src.utils.random_seed import set_random_seed
+from src.visualization.animate_volume_wavefield import save_single_shot_volume_wavefield_animation
 from src.visualization.plot_gather import plot_shot_gather
+from src.visualization.plot_gather_with_velocity_model import (
+    plot_shot_gather_attenuation_comparison,
+    plot_shot_gather_uniform_vs_layered_overlay,
+    plot_shot_gather_with_velocity_model,
+)
 from src.visualization.plot_geometry import (
     plot_3d_geometry_overview,
     plot_anomaly_3d_scatter_points,
@@ -27,6 +34,11 @@ from src.visualization.plot_pseudo_wavefield import (
     save_pseudo_wavefield_snapshots,
 )
 from src.visualization.plot_style import setup_chinese_matplotlib
+from src.visualization.plot_volume_wavefield import (
+    plot_volume_wavefield_3d_energy_proxy,
+    plot_volume_wavefield_depth_slices,
+    plot_volume_wavefield_xyz_slices,
+)
 
 
 def _write_forward_report(
@@ -37,6 +49,9 @@ def _write_forward_report(
     snapshot_paths: list[Path],
     animation_info: dict[str, object],
     font_info: dict[str, object],
+    volume_response: dict[str, Any] | None,
+    attenuation_summary: dict[str, object],
+    gather_context: dict[str, object],
 ) -> None:
     """写出中文正演报告。"""
 
@@ -52,14 +67,19 @@ def _write_forward_report(
 - DAS-like 接收级别：`{params.das_like.response_level}`
 - 速度模型：`{params.velocity.model_type}`，代表速度 `{params.velocity.rayleigh_velocity_mps} m/s`
 - 速度近似：`straight-ray kinematic approximation`，不是 3D elastic wavefield
+- attenuation：enabled=`{attenuation_summary.get("attenuation_enabled")}`，q_default=`{attenuation_summary.get("q_default")}`
+- attenuation RMS 差异：`{attenuation_summary.get("relative_rms_difference")}`（经验衰减，不是 viscoelastic wave equation）
+- 三维体响应 proxy：`{None if volume_response is None else volume_response.get("metadata", {}).get("volume_grid_shape")}`
+- 炮集速度模型叠加：`{gather_context.get("shot_gather_velocity_overlay_available")}`
 - 中文字体：`{font_text}`
 
 ## 当前近似条件
 
 - 正演：`kinematic approximation`
 - 接收：`DAS-like response approximation`
-- 地表响应图：`kinematic_surface_response_snapshot`
+- 三维体响应图：`3D kinematic volume response proxy`
 - 运动学地表响应示意图和 GIF 只是 Rayleigh 波走时控制的地表响应示意，不是真实弹性波方程数值模拟。
+- Stage 5J 新增 x-y-depth 体响应 proxy：depth 向下为正，走时使用 velocity_model path integration，振幅使用经验 Q attenuation。
 - Rayleigh 深度敏感性：用 `exp(-h / penetration_depth)` 做简化衰减；这不是严格模态深度核。
 
 ## 异常体真值
@@ -115,13 +135,32 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
     )
     velocity_model = forward_result["velocity_model"]
     synthetic_data = forward_result["synthetic_data"]
+    attenuation_summary = forward_result.get("attenuation_summary", {})
+    volume_response = None
+    if params.output.volume_wavefield_enabled:
+        volume_response = compute_kinematic_volume_response(
+            params,
+            source_xyz,
+            scatter_xyz,
+            scatter_weight,
+            velocity_model,
+        )
 
     if params.output.save_arrays:
         np.save(paths["arrays"] / "arr_synthetic_data.npy", synthetic_data)
+        if forward_result.get("synthetic_data_no_attenuation") is not None:
+            np.save(paths["arrays"] / "arr_synthetic_data_no_attenuation.npy", forward_result["synthetic_data_no_attenuation"])
         np.save(paths["arrays"] / "arr_time_axis.npy", params.derived.time_axis)
         np.save(paths["arrays"] / "arr_channel_x.npy", params.derived.channel_x)
         np.save(paths["arrays"] / "arr_shot_x.npy", params.derived.shot_x)
+        if volume_response is not None:
+            np.save(paths["arrays"] / "arr_volume_wavefield_frames.npy", volume_response["volume_frames"])
+            np.save(paths["arrays"] / "arr_volume_wavefield_energy.npy", volume_response["energy_volume"])
+            np.save(paths["arrays"] / "arr_volume_wavefield_x.npy", volume_response["x_axis_m"])
+            np.save(paths["arrays"] / "arr_volume_wavefield_y.npy", volume_response["y_axis_m"])
+            np.save(paths["arrays"] / "arr_volume_wavefield_depth.npy", volume_response["depth_axis_m"])
 
+    gather_context: dict[str, object] = {}
     if params.output.save_figures:
         plot_geometry(params, receiver_xyz, source_xyz, scatter_xyz, paths["figures"] / "fig_geometry.png")
         plot_geometry_layout_check(
@@ -137,6 +176,43 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         n_fig = min(params.output.max_shot_gather_figures, params.source.shot_count)
         for shot_index in range(n_fig):
             plot_shot_gather(params, synthetic_data, shot_index, paths["figures"] / f"fig_shot_gather_{shot_index:03d}.png")
+        gather_context.update(
+            plot_shot_gather_with_velocity_model(
+                params,
+                synthetic_data,
+                0,
+                source_xyz,
+                receiver_xyz,
+                scatter_xyz,
+                velocity_model,
+                paths["figures"] / "fig_shot_gather_with_velocity_model.png",
+            )
+        )
+        gather_context.update(
+            plot_shot_gather_uniform_vs_layered_overlay(
+                params,
+                synthetic_data,
+                0,
+                source_xyz,
+                receiver_xyz,
+                scatter_xyz,
+                velocity_model,
+                paths["figures"] / "fig_shot_gather_uniform_vs_layered_overlay.png",
+            )
+        )
+        gather_context.update(
+            plot_shot_gather_attenuation_comparison(
+                params,
+                synthetic_data,
+                forward_result.get("synthetic_data_no_attenuation"),
+                0,
+                paths["figures"] / "fig_shot_gather_attenuation_comparison.png",
+            )
+        )
+        if volume_response is not None:
+            plot_volume_wavefield_xyz_slices(params, volume_response, paths["figures"] / "fig_volume_wavefield_xyz_slices.png")
+            plot_volume_wavefield_depth_slices(params, volume_response, paths["figures"] / "fig_volume_wavefield_depth_slices.png")
+            plot_volume_wavefield_3d_energy_proxy(params, volume_response, paths["figures"] / "fig_volume_wavefield_3d_energy_proxy.png")
 
     snapshot_paths = save_pseudo_wavefield_snapshots(
         params,
@@ -154,10 +230,21 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         velocity_model,
         paths["animations"] / "anim_pseudo_wavefield.gif",
     )
+    volume_animation_info = (
+        save_single_shot_volume_wavefield_animation(
+            params,
+            volume_response,
+            paths["animations"] / "anim_single_shot_volume_wavefield.gif",
+        )
+        if volume_response is not None
+        else {"success": False, "path": None, "reason": "volume_wavefield_enabled=False"}
+    )
     wavefield_info = {
         "snapshot_count": len(snapshot_paths),
         "snapshot_files": [str(path) for path in snapshot_paths],
         "animation": animation_info,
+        "volume_response": None if volume_response is None else volume_response["metadata"],
+        "volume_animation": volume_animation_info,
     }
 
     metadata = build_metadata(
@@ -170,7 +257,7 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation。",
+            "note": "Stage 5J 当前主流程 forward 为 layered_kinematic straight-ray kinematic approximation；正演新增 x-y-depth 体响应 proxy 和经验 Q attenuation，但仍不是 3D elastic wavefield。",
         },
     )
     save_json(paths["metadata"] / "params_snapshot.json", params)
@@ -185,14 +272,19 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
             snapshot_paths,
             animation_info,
             font_info,
+            volume_response,
+            attenuation_summary,
+            gather_context,
         )
 
     log_text = (
-        "Stage 5A forward pipeline completed.\n"
+        "Stage 5J forward pipeline completed.\n"
         "Approximation: kinematic approximation + DAS-like response approximation.\n"
-        "Surface response: kinematic_surface_response_snapshot, not true elastic wave equation snapshot.\n"
+        "Volume response: 3D kinematic volume response proxy, not true elastic wave equation snapshot.\n"
         f"Output directory: {paths['root']}\n"
         f"Data shape: {synthetic_data.shape} (shot × time × channel)\n"
+        f"Volume shape: {None if volume_response is None else volume_response['metadata']['volume_grid_shape']}\n"
+        f"Attenuation enabled: {params.attenuation.enabled}\n"
     )
     (paths["logs"] / "log_run.txt").write_text(log_text, encoding="utf-8")
 
@@ -208,6 +300,11 @@ def run_forward_pipeline(params: SimpleNamespace) -> dict[str, Any]:
         "forward_stage": forward_result.get("forward_stage", get_forward_engine_spec(params.forward.engine).stage),
         "scatter_xyz": scatter_xyz,
         "scatter_weight": scatter_weight,
+        "synthetic_data_no_attenuation": forward_result.get("synthetic_data_no_attenuation"),
+        "attenuation_summary": attenuation_summary,
+        "volume_response": volume_response,
+        "volume_response_metadata": None if volume_response is None else volume_response["metadata"],
+        "gather_velocity_context": gather_context,
         "font_info": font_info,
         "wavefield_info": wavefield_info,
         "metadata": metadata,

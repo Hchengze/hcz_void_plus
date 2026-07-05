@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from src.forward.amplitude_model import compute_direct_amplitude
 from src.forward.wavelet import shifted_ricker
-from src.geometry.distance import source_receiver_distance
 from src.model.velocity_model import KinematicVelocityModel, compute_kinematic_travel_time
 
 
@@ -35,7 +35,7 @@ def simulate_direct_wave(
         data，shape = (n_shot, n_time, n_channel)，即 shot × time × channel。
 
     近似条件和限制：
-        当前采用运动学走时和简单几何扩散，振幅约按 1/sqrt(distance+1) 衰减。
+        当前采用运动学走时、几何扩散和经验 Q attenuation。
         这不是完整三维弹性波全波场模拟。
     """
 
@@ -43,11 +43,16 @@ def simulate_direct_wave(
     n_shot = source_xyz.shape[0]
     n_time = params.derived.nt
     n_channel = receiver_xyz.shape[0]
-    distances = source_receiver_distance(source_xyz, receiver_xyz)
     travel_times = compute_kinematic_travel_time(
         source_xyz[:, None, :],
         receiver_xyz[None, :, :],
         velocity_model,
+    )
+    amplitudes = compute_direct_amplitude(
+        params,
+        source_xyz[:, None, :],
+        receiver_xyz[None, :, :],
+        travel_times,
     )
     data = np.zeros((n_shot, n_time, n_channel), dtype=float)
 
@@ -57,7 +62,8 @@ def simulate_direct_wave(
             # velocity_model 的 straight-ray 采样积分获得。均匀模型会退化回
             # distance / v；分层和非均匀模型会体现局部速度差异。
             arrival = params.time.t0_s + travel_times[i_shot, i_channel]
-            amplitude = 1.0 / np.sqrt(distances[i_shot, i_channel] + 1.0)
+            # Stage 5J 后，振幅不再只看几何扩散，而是经过 amplitude_model 统一计算。
+            amplitude = amplitudes[i_shot, i_channel]
             data[i_shot, :, i_channel] += amplitude * shifted_ricker(
                 time_axis, arrival, params.task.wavelet_frequency_hz
             )

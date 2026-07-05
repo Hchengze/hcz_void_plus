@@ -5,7 +5,7 @@
 - `code/current_3d_algorithm/`：稳定成果区，面向复用、人工审计和阶段交付。
 - `src/`：研发区，保留实验性模块、消融实验和后续算法探索。
 
-当前主线仍是 `DAS-like response approximation` 与 `kinematic approximation`，不是完整 DAS 仪器模拟，也不是 3D elastic wavefield。Stage 5I 后，稳定正演入口仍明确为 `layered_kinematic`，`elastic2d_prototype` 和 staggered-grid benchmark 只作为 validation forward；三维定位主变量是 `source_xyz / receiver_xyz / candidate_xyz / score_volume(x,y,depth)`。
+当前主线仍是 `DAS-like response approximation` 与 `kinematic approximation`，不是完整 DAS 仪器模拟，也不是 3D elastic wavefield。Stage 5J 后，稳定正演入口仍明确为 `layered_kinematic`，新增 x-y-depth 三维运动学体响应 proxy、速度模型约束炮集和经验 Q attenuation；`elastic2d_prototype` 与 staggered-grid benchmark 只作为 validation forward。
 
 ## 当前稳定算法线
 
@@ -25,7 +25,8 @@
 14. Stage 5G 新增三类 latest_stable、图件中文化、正演动图和三维可视化增强。
 15. Stage 5H 加固 metadata、tree snapshot、manual review readiness、三维图件可读性和 Rayleigh/DAS 解释。
 16. Stage 5I 修复 scan 速度模型一致性，输出三维多属性体、posterior-like 体和三维不确定性诊断。
-17. Rayleigh benchmark 未通过前，`ready_for_2p5d=False`。
+17. Stage 5J 新增 x-y-depth 运动学体响应 proxy、带速度模型上下文的炮集图和经验 Q attenuation，并收缩旧图件测试。
+18. Rayleigh benchmark 未通过前，`ready_for_2p5d=False`。
 
 ## 正演路线
 

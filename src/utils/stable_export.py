@@ -1,4 +1,4 @@
-"""导出 Stage 5I latest_stable 三类精选成果。"""
+"""导出 Stage 5J latest_stable 三类精选成果。"""
 
 from __future__ import annotations
 
@@ -17,8 +17,8 @@ from src.utils.latest_stable_curator import (
     write_latest_stable_tree_snapshot_report,
 )
 from src.utils.latest_stable_manifest import (
-    STAGE5H_ANIMATION_SPECS,
-    STAGE5H_FIGURE_SPECS,
+    STAGE5J_ANIMATION_SPECS,
+    STAGE5J_FIGURE_SPECS,
     animation_specs_by_category,
     build_figure_metadata,
     specs_by_category,
@@ -40,8 +40,8 @@ CURATED_ANIMATIONS = animation_specs_by_category()
 CURATED_REPORTS = {
     "forward": [
         "report_full_pipeline.md",
+        "report_velocity_model_audit.md",
         "report_velocity_model_visualization.md",
-        "report_velocity_model_physics_bridge.md",
         "report_elastic2d_rayleigh_benchmark.md",
         "report_elastic2d_das_response.md",
     ],
@@ -55,33 +55,36 @@ CURATED_REPORTS = {
         "report_latest_stable_file_audit.md",
         "report_latest_stable_tree_snapshot.md",
         "report_manual_review_readiness.md",
+        "report_forward_localization_link.md",
     ],
 }
 
 MANUAL_REVIEW_FIGURES = [
     "figures/forward/fig_geometry_3d_overview.png",
     "figures/forward/fig_velocity_model_active_badge.png",
-    "figures/forward/fig_velocity_model_physics_bridge.png",
-    "figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png",
-    "figures/forward/fig_elastic2d_rayleigh_velocity_error.png",
-    "figures/forward/fig_elastic2d_das_best_case.png",
-    "figures/localization/fig_3d_high_score_region.png",
-    "figures/localization/fig_recommended_location_3d.png",
-    "figures/localization/fig_3d_uncertainty_box.png",
-    "figures/error_analysis/fig_stage5i_status_badge.png",
+    "figures/forward/fig_velocity_sampling_paths_3d.png",
+    "figures/forward/fig_volume_wavefield_xyz_slices.png",
+    "figures/forward/fig_volume_wavefield_3d_energy_proxy.png",
+    "figures/forward/fig_shot_gather_with_velocity_model.png",
+    "figures/forward/fig_shot_gather_attenuation_comparison.png",
+    "figures/localization/fig_3d_posterior_volume.png",
+    "figures/localization/fig_3d_uncertainty_ellipsoid.png",
+    "figures/error_analysis/fig_forward_localization_consistency.png",
 ]
 
 MANUAL_REVIEW_ANIMATIONS = [
+    "animations/forward/anim_single_shot_volume_wavefield.gif",
     "animations/forward/anim_multishot_forward_overview.gif",
-    "animations/forward/anim_single_shot_wavefield.gif",
 ]
 
 LEGACY_STABLE_FILES = [
+    "旧 x-y pseudo wavefield 和单炮地表快照：Stage 5J 由 x-y-depth 三维运动学体响应 proxy 替代。",
+    "未叠加速度模型上下文的旧 shot gather：Stage 5J 由 direct/scatter 到时曲线与 uniform/layered 对比炮集替代。",
+    "无 attenuation context 的旧 gather 图：Stage 5J 由经验 Q attenuation 前后对照替代。",
     "acoustic2d shot gather 与 acoustic2d wavefield snapshots：F2 基础设施验证，不再占据当前主视图。",
-    "forward_engine_comparison 与 layered_kinematic_vs_baseline_gather：转为历史诊断，不再进入 Stage 5I 精选。",
-    "Stage 5E sensitivity/pick 旧图：由 Stage 5I Rayleigh benchmark 矩阵、速度误差图和三维反演图替代。",
-    "重复 confidence/uncertainty 图：仅保留能说明三维不确定性的 1-2 张。",
-    "旧 core/diagnostics/uncertainty/reference_only 细分类目录：合并为 forward/localization/error_analysis 三类。",
+    "forward_engine_comparison 与 layered_kinematic_vs_baseline_gather：转为历史诊断，不再进入 Stage 5J 精选。",
+    "重复 confidence/uncertainty 图：仅保留能说明三维不确定性的少量定位图。",
+    "旧 core/diagnostics/uncertainty/reference_only 细分类目录：继续合并为 forward/localization/error_analysis 三类。",
 ]
 
 
@@ -152,7 +155,7 @@ def _write_latest_stable_readme(path: Path) -> None:
     lines = [
         "# latest_stable",
         "",
-        "Stage 5I 继续保持三类精选治理：本目录只保留当前人工复查最需要、且 metadata 可审计的三维运动学反演成果。",
+        "Stage 5J 继续保持三类精选治理：本目录只保留当前人工复查最需要、且 metadata 可审计的三维运动学正演与定位成果。",
         "",
         "## 三类结果",
         "",
@@ -169,7 +172,7 @@ def _write_archive_manifest(path: Path) -> None:
     lines = [
         "# archive manifest",
         "",
-        "Stage 5I 不再把历史图件堆进 latest_stable 当前精选目录。",
+        "Stage 5J 不再把历史图件堆进 latest_stable 当前精选目录。",
         "",
         "## 已移出当前精选视图的内容",
         "",
@@ -189,7 +192,7 @@ def _manual_list(items: list[str]) -> str:
 
 
 def _update_latest_meta_run(path: Path, summary_info: dict[str, Any]) -> None:
-    """补写 latest_stable metadata 的 Stage 5I 审计字段。
+    """补写 latest_stable metadata 的 Stage 5J 审计字段。
 
     时间戳运行目录中的 meta_run.json 记录的是算法运行时刻；导出到 latest_stable
     后需要额外记录本轮稳定输出的来源提交、上一轮稳定提交和当前阶段，方便人工
@@ -202,14 +205,15 @@ def _update_latest_meta_run(path: Path, summary_info: dict[str, Any]) -> None:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         payload = {}
-    payload["stage"] = "Stage 5I 3D kinematic inversion and scan velocity consistency"
-    payload["previous_stage"] = "Stage 5H"
+    payload["stage"] = "Stage 5J 3D kinematic forward volume and attenuation modeling"
+    payload["previous_stage"] = "Stage 5I"
     payload["algorithm_commit"] = summary_info.get("algorithm_commit")
     payload["latest_stable_commit"] = summary_info.get("latest_stable_commit")
     payload["previous_latest_stable_commit"] = summary_info.get("previous_latest_stable_commit")
     payload["source_run_dir"] = summary_info.get("source_run_dir")
     payload["generated_time"] = summary_info.get("generated_time")
     payload["ready_for_2p5d"] = False
+    payload["stage5j_validation"] = summary_info.get("stage5j_validation", {})
     payload["stage5i_validation"] = summary_info.get("stage5i_validation", {})
     payload["stage5h_validation"] = {
         "metadata_consistency": True,
@@ -234,28 +238,48 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     label_audit = summary_info.get("figure_label_audit") or {}
     tree_snapshot = summary_info.get("latest_stable_tree_snapshot") or {}
     manual_review = summary_info.get("manual_review_readiness") or {}
+    stage5j_validation = summary_info.get("stage5j_validation") or {}
+    stage5i_validation = summary_info.get("stage5i_validation") or {}
     das_status = summary_info.get("das_gauge_final_status") or stage5f_validation.get("das_gauge_final_status")
-    ready_for_2p5d = bool(stage5f_validation.get("ready_for_2p5d", False))
+    ready_for_2p5d = bool(stage5j_validation.get("ready_for_2p5d", stage5f_validation.get("ready_for_2p5d", False)))
     algorithm_commit = summary_info.get("algorithm_commit") or summary_info.get("commit_id", "unknown")
     latest_stable_commit = summary_info.get("latest_stable_commit", "generated_from_algorithm_commit")
-    content = f"""# latest_stable Stage 5I 摘要
+    content = f"""# latest_stable Stage 5J 摘要
 
 ## 当前阶段
 
-- stage = Stage 5I
-- previous_stage = Stage 5H
+- stage = Stage 5J
+- previous_stage = Stage 5I
 - algorithm_commit = `{algorithm_commit}`
 - latest_stable_commit = `{latest_stable_commit}`
-- previous_latest_stable_commit = `{summary_info.get("previous_latest_stable_commit", "4a7eeb1")}`
+- previous_latest_stable_commit = `{summary_info.get("previous_latest_stable_commit", "27f000d")}`
 - source_run_dir = `{summary_info.get("source_run_dir", "unknown")}`
 - generated_time = `{summary_info.get("generated_time", summary_info.get("run_time", datetime.now().isoformat(timespec="seconds")))}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5I")}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5J")}`
 - active_velocity_model = `{summary_info.get("active_velocity_model_type", "layered")}`
 - active_forward_engine = `{summary_info.get("forward_engine_active", "layered_kinematic")}`
 - validation_forward = `elastic2d/staggered`
 - ready_for_2p5d = `{ready_for_2p5d}`
 
-## Stage 5I 三维反演主线
+## Stage 5J 三维正演补强主线
+
+- volume_wavefield_available = `{_fmt(summary_info.get("volume_wavefield_available", stage5j_validation.get("volume_wavefield_available")))}`
+- volume_wavefield_grid_shape = `{_fmt(summary_info.get("volume_wavefield_grid_shape", stage5j_validation.get("volume_wavefield_grid_shape")))}`
+- volume_wavefield_uses_depth = `{_fmt(summary_info.get("volume_wavefield_uses_depth", stage5j_validation.get("volume_wavefield_uses_depth")))}`
+- volume_wavefield_uses_velocity_path_integration = `{_fmt(summary_info.get("volume_wavefield_uses_velocity_path_integration", stage5j_validation.get("volume_wavefield_uses_velocity_path_integration")))}`
+- volume_wavefield_is_kinematic_proxy = `{_fmt(summary_info.get("volume_wavefield_is_kinematic_proxy", stage5j_validation.get("volume_wavefield_is_kinematic_proxy")))}`
+- shot_gather_velocity_overlay_available = `{_fmt(summary_info.get("shot_gather_velocity_overlay_available", stage5j_validation.get("shot_gather_velocity_overlay_available")))}`
+- attenuation_model_enabled = `{_fmt(summary_info.get("attenuation_model_enabled", stage5j_validation.get("attenuation_model_enabled")))}`
+- direct_attenuation_applied = `{_fmt(summary_info.get("direct_attenuation_applied", stage5j_validation.get("direct_attenuation_applied")))}`
+- scatter_attenuation_applied = `{_fmt(summary_info.get("scatter_attenuation_applied", stage5j_validation.get("scatter_attenuation_applied")))}`
+- attenuation_rms_difference = `{_fmt(summary_info.get("attenuation_rms_difference", stage5j_validation.get("attenuation_rms_difference")))}`
+- attenuation_relative_rms_difference = `{_fmt(summary_info.get("attenuation_relative_rms_difference", stage5j_validation.get("attenuation_relative_rms_difference")))}`
+- forward_localization_link_status = `{_fmt(summary_info.get("forward_localization_link_status", stage5j_validation.get("forward_localization_link_status")))}`
+- tests_reduced_count = `{_fmt(summary_info.get("tests_reduced_count", stage5j_validation.get("tests_reduced_count")))}`
+- validation_scripts_added_count = `{_fmt(summary_info.get("validation_scripts_added_count", stage5j_validation.get("validation_scripts_added_count")))}`
+- new_test_files_count = `{_fmt(summary_info.get("new_test_files_count", stage5j_validation.get("new_test_files_count")))}`
+
+## Stage 5I 三维反演主线（保留为定位算法基线）
 
 - scan_candidate_uses_path_integration = `{_fmt(summary_info.get("scan_candidate_uses_path_integration"))}`
 - scan_uses_representative_velocity = `{_fmt(summary_info.get("scan_uses_representative_velocity"))}`
@@ -347,22 +371,22 @@ def export_latest_stable_outputs(
     latest_stable_dir: Path,
     summary_info: dict[str, Any],
 ) -> dict[str, Any]:
-    """导出 Stage 5I 三类 latest_stable 精选成果。"""
+    """导出 Stage 5J 三类 latest_stable 精选成果。"""
 
     run_output_dir = Path(run_output_dir)
     latest_stable_dir = Path(latest_stable_dir)
     summary_info = dict(summary_info)
     summary_info.setdefault("algorithm_commit", summary_info.get("commit_id", get_git_commit_id(Path.cwd())))
     summary_info.setdefault("latest_stable_commit", "generated_from_algorithm_commit")
-    summary_info.setdefault("previous_latest_stable_commit", "a202fee")
-    summary_info.setdefault("previous_stage", "Stage 5H")
+    summary_info.setdefault("previous_latest_stable_commit", "27f000d")
+    summary_info.setdefault("previous_stage", "Stage 5I")
     summary_info.setdefault("generated_time", datetime.now().isoformat(timespec="seconds"))
     figure_metadata = build_figure_metadata(
-        stage="Stage 5I",
+        stage="Stage 5J",
         forward_engine=str(summary_info.get("forward_engine_active", "layered_kinematic")),
         velocity_model_type=str(summary_info.get("active_velocity_model_type", "layered")),
     )
-    figure_self_check = run_figure_self_check(run_output_dir, STAGE5H_FIGURE_SPECS, figure_metadata)
+    figure_self_check = run_figure_self_check(run_output_dir, STAGE5J_FIGURE_SPECS, figure_metadata)
     write_figure_self_check_report(run_output_dir / "reports" / "report_figure_self_check.md", figure_self_check)
     passed_by_category: dict[str, set[str]] = {}
     for item in figure_self_check["passed_items"]:
@@ -406,7 +430,7 @@ def export_latest_stable_outputs(
 
     manifest = {
         **figure_self_check,
-        "animation_specs": [spec.__dict__ for spec in STAGE5H_ANIMATION_SPECS],
+        "animation_specs": [spec.__dict__ for spec in STAGE5J_ANIMATION_SPECS],
     }
     manifest_path = latest_stable_dir / "metadata" / "figure_manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")

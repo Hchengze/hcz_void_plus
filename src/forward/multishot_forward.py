@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from types import SimpleNamespace
 
 import numpy as np
 
 from src.das_like.das_response_level import apply_das_like_response
+from src.forward.amplitude_model import attenuation_comparison_summary
 from src.forward.direct_wave import simulate_direct_wave
 from src.forward.scatter_kinematic import simulate_scatter_wave
+from src.model.attenuation_model import attenuation_metadata, build_attenuation_model
 from src.model.velocity_model import KinematicVelocityModel
 
 
@@ -70,12 +73,28 @@ def synthesize_multishot_forward(
         不宣称完整 DAS 仪器模拟，也不宣称完整三维弹性波全波场模拟。
     """
 
+    attenuation_model = build_attenuation_model(params)
     direct_data = simulate_direct_wave(params, source_xyz, receiver_xyz, velocity_model)
     scatter_data = simulate_scatter_wave(
         params, source_xyz, receiver_xyz, scatter_xyz, scatter_weight, velocity_model
     )
     combined = direct_data + scatter_data
     das_like_data = apply_das_like_response(combined, params)
+
+    no_attenuation_data = None
+    attenuation_summary = attenuation_metadata(attenuation_model)
+    if attenuation_model.enabled:
+        # 为了让用户能直接看到 Q attenuation 的实际影响，本轮在生产正演中生成一份
+        # “关闭 attenuation、其余参数不变”的轻量参考炮集。它只用于 RMS 对照和图件，
+        # 不作为 active synthetic_data。
+        reference_params = deepcopy(params)
+        reference_params.attenuation.enabled = False
+        reference_direct = simulate_direct_wave(reference_params, source_xyz, receiver_xyz, velocity_model)
+        reference_scatter = simulate_scatter_wave(
+            reference_params, source_xyz, receiver_xyz, scatter_xyz, scatter_weight, velocity_model
+        )
+        no_attenuation_data = apply_das_like_response(reference_direct + reference_scatter, reference_params)
+        attenuation_summary.update(attenuation_comparison_summary(das_like_data, no_attenuation_data))
 
     if params.noise.enabled:
         rng = np.random.default_rng(params.project.random_seed)
@@ -87,4 +106,6 @@ def synthesize_multishot_forward(
         "direct_data": direct_data,
         "scatter_data": scatter_data,
         "synthetic_data": synthetic_data,
+        "synthetic_data_no_attenuation": no_attenuation_data,
+        "attenuation_summary": attenuation_summary,
     }
