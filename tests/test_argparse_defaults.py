@@ -6,7 +6,7 @@ def test_argparse_defaults_can_parse():
     params = args_to_params(args)
 
     assert params.project.task == "debug"
-    assert params.project.run_name == "stage5g_run"
+    assert params.project.run_name == "stage5h_run"
     assert params.fiber.channel_count >= 2
     assert params.source.shot_count >= 1
     assert params.derived.nt == len(params.derived.time_axis)

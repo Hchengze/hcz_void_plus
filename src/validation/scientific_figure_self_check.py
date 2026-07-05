@@ -1,6 +1,6 @@
 """科学图件自检。
 
-Stage 5G 的重点是让 latest_stable 少而准：图件、报告和 summary 的结论必须一致。
+Stage 5H 的重点是让 latest_stable 少而准：图件、报告和 summary 的结论必须一致。
 本模块不做图像语义识别，而是基于 manifest、summary_info 和报告文本做可审计规则检查。
 """
 
@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 
-RECOMMENDED_STAGE5G_FIGURES = [
+RECOMMENDED_STAGE5H_FIGURES = [
     "figures/forward/fig_geometry_3d_overview.png",
     "figures/forward/fig_velocity_model_active_badge.png",
     "figures/forward/fig_velocity_model_physics_bridge.png",
@@ -21,9 +21,10 @@ RECOMMENDED_STAGE5G_FIGURES = [
     "figures/localization/fig_3d_high_score_region.png",
     "figures/localization/fig_recommended_location_3d.png",
     "figures/localization/fig_3d_uncertainty_box.png",
-    "figures/error_analysis/fig_stage5g_status_badge.png",
+    "figures/error_analysis/fig_stage5h_status_badge.png",
 ]
 
+RECOMMENDED_STAGE5G_FIGURES = RECOMMENDED_STAGE5H_FIGURES
 RECOMMENDED_STAGE5F_FIGURES = RECOMMENDED_STAGE5G_FIGURES
 RECOMMENDED_STAGE5E_FIGURES = RECOMMENDED_STAGE5G_FIGURES
 
@@ -105,11 +106,11 @@ def run_scientific_figure_self_check(latest_stable_dir: Path, summary_info: dict
         if required_report and not (latest / required_report).exists():
             warnings.append(f"{item.get('filename')} 对应报告不存在：{required_report}")
 
-    recommended_existing = [name for name in RECOMMENDED_STAGE5G_FIGURES if (latest / name).exists()]
+    recommended_existing = [name for name in RECOMMENDED_STAGE5H_FIGURES if (latest / name).exists()]
     if not (8 <= len(recommended_existing) <= 12):
         warnings.append(f"人工推荐图件数量为 {len(recommended_existing)}，不在 8-12 范围内。")
     return {
-        "stage": "Stage 5G",
+        "stage": "Stage 5H",
         "checked_figure_count": len(items),
         "passed_count": len(items) if not failures else max(0, len(items) - len(failures)),
         "scientific_warning_count": len(warnings),

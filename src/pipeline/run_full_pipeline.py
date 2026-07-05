@@ -134,6 +134,7 @@ from src.visualization.plot_elastic2d import (
     plot_stage5e_status_badge,
     plot_stage5f_status_badge,
     plot_stage5g_status_badge,
+    plot_stage5h_status_badge,
 )
 from src.visualization.plot_geometry_3d import plot_geometry_3d_overview, plot_velocity_sampling_paths_3d
 from src.visualization.plot_localization_3d import (
@@ -503,7 +504,7 @@ def _build_final_metadata(
         forward_info={
             "forward_engine": forward_result.get("forward_engine", params.forward.engine),
             "forward_stage": forward_result.get("forward_stage"),
-            "note": "Stage 5G 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d/staggered 只作 validation，并新增三类 latest_stable、中文图件和三维可视化。",
+            "note": "Stage 5H 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d/staggered 只作 validation，本轮加固 metadata、人工复查入口和 Rayleigh/DAS 解释。",
         },
         output_info=output_info,
         git_info=git_info,
@@ -520,6 +521,13 @@ def _build_final_metadata(
         "animations_required": True,
         "ready_for_2p5d": (stage5f_validation or {}).get("ready_for_2p5d", False),
         "das_gauge_default_localization": False,
+    }
+    metadata["stage5h_validation"] = {
+        "metadata_consistency_required": True,
+        "tree_snapshot_required": True,
+        "manual_review_readiness_required": True,
+        "rayleigh_das_interpretation_hardened": True,
+        "ready_for_2p5d": False,
     }
     save_json(paths["metadata"] / "meta_run.json", metadata)
     return metadata
@@ -1057,6 +1065,7 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "active_forward_engine": params.forward.engine,
             }
             plot_stage5g_status_badge(stage5g_status, paths["figures"] / "fig_stage5g_status_badge.png")
+            plot_stage5h_status_badge(stage5g_status, paths["figures"] / "fig_stage5h_status_badge.png")
             plot_elastic2d_rayleigh_benchmark_matrix(
                 elastic2d_rayleigh_benchmark,
                 paths["figures"] / "fig_elastic2d_rayleigh_benchmark_matrix.png",
@@ -1333,9 +1342,14 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 )
             summary_info = {
                 "commit_id": get_git_commit_id(Path.cwd()),
+                "algorithm_commit": get_git_commit_id(Path.cwd()),
+                "latest_stable_commit": "generated_from_algorithm_commit",
+                "previous_latest_stable_commit": "4a7eeb1",
+                "previous_stage": "Stage 5G",
+                "generated_time": datetime.now().isoformat(timespec="seconds"),
                 "run_time": datetime.now().isoformat(timespec="seconds"),
                 "source_run_dir": str(forward_result["paths"]["root"]),
-                "task_name": "Stage 5G latest_stable 三类结果重构 + 图件中文化 + 动图整合 + 三维可视化增强",
+                "task_name": "Stage 5H Stage 5G 成果校验 + metadata 修复 + 人工复查入口加固",
                 "forward_engine_active": params.forward.engine,
                 "forward_engine_available": [
                     "kinematic_baseline",
@@ -1385,6 +1399,9 @@ def run_full_pipeline(params: SimpleNamespace) -> dict[str, Any]:
                 "stage5e_validation": stage5e_validation,
                 "stage5f_validation": stage5f_validation,
                 "das_gauge_final_status": stage5f_validation.get("das_gauge_final_status"),
+                "das_best_velocity_gauge_rms": (elastic2d_das_nonzero_check or {}).get(
+                    "best_velocity_gauge_rms"
+                ),
             }
             stable_export_info = export_latest_stable_outputs(
                 forward_result["paths"]["root"],

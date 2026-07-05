@@ -1,9 +1,10 @@
-"""Stage 5G latest_stable 精选清单。
+"""Stage 5H latest_stable 精选清单。
 
 本模块只定义哪些当前结果允许进入 ``outputs/latest_stable``。Stage 5G
 把 Stage 5F 的 core/diagnostics/uncertainty 细分类收敛为三类：
 forward、localization、error_analysis。这样人工复查时先看三条主线，而不是在
-历史图件里找结论。
+历史图件里找结论。Stage 5H 继续沿用三类结构，并把 metadata、tree snapshot
+和 manual review readiness 固化为可审计入口。
 """
 
 from __future__ import annotations
@@ -31,7 +32,7 @@ class StableAnimationSpec:
     required_report: str
 
 
-STAGE5G_FIGURE_SPECS: list[StableFigureSpec] = [
+STAGE5H_FIGURE_SPECS: list[StableFigureSpec] = [
     StableFigureSpec("forward", "fig_geometry_3d_overview.png", "reports/forward/report_full_pipeline.md"),
     StableFigureSpec("forward", "fig_velocity_model_active_badge.png", "reports/forward/report_velocity_model_audit.md"),
     StableFigureSpec("forward", "fig_velocity_model_physics_bridge.png", "reports/forward/report_velocity_model_physics_bridge.md"),
@@ -48,7 +49,7 @@ STAGE5G_FIGURE_SPECS: list[StableFigureSpec] = [
     StableFigureSpec("localization", "fig_recommended_location_3d.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_3d_uncertainty_box.png", "reports/localization/report_full_pipeline.md"),
     StableFigureSpec("localization", "fig_x_y_depth_uncertainty_slices.png", "reports/localization/report_full_pipeline.md"),
-    StableFigureSpec("error_analysis", "fig_stage5g_status_badge.png", "reports/error_analysis/report_latest_stable_file_audit.md"),
+    StableFigureSpec("error_analysis", "fig_stage5h_status_badge.png", "reports/error_analysis/report_manual_review_readiness.md"),
     StableFigureSpec("error_analysis", "fig_latest_stable_quality_summary.png", "reports/error_analysis/report_figure_quality_check.md"),
     StableFigureSpec("error_analysis", "fig_rayleigh_pick_interpretation.png", "reports/forward/report_elastic2d_rayleigh_benchmark.md"),
     StableFigureSpec("error_analysis", "fig_elastic2d_das_report_consistency.png", "reports/forward/report_elastic2d_das_response.md"),
@@ -58,7 +59,7 @@ STAGE5G_FIGURE_SPECS: list[StableFigureSpec] = [
 ]
 
 
-STAGE5G_ANIMATION_SPECS: list[StableAnimationSpec] = [
+STAGE5H_ANIMATION_SPECS: list[StableAnimationSpec] = [
     StableAnimationSpec("forward", "anim_multishot_forward_overview.gif", "reports/forward/report_full_pipeline.md"),
     StableAnimationSpec("forward", "anim_single_shot_wavefield.gif", "reports/forward/report_full_pipeline.md"),
 ]
@@ -68,7 +69,7 @@ def specs_by_category() -> dict[str, list[str]]:
     """返回静态图 category -> filename 清单。"""
 
     grouped: dict[str, list[str]] = {}
-    for spec in STAGE5G_FIGURE_SPECS:
+    for spec in STAGE5H_FIGURE_SPECS:
         grouped.setdefault(spec.category, []).append(spec.filename)
     return grouped
 
@@ -77,7 +78,7 @@ def animation_specs_by_category() -> dict[str, list[str]]:
     """返回动图 category -> filename 清单。"""
 
     grouped: dict[str, list[str]] = {}
-    for spec in STAGE5G_ANIMATION_SPECS:
+    for spec in STAGE5H_ANIMATION_SPECS:
         grouped.setdefault(spec.category, []).append(spec.filename)
     return grouped
 
@@ -91,7 +92,7 @@ def build_figure_metadata(
     """生成每张精选图的审计 metadata。"""
 
     metadata: dict[str, dict[str, Any]] = {}
-    for spec in STAGE5G_FIGURE_SPECS:
+    for spec in STAGE5H_FIGURE_SPECS:
         metadata[spec.filename] = {
             "stage": stage,
             "forward_engine": forward_engine,
@@ -104,15 +105,17 @@ def build_figure_metadata(
 
 
 def expected_category_for_filename(filename: str) -> str | None:
-    """查找图件应该进入的 Stage 5G latest_stable 子目录。"""
+    """查找图件应该进入的 Stage 5H latest_stable 子目录。"""
 
-    for spec in STAGE5G_FIGURE_SPECS:
+    for spec in STAGE5H_FIGURE_SPECS:
         if spec.filename == Path(filename).name:
             return spec.category
     return None
 
 
-# 兼容旧测试或旧导入名。实际清单以 Stage 5G 为准。
-STAGE5F_FIGURE_SPECS = STAGE5G_FIGURE_SPECS
-STAGE5E_FIGURE_SPECS = STAGE5G_FIGURE_SPECS
-STAGE5D_FIGURE_SPECS = STAGE5G_FIGURE_SPECS
+# 兼容旧测试或旧导入名。实际清单以 Stage 5H 为准。
+STAGE5G_FIGURE_SPECS = STAGE5H_FIGURE_SPECS
+STAGE5G_ANIMATION_SPECS = STAGE5H_ANIMATION_SPECS
+STAGE5F_FIGURE_SPECS = STAGE5H_FIGURE_SPECS
+STAGE5E_FIGURE_SPECS = STAGE5H_FIGURE_SPECS
+STAGE5D_FIGURE_SPECS = STAGE5H_FIGURE_SPECS

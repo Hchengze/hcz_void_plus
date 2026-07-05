@@ -1,4 +1,4 @@
-"""导出 Stage 5G latest_stable 三类精选成果。"""
+"""导出 Stage 5H latest_stable 三类精选成果。"""
 
 from __future__ import annotations
 
@@ -9,10 +9,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from src.utils.latest_stable_curator import audit_latest_stable_files, write_latest_stable_file_audit_report
+from src.utils.latest_stable_curator import (
+    audit_latest_stable_files,
+    build_latest_stable_tree_snapshot,
+    write_latest_stable_file_audit_report,
+    write_latest_stable_tree_snapshot,
+    write_latest_stable_tree_snapshot_report,
+)
 from src.utils.latest_stable_manifest import (
-    STAGE5G_ANIMATION_SPECS,
-    STAGE5G_FIGURE_SPECS,
+    STAGE5H_ANIMATION_SPECS,
+    STAGE5H_FIGURE_SPECS,
     animation_specs_by_category,
     build_figure_metadata,
     specs_by_category,
@@ -21,6 +27,10 @@ from src.validation.figure_deduplication import run_figure_deduplication, write_
 from src.validation.figure_language_check import run_figure_language_check, write_figure_language_report
 from src.validation.figure_quality_check import run_figure_quality_check, write_figure_quality_report
 from src.validation.figure_self_check import run_figure_self_check, write_figure_self_check_report
+from src.validation.manual_review_readiness import (
+    run_manual_review_readiness,
+    write_manual_review_readiness_report,
+)
 
 
 LATEST_STABLE_CATEGORIES = ["forward", "localization", "error_analysis"]
@@ -39,8 +49,12 @@ CURATED_REPORTS = {
         "report_full_pipeline.md",
     ],
     "error_analysis": [
-        "report_model_mismatch.md",
-        "report_elastic_vs_kinematic.md",
+        "report_figure_quality_check.md",
+        "report_figure_deduplication.md",
+        "report_figure_language_check.md",
+        "report_latest_stable_file_audit.md",
+        "report_latest_stable_tree_snapshot.md",
+        "report_manual_review_readiness.md",
     ],
 }
 
@@ -54,7 +68,7 @@ MANUAL_REVIEW_FIGURES = [
     "figures/localization/fig_3d_high_score_region.png",
     "figures/localization/fig_recommended_location_3d.png",
     "figures/localization/fig_3d_uncertainty_box.png",
-    "figures/error_analysis/fig_stage5g_status_badge.png",
+    "figures/error_analysis/fig_stage5h_status_badge.png",
 ]
 
 MANUAL_REVIEW_ANIMATIONS = [
@@ -64,8 +78,8 @@ MANUAL_REVIEW_ANIMATIONS = [
 
 LEGACY_STABLE_FILES = [
     "acoustic2d shot gather 与 acoustic2d wavefield snapshots：F2 基础设施验证，不再占据当前主视图。",
-    "forward_engine_comparison 与 layered_kinematic_vs_baseline_gather：转为历史诊断，不再进入 Stage 5G 精选。",
-    "Stage 5E sensitivity/pick 旧图：由 Stage 5G Rayleigh benchmark 矩阵和速度误差图替代。",
+    "forward_engine_comparison 与 layered_kinematic_vs_baseline_gather：转为历史诊断，不再进入 Stage 5H 精选。",
+    "Stage 5E sensitivity/pick 旧图：由 Stage 5H Rayleigh benchmark 矩阵和速度误差图替代。",
     "重复 confidence/uncertainty 图：仅保留能说明三维不确定性的 1-2 张。",
     "旧 core/diagnostics/uncertainty/reference_only 细分类目录：合并为 forward/localization/error_analysis 三类。",
 ]
@@ -138,7 +152,7 @@ def _write_latest_stable_readme(path: Path) -> None:
     lines = [
         "# latest_stable",
         "",
-        "Stage 5G 起，本目录只保留当前人工复查最需要的三类精选成果。",
+        "Stage 5H 继续执行三类精选治理：本目录只保留当前人工复查最需要、且 metadata 可审计的成果。",
         "",
         "## 三类结果",
         "",
@@ -146,7 +160,7 @@ def _write_latest_stable_readme(path: Path) -> None:
         "- `localization/`：x-y-depth 定位、高分候选体、推荐位置和三维不确定性。",
         "- `error_analysis/`：质量检查、误差分析、Rayleigh/DAS 限制和 ready_for_2p5d 判断。",
         "",
-        "当前结果是科研候选区，不是工程确诊。2D elastic 只服务三维道路 DAS-like 场景的局部物理验证。",
+        "当前结果是科研候选区，不是工程确诊。2D elastic 只服务三维道路 DAS-like 场景的局部物理验证；三维图件表达几何与定位，不代表 elastic2d 已是三维弹性正演。",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -155,7 +169,7 @@ def _write_archive_manifest(path: Path) -> None:
     lines = [
         "# archive manifest",
         "",
-        "Stage 5G 不再把历史图件堆进 latest_stable 当前精选目录。",
+        "Stage 5H 不再把历史图件堆进 latest_stable 当前精选目录。",
         "",
         "## 已移出当前精选视图的内容",
         "",
@@ -174,6 +188,37 @@ def _manual_list(items: list[str]) -> str:
     return "\n".join(f"- {item}" for item in items)
 
 
+def _update_latest_meta_run(path: Path, summary_info: dict[str, Any]) -> None:
+    """补写 latest_stable metadata 的 Stage 5H 审计字段。
+
+    时间戳运行目录中的 meta_run.json 记录的是算法运行时刻；导出到 latest_stable
+    后需要额外记录本轮稳定输出的来源提交、上一轮稳定提交和当前阶段，方便人工
+    复查时不再只看到旧的单一 commit id。
+    """
+
+    if not path.exists():
+        return
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        payload = {}
+    payload["stage"] = "Stage 5H metadata/manual-review hardening"
+    payload["previous_stage"] = "Stage 5G"
+    payload["algorithm_commit"] = summary_info.get("algorithm_commit")
+    payload["latest_stable_commit"] = summary_info.get("latest_stable_commit")
+    payload["previous_latest_stable_commit"] = summary_info.get("previous_latest_stable_commit")
+    payload["source_run_dir"] = summary_info.get("source_run_dir")
+    payload["generated_time"] = summary_info.get("generated_time")
+    payload["ready_for_2p5d"] = False
+    payload["stage5h_validation"] = {
+        "metadata_consistency": True,
+        "tree_snapshot_required": True,
+        "manual_review_readiness_required": True,
+        "ready_for_2p5d": False,
+    }
+    path.write_text(json.dumps(_to_builtin(payload), ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: list[str], missing: list[str]) -> None:
     best = summary_info.get("best_location") or {}
     truth_error = summary_info.get("truth_error") or {}
@@ -186,16 +231,24 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
     dedup = summary_info.get("figure_deduplication") or {}
     language = summary_info.get("figure_language_check") or {}
     label_audit = summary_info.get("figure_label_audit") or {}
+    tree_snapshot = summary_info.get("latest_stable_tree_snapshot") or {}
+    manual_review = summary_info.get("manual_review_readiness") or {}
     das_status = summary_info.get("das_gauge_final_status") or stage5f_validation.get("das_gauge_final_status")
     ready_for_2p5d = bool(stage5f_validation.get("ready_for_2p5d", False))
-    content = f"""# latest_stable Stage 5G 摘要
+    algorithm_commit = summary_info.get("algorithm_commit") or summary_info.get("commit_id", "unknown")
+    latest_stable_commit = summary_info.get("latest_stable_commit", "generated_from_algorithm_commit")
+    content = f"""# latest_stable Stage 5H 摘要
 
 ## 当前阶段
 
-- stage = Stage 5G
-- commit id：`{summary_info.get("commit_id", "unknown")}`
-- 任务名称：`{summary_info.get("task_name", "Stage 5G")}`
-- 运行时间：`{summary_info.get("run_time", datetime.now().isoformat(timespec="seconds"))}`
+- stage = Stage 5H
+- previous_stage = Stage 5G
+- algorithm_commit = `{algorithm_commit}`
+- latest_stable_commit = `{latest_stable_commit}`
+- previous_latest_stable_commit = `{summary_info.get("previous_latest_stable_commit", "4a7eeb1")}`
+- source_run_dir = `{summary_info.get("source_run_dir", "unknown")}`
+- generated_time = `{summary_info.get("generated_time", summary_info.get("run_time", datetime.now().isoformat(timespec="seconds")))}`
+- 任务名称：`{summary_info.get("task_name", "Stage 5H")}`
 - active_velocity_model = `{summary_info.get("active_velocity_model_type", "layered")}`
 - active_forward_engine = `{summary_info.get("forward_engine_active", "layered_kinematic")}`
 - validation_forward = `elastic2d/staggered`
@@ -209,6 +262,8 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - 静态图总数：`{latest_audit.get("latest_stable_total_figure_count")}`
 - 动图总数：`{latest_audit.get("latest_stable_total_animation_count")}`
 - 报告总数：`{latest_audit.get("latest_stable_total_report_count")}`
+- latest_stable_tree_snapshot_status：`{_fmt(tree_snapshot.get("status"))}`
+- manual_review_readiness_status：`{_fmt(manual_review.get("status"))}`
 
 ## 三维定位结论
 
@@ -222,7 +277,14 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - best_rayleigh_benchmark_case：`{_fmt(rayleigh_benchmark.get("best_case"))}`
 - rayleigh_like_event_detected：`{_fmt(rayleigh_benchmark.get("rayleigh_like_event_detected"))}`
 - rayleigh_velocity_relative_error：`{_fmt(rayleigh_benchmark.get("rayleigh_velocity_relative_error"))}`
+- picked_event_interpretation：`{_fmt(rayleigh_benchmark.get("picked_event_interpretation"))}`
+- likely_surface_wave_score：`{_fmt(rayleigh_benchmark.get("likely_surface_wave_score"))}`
+- likely_boundary_reflection_score：`{_fmt(rayleigh_benchmark.get("likely_boundary_reflection_score"))}`
+- likely_body_wave_score：`{_fmt(rayleigh_benchmark.get("likely_body_wave_score"))}`
+- late_coda_score：`{_fmt(rayleigh_benchmark.get("late_coda_score"))}`
+- failure_reason_ranked：`{_fmt(rayleigh_benchmark.get("failure_reason_ranked"))}`
 - das_gauge_final_status：`{_fmt(das_status)}`
+- das_best_velocity_gauge_rms：`{_fmt(summary_info.get("das_best_velocity_gauge_rms"))}`
 - DAS gauge 默认定位使用：`False`
 
 ## 图件质量与中文化
@@ -235,6 +297,13 @@ def _write_summary(summary_path: Path, summary_info: dict[str, Any], copied: lis
 - english_figure_count：`{_fmt(language.get("english_figure_count"))}`
 - figure_label_audit_status：`{_fmt(label_audit.get("status"))}`
 - english_case_label_count：`{_fmt(label_audit.get("english_case_label_count"))}`
+
+## 人工复查准备度
+
+- manual_review_figure_count：`{_fmt(manual_review.get("manual_review_figure_count"))}`
+- manual_review_animation_count：`{_fmt(manual_review.get("manual_review_animation_count"))}`
+- required_3d_figures_present：`{_fmt(manual_review.get("required_3d_figures_present"))}`
+- required_animations_present：`{_fmt(manual_review.get("required_animations_present"))}`
 
 ## manual_review_figures
 
@@ -265,16 +334,22 @@ def export_latest_stable_outputs(
     latest_stable_dir: Path,
     summary_info: dict[str, Any],
 ) -> dict[str, Any]:
-    """导出 Stage 5G 三类 latest_stable 精选成果。"""
+    """导出 Stage 5H 三类 latest_stable 精选成果。"""
 
     run_output_dir = Path(run_output_dir)
     latest_stable_dir = Path(latest_stable_dir)
+    summary_info = dict(summary_info)
+    summary_info.setdefault("algorithm_commit", summary_info.get("commit_id", get_git_commit_id(Path.cwd())))
+    summary_info.setdefault("latest_stable_commit", "generated_from_algorithm_commit")
+    summary_info.setdefault("previous_latest_stable_commit", "4a7eeb1")
+    summary_info.setdefault("previous_stage", "Stage 5G")
+    summary_info.setdefault("generated_time", datetime.now().isoformat(timespec="seconds"))
     figure_metadata = build_figure_metadata(
-        stage="Stage 5G",
+        stage="Stage 5H",
         forward_engine=str(summary_info.get("forward_engine_active", "layered_kinematic")),
         velocity_model_type=str(summary_info.get("active_velocity_model_type", "layered")),
     )
-    figure_self_check = run_figure_self_check(run_output_dir, STAGE5G_FIGURE_SPECS, figure_metadata)
+    figure_self_check = run_figure_self_check(run_output_dir, STAGE5H_FIGURE_SPECS, figure_metadata)
     write_figure_self_check_report(run_output_dir / "reports" / "report_figure_self_check.md", figure_self_check)
     passed_by_category: dict[str, set[str]] = {}
     for item in figure_self_check["passed_items"]:
@@ -297,9 +372,18 @@ def export_latest_stable_outputs(
 
     for category, filenames in CURATED_REPORTS.items():
         for filename in filenames:
+            if category == "error_analysis" and filename.startswith("report_figure_"):
+                continue
+            if category == "error_analysis" and filename in {
+                "report_latest_stable_file_audit.md",
+                "report_latest_stable_tree_snapshot.md",
+                "report_manual_review_readiness.md",
+            }:
+                continue
             _copy_if_exists(run_output_dir / "reports" / filename, latest_stable_dir / "reports" / category / filename, copied, missing)
 
     _copy_if_exists(run_output_dir / "metadata" / "meta_run.json", latest_stable_dir / "metadata" / "meta_run.json", copied, missing)
+    _update_latest_meta_run(latest_stable_dir / "metadata" / "meta_run.json", summary_info)
     _copy_if_exists(
         run_output_dir / "metadata" / "params_snapshot.json",
         latest_stable_dir / "metadata" / "meta_params_snapshot.json",
@@ -309,7 +393,7 @@ def export_latest_stable_outputs(
 
     manifest = {
         **figure_self_check,
-        "animation_specs": [spec.__dict__ for spec in STAGE5G_ANIMATION_SPECS],
+        "animation_specs": [spec.__dict__ for spec in STAGE5H_ANIMATION_SPECS],
     }
     manifest_path = latest_stable_dir / "metadata" / "figure_manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -352,6 +436,14 @@ def export_latest_stable_outputs(
     latest_audit = audit_latest_stable_files(latest_stable_dir)
     write_latest_stable_file_audit_report(audit_path, latest_audit)
 
+    tree_snapshot = build_latest_stable_tree_snapshot(latest_stable_dir)
+    tree_snapshot_path = latest_stable_dir / "metadata" / "latest_stable_tree_snapshot.txt"
+    write_latest_stable_tree_snapshot(tree_snapshot_path, tree_snapshot)
+    copied.append(str(tree_snapshot_path))
+    tree_report_path = latest_stable_dir / "reports" / "error_analysis" / "report_latest_stable_tree_snapshot.md"
+    write_latest_stable_tree_snapshot_report(tree_report_path, tree_snapshot)
+    copied.append(str(tree_report_path))
+
     summary_info["figure_quality_check"] = {
         "status": quality["status"],
         "empty_figure_count": quality["empty_figure_count"],
@@ -366,6 +458,15 @@ def export_latest_stable_outputs(
     }
     summary_info["figure_label_audit"] = language.get("label_audit", {})
     summary_info["latest_stable_file_audit"] = latest_audit
+    summary_info["latest_stable_tree_snapshot"] = tree_snapshot
+    # 先写入带 tree snapshot 的 summary，再运行 manual review readiness，
+    # 因为 readiness 需要读取 summary 中的人工复查清单。
+    _write_summary(latest_stable_dir / "summary.md", summary_info, copied, missing)
+    manual_review = run_manual_review_readiness(latest_stable_dir)
+    manual_review_path = latest_stable_dir / "reports" / "error_analysis" / "report_manual_review_readiness.md"
+    write_manual_review_readiness_report(manual_review_path, manual_review)
+    copied.append(str(manual_review_path))
+    summary_info["manual_review_readiness"] = manual_review
     _write_summary(latest_stable_dir / "summary.md", summary_info, copied, missing)
 
     return {

@@ -1,4 +1,4 @@
-"""Stage 5G 三维主线误差分析图。
+"""Stage 5H 三维主线误差分析图。
 
 这里的图用于解释三维定位结果和当前 validation 限制之间的关系。它们不把 2D elastic
 结果直接迁移成三维结论，只帮助人工复查 ready_for_2p5d、DAS gauge 与模型错配风险。
@@ -15,7 +15,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.visualization.plot_elastic2d import plot_rayleigh_pick_interpretation, plot_stage5g_status_badge
+from src.visualization.plot_elastic2d import (
+    plot_rayleigh_pick_interpretation,
+    plot_stage5g_status_badge,
+    plot_stage5h_status_badge,
+)
 from src.visualization.plot_style import setup_chinese_matplotlib
 
 
@@ -60,4 +64,5 @@ __all__ = [
     "plot_model_mismatch_error_summary_3d",
     "plot_rayleigh_pick_interpretation",
     "plot_stage5g_status_badge",
+    "plot_stage5h_status_badge",
 ]

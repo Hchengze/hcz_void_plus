@@ -1,4 +1,4 @@
-"""Stage 5G latest_stable 三类结果数量审计。"""
+"""Stage 5H latest_stable 三类结果数量和目录快照审计。"""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def _outside_window(counts: dict[str, int], limits: dict[str, tuple[int, int]]) 
 
 
 def audit_latest_stable_files(latest_stable_dir: Path) -> dict[str, Any]:
-    """统计 Stage 5G latest_stable 三类目录数量。"""
+    """统计 Stage 5H latest_stable 三类目录数量。"""
 
     latest = Path(latest_stable_dir)
     figure_counts = _count_files(latest, "figures", ".png", FIGURE_LIMITS)
@@ -76,7 +76,7 @@ def audit_latest_stable_files(latest_stable_dir: Path) -> dict[str, Any]:
         else "warning"
     )
     return {
-        "stage": "Stage 5G",
+        "stage": "Stage 5H",
         "figure_counts": figure_counts,
         "animation_counts": animation_counts,
         "report_counts": report_counts,
@@ -126,8 +126,86 @@ def write_latest_stable_file_audit_report(path: Path, result: dict[str, Any]) ->
             f"- 超出或低于范围的动图分类：`{result['out_of_range_animations']}`",
             f"- 超出或低于范围的报告分类：`{result['out_of_range_reports']}`",
             "",
-            "Stage 5G 的 latest_stable 只服务人工查看当前进度，不作为历史输出仓库。",
+            "Stage 5H 的 latest_stable 只服务人工查看当前进度，不作为历史输出仓库。",
         ]
     )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def build_latest_stable_tree_snapshot(latest_stable_dir: Path) -> dict[str, Any]:
+    """构建当前 latest_stable 的文件树快照。
+
+    优先使用本地文件系统而不是网页预览。报告中明确说明：如果 Git diff 中出现
+    core/diagnostics/uncertainty 等旧目录，那只是历史删除或移动痕迹，不代表当前
+    latest_stable 仍保留这些目录。
+    """
+
+    latest = Path(latest_stable_dir)
+    rows: list[str] = []
+    if latest.exists():
+        for path in sorted(latest.rglob("*")):
+            if path.is_file():
+                rel = path.relative_to(latest.parent).as_posix()
+                rows.append(rel)
+
+    old_dirs = []
+    for group in ["figures", "animations", "reports"]:
+        for old in ["core", "diagnostics", "uncertainty", "reference_only"]:
+            if (latest / group / old).exists():
+                old_dirs.append(f"{group}/{old}")
+
+    figure_counts = {
+        category: len(list((latest / "figures" / category).glob("*.png")))
+        for category in FIGURE_LIMITS
+    }
+    animation_counts = {
+        category: len(list((latest / "animations" / category).glob("*.gif")))
+        for category in ANIMATION_LIMITS
+    }
+    report_counts = {
+        category: len(list((latest / "reports" / category).glob("*.md")))
+        for category in REPORT_LIMITS
+    }
+    return {
+        "stage": "Stage 5H",
+        "tree_lines": rows,
+        "figure_counts": figure_counts,
+        "animation_counts": animation_counts,
+        "report_counts": report_counts,
+        "old_category_dirs_present": old_dirs,
+        "status": "pass" if not old_dirs else "warning",
+    }
+
+
+def write_latest_stable_tree_snapshot(snapshot_path: Path, result: dict[str, Any]) -> None:
+    """写出可供人工和测试读取的 latest_stable 文件树快照。"""
+
+    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_path.write_text("\n".join(result["tree_lines"]) + "\n", encoding="utf-8")
+
+
+def write_latest_stable_tree_snapshot_report(path: Path, result: dict[str, Any]) -> None:
+    """写出 latest_stable tree snapshot 报告。"""
+
+    lines = [
+        "# latest_stable tree snapshot 报告",
+        "",
+        "本报告来自当前本地文件树。若 commit diff 中出现旧目录，只说明它们是历史删除/移动痕迹，",
+        "不代表当前 latest_stable 结构仍包含旧分类。",
+        "",
+        f"- stage：`{result['stage']}`",
+        f"- figures/forward 图件数量：`{result['figure_counts'].get('forward')}`",
+        f"- figures/localization 图件数量：`{result['figure_counts'].get('localization')}`",
+        f"- figures/error_analysis 图件数量：`{result['figure_counts'].get('error_analysis')}`",
+        f"- animations/forward 动图数量：`{result['animation_counts'].get('forward')}`",
+        f"- 旧目录 core/diagnostics/uncertainty/reference_only 是否存在：`{bool(result['old_category_dirs_present'])}`",
+        f"- 旧目录清单：`{result['old_category_dirs_present']}`",
+        f"- 状态：`{result['status']}`",
+        "",
+        "## 当前文件树",
+        "",
+    ]
+    lines.extend(f"- `{line}`" for line in result["tree_lines"])
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")

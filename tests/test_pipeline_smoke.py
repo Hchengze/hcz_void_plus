@@ -186,6 +186,7 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (output_dir / "figures" / "fig_velocity_model_physics_bridge.png").exists()
     assert (output_dir / "figures" / "fig_stage5f_status_badge.png").exists()
     assert (output_dir / "figures" / "fig_stage5g_status_badge.png").exists()
+    assert (output_dir / "figures" / "fig_stage5h_status_badge.png").exists()
     assert (output_dir / "figures" / "fig_geometry_3d_overview.png").exists()
     assert (output_dir / "figures" / "fig_velocity_sampling_paths_3d.png").exists()
     assert (output_dir / "figures" / "fig_3d_high_score_region.png").exists()
@@ -251,9 +252,9 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert (latest_stable / "reports" / "forward" / "report_elastic2d_das_response.md").exists()
     assert (latest_stable / "reports" / "forward" / "report_velocity_model_physics_bridge.md").exists()
     assert (latest_stable / "reports" / "localization" / "report_full_pipeline.md").exists()
-    assert (latest_stable / "reports" / "error_analysis" / "report_model_mismatch.md").exists()
-    assert (latest_stable / "reports" / "error_analysis" / "report_elastic_vs_kinematic.md").exists()
     assert (latest_stable / "reports" / "error_analysis" / "report_latest_stable_file_audit.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_latest_stable_tree_snapshot.md").exists()
+    assert (latest_stable / "reports" / "error_analysis" / "report_manual_review_readiness.md").exists()
     assert (latest_stable / "reports" / "error_analysis" / "report_figure_quality_check.md").exists()
     assert (latest_stable / "reports" / "error_analysis" / "report_figure_deduplication.md").exists()
     assert (latest_stable / "reports" / "error_analysis" / "report_figure_language_check.md").exists()
@@ -287,16 +288,19 @@ def test_full_pipeline_saves_depth_weighted_scan_and_diagnostics(tmp_path):
     assert metadata["stage5b_validation"]["elastic2d_das_response"] is not None
     assert metadata["stage5b_validation"]["elastic_vs_kinematic"] is not None
     assert metadata["approximation"]["forward_engine"] == "layered_kinematic"
-    assert metadata["stage"] == "Stage 5G latest_stable three-category curation and 3D visualization"
+    assert metadata["stage"] == "Stage 5H metadata/manual-review hardening on Stage 5G three-category outputs"
     assert metadata["stage5e_validation"]["elastic2d_numerical_sensitivity"] is not None
     assert metadata["stage5e_validation"]["velocity_model_physics_bridge"] is not None
     assert metadata["stage5e_validation"]["elastic2d_das_nonzero_check"] is not None
     assert metadata["stage5f_validation"]["elastic2d_rayleigh_benchmark"] is not None
     assert metadata["stage5f_validation"]["ready_for_2p5d"] is False
     assert metadata["stage5g_validation"]["latest_stable_categories"] == ["forward", "localization", "error_analysis"]
+    assert metadata["stage5h_validation"]["ready_for_2p5d"] is False
     summary_text = (latest_stable / "summary.md").read_text(encoding="utf-8")
     assert "3D high-score span" in summary_text
-    assert "Stage 5G" in summary_text
+    assert "Stage 5H" in summary_text
+    assert "algorithm_commit" in summary_text
+    assert "latest_stable_commit" in summary_text
     assert "manual_review_figures" in summary_text
     assert "manual_review_animations" in summary_text
     assert "figure_quality_check_status" in summary_text

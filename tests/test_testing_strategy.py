@@ -9,3 +9,6 @@ def test_testing_strategy_documents_three_layers():
         assert key in tests_readme
     assert "三维" in text
     assert "latest_stable" in text
+    assert "tree snapshot" in text
+    assert "manual review" in text
+    assert "不再为每一张静态图" in text

@@ -60,7 +60,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=["debug", "forward", "full_pipeline", "scan", "robustness"],
         help="运行任务。scan/robustness 先作为接口预留；full_pipeline 会执行正演和基础扫描。",
     )
-    project.add_argument("--run-name", default="stage5g_run", help="本次运行名称，会和时间戳组成输出目录。")
+    project.add_argument("--run-name", default="stage5h_run", help="本次运行名称，会和时间戳组成输出目录。")
     project.add_argument("--random-seed", type=int, default=20260703, help="随机种子，用于噪声和可复现实验。")
 
     road = parser.add_argument_group("road 道路参数组")
@@ -975,7 +975,7 @@ def validate_resolved_params(params: SimpleNamespace) -> None:
 def print_params_summary(params: SimpleNamespace) -> None:
     """在终端打印本次运行摘要。"""
 
-    print("=== hcz_void_plus Stage 5G 参数摘要 ===")
+    print("=== hcz_void_plus Stage 5H 参数摘要 ===")
     print(f"task: {params.project.task}")
     print(f"run_name: {params.project.run_name}")
     print(f"road width/length: {params.road.width_m} m / {params.road.length_m} m")

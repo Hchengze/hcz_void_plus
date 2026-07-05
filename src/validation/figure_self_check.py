@@ -144,7 +144,7 @@ def run_figure_self_check(
         if any("missing_metadata" in reason for reason in item.get("reasons", []))
     ]
     return {
-        "stage": "Stage 5G",
+        "stage": "Stage 5H",
         "checked_count": len(items),
         "passed_count": len(passed),
         "failed_count": len(failed),
@@ -165,7 +165,7 @@ def write_figure_self_check_report(path: Path, result: dict[str, Any]) -> None:
     lines = [
         "# 图件自检报告",
         "",
-        "本报告由 Stage 5F 在 latest_stable 导出前生成。只有通过自检的精选图件会进入 latest_stable；",
+        "本报告由 Stage 5H 在 latest_stable 导出前生成。只有通过自检的精选图件会进入 latest_stable；",
         "未通过的图仍保留在时间戳运行目录中，供调试追溯。",
         "",
         f"- 检查图件总数：`{result['checked_count']}`",

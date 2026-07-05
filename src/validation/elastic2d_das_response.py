@@ -142,17 +142,35 @@ def run_elastic2d_das_nonzero_check(params) -> dict[str, Any]:
         reason = "surface vx 极弱，gauge 响应不应进入默认定位。"
     else:
         reason = "gauge strain 非零，但仍只属于 DAS-like validation，不是真实 DAS 仪器响应。"
+    best_case = cases[best_velocity]
     return {
         "cases": cases,
         "best_velocity_gauge_case": best_velocity,
         "best_displacement_gauge_case": best_displacement,
         "best_velocity_gauge_rms": cases[best_velocity]["velocity_gauge_strain_rms"],
         "best_displacement_gauge_rms": cases[best_displacement]["displacement_gauge_strain_rms"],
+        "best_velocity_gauge_source_type": best_case["source_type"],
+        "best_velocity_gauge_length_m": best_case["gauge_length_m"],
         "das_gauge_nonzero_status": "nonzero" if best_metric > threshold else "zero_or_too_weak",
         # 即使本轮诊断能得到非零 gauge strain，它仍没有通过真实 DAS gauge length、
         # 光纤方向、仪器响应和 elastic2d 数值格式校准，因此默认定位仍禁止使用。
         "default_localization_should_use_gauge_strain": False,
         "diagnosis": reason,
+        "old_relative_metric_zero_reason": (
+            "旧指标使用 strain_rms / point_rms，相对量会被强 point receiver 分量和极小 "
+            "gauge 有限差分同时压低，格式化或阈值判断时可能显示为 0。"
+        ),
+        "absolute_nonzero_reason": (
+            "Stage 5H 改看 velocity gauge strain 的绝对 RMS，并使用非零 receiver pair；"
+            "因此能识别弱非零响应，但这不等于已具备定位解释力。"
+        ),
+        "required_for_real_das": [
+            "光纤局部切向方向",
+            "gauge length 校准",
+            "仪器响应",
+            "真实接收道距",
+            "弹性波场中合适的水平分量或轴向应变",
+        ],
         "threshold": threshold,
         "note": "即使 gauge strain 非零，也必须经过真实 DAS gauge/方向/仪器响应校准后才能用于主定位。",
     }

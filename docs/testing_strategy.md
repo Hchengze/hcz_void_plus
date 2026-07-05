@@ -1,6 +1,6 @@
-# Stage 5G testing strategy
+# Stage 5H testing strategy
 
-本项目的测试策略从 Stage 5G 起收缩为三层，目标是保证三维道路 DAS-like 主线不跑偏，同时避免早期二维 validation 细节拖慢后续三维化。
+本项目的测试策略从 Stage 5G 起收缩为三层，Stage 5H 继续收敛：图件测试以 manifest、tree snapshot 和 manual review 清单为主，不再为每一张静态图写独立存在性测试。
 
 ## core_contract
 
@@ -11,7 +11,8 @@
 - active forward engine 是 `layered_kinematic`。
 - `layered_kinematic` 能运行，并且 direct / scatter / scan 使用 velocity_model travel-time 接口。
 - `outputs/latest_stable` 采用 `forward / localization / error_analysis` 三类结构。
-- `summary.md` 记录 Stage 5G、manual review 图件、ready_for_2p5d 逻辑和 DAS gauge 口径。
+- `summary.md` 记录 Stage 5H、algorithm/latest_stable commit、manual review 图件、ready_for_2p5d 逻辑和 DAS gauge 口径。
+- `metadata/latest_stable_tree_snapshot.txt` 固化当前 latest_stable 文件树。
 - 三维 policy、三维几何图、三维高分区图和不确定性盒子接口必须可运行。
 
 ## lightweight_smoke
@@ -23,6 +24,7 @@
 - DAS gauge 报告输出，并明确不默认用于定位。
 - 两个 GIF 能生成并进入 latest_stable。
 - latest_stable 导出后图件数量受控，空图、重复图、英文 case label 不进入当前精选。
+- manual review readiness 报告能确认关键 3D 图和两个 GIF 可供人工查看。
 
 ## archive_or_reduce
 
@@ -34,3 +36,5 @@
 - 未来三维化后大概率会重写的 elastic2d 内部格式细节。
 
 本轮没有取消测试，而是把新增测试优先指向 Stage 5G 的三维主线和 latest_stable 可信度。若删除或归档测试，提交说明必须解释原因；保留测试则优先覆盖项目边界和人工复查入口。
+
+Stage 5H 后，3D plotting 只保留 smoke test 和关键 metadata/tree/manual-review 测试；elastic2d/staggered 只保留 benchmark smoke 与 Rayleigh 结论边界测试。过度细碎、面向早期二维内部数组的测试继续归入 `archive_or_reduce`。

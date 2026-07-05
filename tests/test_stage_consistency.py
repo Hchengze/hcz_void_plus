@@ -10,7 +10,7 @@ if CODE_DIR not in sys.path:
 from current_3d_algorithm.stable_api import get_current_algorithm_summary
 
 
-def test_stage5g_is_declared_in_all_current_entrypoints():
+def test_stage5h_is_declared_in_all_current_entrypoints():
     files = [
         Path("README.md"),
         Path("docs/current_status.md"),
@@ -19,21 +19,24 @@ def test_stage5g_is_declared_in_all_current_entrypoints():
     ]
     for path in files:
         text = path.read_text(encoding="utf-8")
-        assert "Stage 5G" in text
+        assert "Stage 5H" in text
         assert "layered_kinematic" in text
 
     summary = get_current_algorithm_summary()
-    assert summary["stage"] == "Stage 5G"
+    assert summary["stage"] == "Stage 5H"
     assert summary["velocity_default"] == "layered"
     assert summary["stable_forward_engine"] == "layered_kinematic"
     assert summary["ready_for_2p5d"] is False
 
 
-def test_latest_stable_summary_stage5g_after_refresh():
+def test_latest_stable_summary_stage5h_after_refresh():
     summary_path = Path("outputs/latest_stable/summary.md")
     assert summary_path.exists()
     text = summary_path.read_text(encoding="utf-8")
-    assert "Stage 5G" in text
+    assert "Stage 5H" in text
+    assert "previous_stage = Stage 5G" in text
+    assert "algorithm_commit" in text
+    assert "latest_stable_commit" in text
     assert "active_velocity_model" in text
     assert "ready_for_2p5d" in text
     assert "manual_review_figures" in text
@@ -41,13 +44,16 @@ def test_latest_stable_summary_stage5g_after_refresh():
         assert "ready_for_2p5d = `False`" in text or "ready_for_2p5d：`False`" in text
 
 
-def test_latest_stable_metadata_records_stage5g():
+def test_latest_stable_metadata_records_stage5h():
     meta_path = Path("outputs/latest_stable/metadata/meta_run.json")
     assert meta_path.exists()
     metadata = json.loads(meta_path.read_text(encoding="utf-8"))
-    assert metadata["stage"] == "Stage 5G latest_stable three-category curation and 3D visualization"
+    assert metadata["stage"] == "Stage 5H metadata/manual-review hardening"
+    assert metadata["algorithm_commit"]
+    assert "latest_stable_commit" in metadata
     assert metadata["approximation"]["forward_engine"] == "layered_kinematic"
     assert metadata["stage5f_validation"]["ready_for_2p5d"] is False
+    assert metadata["stage5h_validation"]["ready_for_2p5d"] is False
     assert metadata["stage5g_validation"]["latest_stable_categories"] == [
         "forward",
         "localization",

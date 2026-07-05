@@ -2,17 +2,17 @@ import json
 from pathlib import Path
 
 from src.validation.scientific_figure_self_check import (
-    RECOMMENDED_STAGE5G_FIGURES,
+    RECOMMENDED_STAGE5H_FIGURES,
     run_scientific_figure_self_check,
     write_scientific_figure_self_check_report,
 )
 
 
-def test_readme_and_current_status_are_stage5g():
+def test_readme_and_current_status_are_stage5h():
     readme = Path("README.md").read_text(encoding="utf-8")
     status = Path("docs/current_status.md").read_text(encoding="utf-8")
-    assert "Stage 5G" in readme
-    assert "Stage 5G" in status
+    assert "Stage 5H" in readme
+    assert "Stage 5H" in status
     assert "active velocity model" in readme
     assert "active forward engine" in readme
     assert "ready_for_2p5d=False" in status or "ready_for_2p5d" in readme
@@ -21,7 +21,7 @@ def test_readme_and_current_status_are_stage5g():
 def _make_latest(tmp_path: Path) -> Path:
     latest = tmp_path / "latest_stable"
     (latest / "metadata").mkdir(parents=True)
-    for rel in RECOMMENDED_STAGE5G_FIGURES:
+    for rel in RECOMMENDED_STAGE5H_FIGURES:
         path = latest / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(b"placeholder")
@@ -29,7 +29,7 @@ def _make_latest(tmp_path: Path) -> Path:
     (latest / "reports" / "localization").mkdir(parents=True)
     (latest / "reports" / "error_analysis").mkdir(parents=True)
     (latest / "summary.md").write_text(
-        "# summary\n\n- stage = Stage 5G\n- active_velocity_model = `layered`\n",
+        "# summary\n\n- stage = Stage 5H\n- active_velocity_model = `layered`\n",
         encoding="utf-8",
     )
     (latest / "reports" / "forward" / "report_elastic2d_rayleigh_benchmark.md").write_text(
@@ -46,13 +46,13 @@ def _make_latest(tmp_path: Path) -> Path:
                 "filename": Path(rel).name,
                 "category": Path(rel).parts[1],
                 "metadata": {
-                    "stage": "Stage 5G",
+                    "stage": "Stage 5H",
                     "forward_engine": "layered_kinematic",
                     "velocity_model_type": "layered",
                     "required_report": "reports/forward/report_elastic2d_rayleigh_benchmark.md",
                 },
             }
-            for rel in RECOMMENDED_STAGE5G_FIGURES
+            for rel in RECOMMENDED_STAGE5H_FIGURES
         ]
     }
     (latest / "metadata" / "figure_manifest.json").write_text(
@@ -62,7 +62,7 @@ def _make_latest(tmp_path: Path) -> Path:
     return latest
 
 
-def test_scientific_figure_self_check_passes_consistent_stage5g_latest(tmp_path):
+def test_scientific_figure_self_check_passes_consistent_stage5h_latest(tmp_path):
     latest = _make_latest(tmp_path)
     result = run_scientific_figure_self_check(
         latest,
@@ -72,9 +72,9 @@ def test_scientific_figure_self_check_passes_consistent_stage5g_latest(tmp_path)
             "active_velocity_model_type": "layered",
         },
     )
-    assert result["stage"] == "Stage 5G"
+    assert result["stage"] == "Stage 5H"
     assert result["status"] == "pass"
-    assert result["checked_figure_count"] == len(RECOMMENDED_STAGE5G_FIGURES)
+    assert result["checked_figure_count"] == len(RECOMMENDED_STAGE5H_FIGURES)
     assert 8 <= len(result["recommended_figures"]) <= 12
 
     report = tmp_path / "report_scientific_figure_self_check.md"

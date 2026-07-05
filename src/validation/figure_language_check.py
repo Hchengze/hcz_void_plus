@@ -1,4 +1,4 @@
-"""Stage 5G latest_stable 图件语言检查。
+"""Stage 5H latest_stable 图件语言检查。
 
 当前不引入 OCR。语言检查基于 curated manifest、绘图函数约定和 case label 中文映射：
 进入 latest_stable 的图件必须声明 `language=zh`，内部 case key 必须有中文展示标签。
@@ -34,7 +34,7 @@ def run_figure_language_check(latest_stable_dir: Path) -> dict[str, Any]:
             english.append(rel)
     label_audit = run_figure_label_audit(latest)
     return {
-        "stage": "Stage 5G",
+        "stage": "Stage 5H",
         "checked_count": checked,
         "english_figure_count": len(english),
         "english_or_needs_translation": english,

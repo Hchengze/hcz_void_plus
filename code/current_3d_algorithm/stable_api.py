@@ -20,14 +20,14 @@ def get_current_algorithm_summary() -> dict[str, Any]:
         "F0": "kinematic_baseline：快速均匀速度运动学基线，不是当前主正演。",
         "F1": "layered_kinematic：当前主定位 forward，straight-ray kinematic approximation。",
         "F2": "acoustic2d_prototype：声学波动方程基础设施验证，不代表 Rayleigh 波。",
-        "F3": "elastic2d_prototype：Rayleigh/free-surface/void scattering 局部物理验证起点，Stage 5G 保留 staggered benchmark 作为 validation。",
+        "F3": "elastic2d_prototype：Rayleigh/free-surface/void scattering 局部物理验证起点，Stage 5H 保留 staggered benchmark 作为 validation，并加固 Rayleigh/DAS 解释。",
         "F4": "2.5D / multi-section elastic validation。",
         "F5": "local small-domain 3D elastic validation。",
         "F6": "external solver adapters，不复制第三方代码。",
     }
 
     return {
-        "stage": "Stage 5G",
+        "stage": "Stage 5H",
         "stable_area": "code/current_3d_algorithm",
         "research_area": "src",
         "geometry": "3D source_xyz / receiver_xyz / candidate_xyz",
@@ -77,6 +77,14 @@ def get_current_algorithm_summary() -> dict[str, Any]:
             "3d_high_score_region",
             "3d_uncertainty_box",
             "testing_strategy",
+        ],
+        "stage5h_diagnostics": [
+            "algorithm_commit_and_latest_stable_commit_metadata",
+            "latest_stable_tree_snapshot",
+            "manual_review_readiness",
+            "3d_figure_readability_notes",
+            "rayleigh_picked_event_interpretation",
+            "das_gauge_weak_response_explanation",
         ],
         "rayleigh_like_stage5d_status": "not_detected",
         "das_gauge_stage5d_status": "zero_or_too_weak",

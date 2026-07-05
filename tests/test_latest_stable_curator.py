@@ -3,7 +3,7 @@ from pathlib import Path
 from src.utils.latest_stable_curator import audit_latest_stable_files
 
 
-def test_latest_stable_curator_accepts_stage5g_count_window(tmp_path):
+def test_latest_stable_curator_accepts_stage5h_count_window(tmp_path):
     latest = tmp_path / "latest_stable"
     for category, count in {
         "forward": 9,
@@ -34,7 +34,7 @@ def test_latest_stable_curator_accepts_stage5g_count_window(tmp_path):
             (folder / f"report_{category}_{index}.md").write_text("ok", encoding="utf-8")
 
     result = audit_latest_stable_files(latest)
-    assert result["stage"] == "Stage 5G"
+    assert result["stage"] == "Stage 5H"
     assert result["latest_stable_total_figure_count"] == 21
     assert result["latest_stable_total_animation_count"] == 2
     assert result["latest_stable_total_report_count"] == 12

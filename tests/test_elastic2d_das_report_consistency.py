@@ -11,6 +11,9 @@ def test_das_report_and_summary_keep_stage5g_conservative_boundary():
     assert "default" in report.lower() or "默认" in report
     assert "not_for_default_localization" in report or "不能默认" in report or "禁止默认" in report
     assert "真实 DAS" in report or "DAS-like" in report
+    assert "旧相对指标可能显示 0" in report
+    assert "best_velocity_gauge_rms" in report
+    assert "required_for_real_das" in report
 
 
 def test_das_stage5g_figures_exist():

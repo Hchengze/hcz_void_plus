@@ -13,13 +13,16 @@ def test_summary_manual_review_files_exist():
         "figures/localization/fig_3d_high_score_region.png",
         "figures/localization/fig_recommended_location_3d.png",
         "figures/localization/fig_3d_uncertainty_box.png",
-        "figures/error_analysis/fig_stage5g_status_badge.png",
+        "figures/error_analysis/fig_stage5h_status_badge.png",
     ]
     manual_animations = [
         "animations/forward/anim_multishot_forward_overview.gif",
         "animations/forward/anim_single_shot_wavefield.gif",
     ]
     summary = (latest / "summary.md").read_text(encoding="utf-8")
+    assert "algorithm_commit" in summary
+    assert "latest_stable_commit" in summary
+    assert "commit id" not in summary.lower()
     for rel in manual_figures + manual_animations:
         assert rel in summary
         assert (latest / rel).exists(), rel

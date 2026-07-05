@@ -65,11 +65,27 @@ def plot_geometry_3d_overview(
     ax.scatter(scatter_xyz[:, 0], scatter_xyz[:, 1], scatter_xyz[:, 2], s=38, marker="+", color="#2ca02c", label="异常体等效散射点")
     ax.scatter([candidate[0]], [candidate[1]], [candidate[2]], s=86, marker="o", facecolors="none", edgecolors="#ff7f0e", linewidths=2.0, label="当前候选/推荐点")
     ax.scatter([params.anomaly.x0_m], [params.anomaly.y0_m], [params.anomaly.depth_m], s=82, marker="x", color="black", linewidths=2.0, label="真值位置")
+    ax.text(
+        params.road.length_m * 0.02,
+        params.road.width_m * 0.95,
+        0.0,
+        "道路范围 / 光纤线 / 震源线 / 异常体 / 候选点",
+        fontsize=8,
+        color="0.2",
+    )
 
     ax.set_xlabel("沿道路 x / m")
     ax.set_ylabel("横向 y / m")
     ax.set_zlabel("埋深 h / m")
     ax.set_title("三维道路 DAS-like 几何总览：不是 3D elastic 波场")
+    ax.text2D(
+        0.02,
+        0.02,
+        "说明：这是三维几何与定位表达，不代表当前 elastic2d 已是三维弹性正演。",
+        transform=ax.transAxes,
+        fontsize=8.5,
+        color="#e15759",
+    )
     ax.invert_zaxis()
     ax.view_init(elev=22, azim=-58)
     ax.legend(loc="upper left", fontsize=8)
@@ -107,7 +123,7 @@ def plot_velocity_sampling_paths_3d(
     ax3d.set_ylabel("y / m")
     ax3d.set_zlabel("h / m")
     ax3d.invert_zaxis()
-    ax3d.set_title("三维采样路径")
+    ax3d.set_title("三维 source → candidate → receiver 采样路径")
     ax3d.legend(loc="upper left", fontsize=7)
 
     ax = fig.add_subplot(122)
@@ -115,6 +131,15 @@ def plot_velocity_sampling_paths_3d(
     ax.set_xlabel("路径距离 / m")
     ax.set_ylabel("采样 Rayleigh 等效速度 / (m/s)")
     ax.set_title("source → candidate → receiver 分层速度采样")
+    ax.text(
+        0.02,
+        0.95,
+        "三维路径积分；不是二维剖面假 3D。",
+        transform=ax.transAxes,
+        va="top",
+        fontsize=8.5,
+        bbox={"facecolor": "white", "alpha": 0.78, "edgecolor": "0.8"},
+    )
     ax.grid(alpha=0.25)
     fig.colorbar(line, ax=ax3d, fraction=0.046, pad=0.04, label="m/s")
     _save(fig, output_path)

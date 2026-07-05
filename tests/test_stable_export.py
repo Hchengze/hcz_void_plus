@@ -3,7 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.utils.latest_stable_manifest import STAGE5G_FIGURE_SPECS, STAGE5G_ANIMATION_SPECS
+from src.utils.latest_stable_manifest import STAGE5H_FIGURE_SPECS, STAGE5H_ANIMATION_SPECS
 from src.utils.stable_export import export_latest_stable_outputs
 
 
@@ -24,12 +24,12 @@ def _write_valid_png(path: Path):
     plt.close(fig)
 
 
-def test_export_latest_stable_outputs_creates_stage5g_three_category_directory(tmp_path):
-    run_dir = tmp_path / "stage5g_run_20260705_000000"
+def test_export_latest_stable_outputs_creates_stage5h_three_category_directory(tmp_path):
+    run_dir = tmp_path / "stage5h_run_20260705_000000"
     latest = tmp_path / "latest_stable"
-    for spec in STAGE5G_FIGURE_SPECS:
+    for spec in STAGE5H_FIGURE_SPECS:
         _write_valid_png(run_dir / "figures" / spec.filename)
-    for spec in STAGE5G_ANIMATION_SPECS:
+    for spec in STAGE5H_ANIMATION_SPECS:
         path = run_dir / "animations" / spec.filename
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(b"GIF89a" + b"0" * 4096)
@@ -51,6 +51,8 @@ def test_export_latest_stable_outputs_creates_stage5g_three_category_directory(t
         latest,
         {
             "commit_id": "abc1234",
+            "algorithm_commit": "abc1234",
+            "latest_stable_commit": "generated_from_algorithm_commit",
             "task_name": "pytest",
             "source_run_dir": str(run_dir),
             "active_velocity_model_type": "layered",
@@ -72,8 +74,14 @@ def test_export_latest_stable_outputs_creates_stage5g_three_category_directory(t
     assert len(list((latest / "figures").glob("*.png"))) == 0
     assert not (latest / "arrays").exists()
     assert (latest / "reports" / "error_analysis" / "report_latest_stable_file_audit.md").exists()
+    assert (latest / "reports" / "error_analysis" / "report_latest_stable_tree_snapshot.md").exists()
+    assert (latest / "reports" / "error_analysis" / "report_manual_review_readiness.md").exists()
     assert (latest / "reports" / "error_analysis" / "report_figure_quality_check.md").exists()
     assert (latest / "metadata" / "meta_run.json").exists()
     assert (latest / "metadata" / "meta_params_snapshot.json").exists()
-    assert "abc1234" in (latest / "summary.md").read_text(encoding="utf-8")
+    assert (latest / "metadata" / "latest_stable_tree_snapshot.txt").exists()
+    summary = (latest / "summary.md").read_text(encoding="utf-8")
+    assert "Stage 5H" in summary
+    assert "algorithm_commit = `abc1234`" in summary
+    assert "latest_stable_commit" in summary
     assert info["copied"]

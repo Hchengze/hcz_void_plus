@@ -17,12 +17,12 @@ def test_latest_stable_root_figures_are_not_flat_png_dump():
     latest = Path("outputs/latest_stable")
     assert len(list((latest / "figures").glob("*.png"))) == 0
     summary = (latest / "summary.md").read_text(encoding="utf-8")
-    assert "Stage 5G" in summary
+    assert "Stage 5H" in summary
     assert "manual_review_figures" in summary
     assert "ready_for_2p5d" in summary
 
 
-def test_latest_stable_stage5g_reports_and_no_root_dump():
+def test_latest_stable_stage5h_reports_and_no_root_dump():
     latest = Path("outputs/latest_stable")
     assert len(list((latest / "figures").glob("*.png"))) == 0
     assert len(list((latest / "animations").glob("*.gif"))) == 0
@@ -32,6 +32,8 @@ def test_latest_stable_stage5g_reports_and_no_root_dump():
         "reports/error_analysis/report_figure_quality_check.md",
         "reports/error_analysis/report_figure_deduplication.md",
         "reports/error_analysis/report_figure_language_check.md",
+        "reports/error_analysis/report_latest_stable_tree_snapshot.md",
+        "reports/error_analysis/report_manual_review_readiness.md",
         "reports/forward/report_elastic2d_rayleigh_benchmark.md",
         "reports/forward/report_velocity_model_physics_bridge.md",
     ]:

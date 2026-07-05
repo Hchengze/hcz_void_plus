@@ -104,7 +104,7 @@ def build_metadata(
 
     metadata = {
         "project": "hcz_void_plus",
-        "stage": "Stage 5G latest_stable three-category curation and 3D visualization",
+        "stage": "Stage 5H metadata/manual-review hardening on Stage 5G three-category outputs",
         "data_shape": {
             "order": "shot × time × channel",
             "shape": list(synthetic_data.shape),

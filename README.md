@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-当前推进到 **Stage 5G：latest_stable 三类结果重构 + 图件中文化 + 动图整合 + 测试收缩 + 三维可视化增强**。
+当前推进到 **Stage 5H：Stage 5G 成果校验 + latest_stable 元数据修复 + 三维图件人工可读性增强 + Rayleigh/DAS 解释加固**。
 
 当前主依据：
 
@@ -34,7 +34,7 @@
 - F1 `layered_kinematic`：当前主定位 forward，通过 velocity model travel-time 接口计算 direct / scatter / scan。
 - F2 `acoustic2d_prototype`：声学波动方程基础设施验证，不能代表 Rayleigh 波。
 - F3 `elastic2d_prototype`：Rayleigh/free-surface/void scattering 的局部科研验证起点。
-- Stage 5G `staggered_elastic2d_benchmark`：collocated / staggered 小网格对比 benchmark 继续作为 validation forward，并服务 Rayleigh benchmark 失败原因解释。
+- Stage 5H `staggered_elastic2d_benchmark`：collocated / staggered 小网格对比 benchmark 继续作为 validation forward，并服务 Rayleigh benchmark 失败原因解释。
 - F4-F6：2.5D、多剖面、局部 3D elastic 是长期方向；Rayleigh benchmark 未通过前不建议进入。
 
 ## 三维场景边界
@@ -50,13 +50,14 @@
 
 ## latest_stable 治理
 
-`outputs/latest_stable/` 是当前精选成果目录，不是历史输出仓库。Stage 5G 后，进入该目录的图件必须通过：
+`outputs/latest_stable/` 是当前精选成果目录，不是历史输出仓库。Stage 5H 后，进入该目录的图件必须通过：
 
 - 文件级 figure self-check
 - 空图/低质量图检查
 - 重复图检查
 - 图件中文化检查
 - latest_stable 三类数量审计
+- tree snapshot 与 manual review readiness 审计
 
 当前精选结构：
 

@@ -382,6 +382,12 @@ def write_elastic2d_das_response_report(path: Path, result: dict[str, Any]) -> N
         f"- gauge_void_residual_rms：`{result.get('gauge_void_residual_rms')}`。",
         "- das_gauge_final_status：`nonzero_but_weak_not_for_default_localization`。",
         "- default localization：`False`，当前不能默认使用 gauge strain。",
+        "",
+        "## Stage 5H 统一解释",
+        "",
+        "- 旧相对指标可能显示 0：strain_rms / point_rms 会被强 point receiver 分量和极小 gauge 有限差分同时压低。",
+        "- 绝对弱响应检查能显示非零：Stage 5H 直接检查 velocity gauge strain RMS，并使用非零 receiver pair。",
+        "- 非零不代表有效：当前仍未校准光纤切向方向、gauge length、仪器响应和真实接收道距。",
     ]
     nonzero = result.get("nonzero_check") or {}
     if nonzero:
@@ -393,10 +399,15 @@ def write_elastic2d_das_response_report(path: Path, result: dict[str, Any]) -> N
                 f"- das_gauge_nonzero_status：`{nonzero.get('das_gauge_nonzero_status')}`。",
                 f"- best_velocity_gauge_case：`{nonzero.get('best_velocity_gauge_case')}`。",
                 f"- best_velocity_gauge_rms：`{nonzero.get('best_velocity_gauge_rms')}`。",
+                f"- best_velocity_gauge_source_type：`{nonzero.get('best_velocity_gauge_source_type')}`。",
+                f"- best_velocity_gauge_length_m：`{nonzero.get('best_velocity_gauge_length_m')}`。",
                 f"- best_displacement_gauge_case：`{nonzero.get('best_displacement_gauge_case')}`。",
                 f"- best_displacement_gauge_rms：`{nonzero.get('best_displacement_gauge_rms')}`。",
                 f"- default_localization_should_use_gauge_strain：`{nonzero.get('default_localization_should_use_gauge_strain')}`。",
                 f"- diagnosis：{nonzero.get('diagnosis')}",
+                f"- old_relative_metric_zero_reason：{nonzero.get('old_relative_metric_zero_reason')}",
+                f"- absolute_nonzero_reason：{nonzero.get('absolute_nonzero_reason')}",
+                f"- required_for_real_das：`{nonzero.get('required_for_real_das')}`",
                 "",
                 "若 gauge strain 为零或很弱，必须明确禁止默认纳入定位；即使非零，也仍需真实 DAS gauge/方向/仪器响应校准。",
             ]

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def test_latest_stable_stage5g_forward_outputs_are_curated():
+def test_latest_stable_stage5h_forward_outputs_are_curated():
     latest = Path("outputs/latest_stable")
     for name in [
         "fig_geometry_3d_overview.png",
@@ -23,7 +23,7 @@ def test_latest_stable_stage5g_forward_outputs_are_curated():
         assert (latest / "animations" / "forward" / name).exists()
 
 
-def test_latest_stable_stage5g_localization_and_error_outputs_are_curated():
+def test_latest_stable_stage5h_localization_and_error_outputs_are_curated():
     latest = Path("outputs/latest_stable")
     for name in [
         "fig_scan_x_y_slice.png",
@@ -35,7 +35,7 @@ def test_latest_stable_stage5g_localization_and_error_outputs_are_curated():
         assert (latest / "figures" / "localization" / name).exists()
 
     for name in [
-        "fig_stage5g_status_badge.png",
+        "fig_stage5h_status_badge.png",
         "fig_latest_stable_quality_summary.png",
         "fig_rayleigh_pick_interpretation.png",
         "fig_elastic2d_das_report_consistency.png",

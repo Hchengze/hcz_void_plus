@@ -7,6 +7,11 @@ def test_latest_stable_has_only_three_result_categories():
     assert {path.name for path in (latest / "figures").iterdir() if path.is_dir()} == expected
     assert {path.name for path in (latest / "animations").iterdir() if path.is_dir()} == expected
     assert {path.name for path in (latest / "reports").iterdir() if path.is_dir()} == expected
+    assert not (latest / "figures" / "core").exists()
+    assert not (latest / "figures" / "diagnostics").exists()
+    assert not (latest / "figures" / "uncertainty").exists()
+    assert (latest / "metadata" / "latest_stable_tree_snapshot.txt").exists()
+    assert (latest / "reports" / "error_analysis" / "report_latest_stable_tree_snapshot.md").exists()
 
 
 def test_latest_stable_static_and_animation_counts_are_controlled():

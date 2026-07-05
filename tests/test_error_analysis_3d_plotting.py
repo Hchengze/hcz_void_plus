@@ -1,4 +1,4 @@
-from src.visualization.plot_error_analysis_3d import plot_rayleigh_pick_interpretation, plot_stage5g_status_badge
+from src.visualization.plot_error_analysis_3d import plot_rayleigh_pick_interpretation, plot_stage5h_status_badge
 
 
 def test_error_analysis_3d_plotting_functions_run(tmp_path):
@@ -17,7 +17,7 @@ def test_error_analysis_3d_plotting_functions_run(tmp_path):
             "late_coda_indicator": 0.3,
         },
     }
-    plot_stage5g_status_badge(status, tmp_path / "fig_stage5g_status_badge.png")
+    plot_stage5h_status_badge(status, tmp_path / "fig_stage5h_status_badge.png")
     plot_rayleigh_pick_interpretation(benchmark, tmp_path / "fig_rayleigh_pick_interpretation.png")
-    assert (tmp_path / "fig_stage5g_status_badge.png").exists()
+    assert (tmp_path / "fig_stage5h_status_badge.png").exists()
     assert (tmp_path / "fig_rayleigh_pick_interpretation.png").exists()

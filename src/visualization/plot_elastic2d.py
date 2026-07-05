@@ -635,6 +635,45 @@ def plot_stage5g_status_badge(summary: dict[str, Any], output_path: Path) -> Non
     _save(fig, output_path)
 
 
+def plot_stage5h_status_badge(summary: dict[str, Any], output_path: Path) -> None:
+    """绘制 Stage 5H 状态徽章。
+
+    Stage 5H 的重点是修复 metadata、固化人工复查入口，并继续保持
+    Rayleigh/DAS 结论谨慎；该图替代 Stage 5G 状态图进入 latest_stable。
+    """
+
+    setup_chinese_matplotlib()
+    fig, ax = plt.subplots(figsize=(7.8, 4.4), dpi=150)
+    ax.axis("off")
+    ready = bool(summary.get("ready_for_2p5d", False))
+    rayleigh = summary.get("rayleigh_like_event_detected")
+    gauge = summary.get("das_gauge_final_status")
+    ax.text(0.5, 0.84, "Stage 5H 当前状态", ha="center", va="center", fontsize=20, fontweight="bold")
+    ax.text(
+        0.5,
+        0.56,
+        "主定位 forward：layered_kinematic\n"
+        "active velocity model：layered\n"
+        "本轮重点：metadata 修复 / 人工复查入口 / Rayleigh-DAS 解释\n"
+        f"Rayleigh benchmark 通过：{rayleigh}\n"
+        f"DAS gauge 结论：{gauge}\n"
+        f"ready_for_2p5d：{ready}",
+        ha="center",
+        va="center",
+        fontsize=11.2,
+    )
+    ax.text(
+        0.5,
+        0.12,
+        "三维图件表达 source/receiver/candidate/x-y-depth；不代表 elastic2d 已是三维弹性正演。",
+        ha="center",
+        va="center",
+        fontsize=9.3,
+        color="#e15759",
+    )
+    _save(fig, output_path)
+
+
 def plot_rayleigh_pick_interpretation(result: dict[str, Any], output_path: Path) -> None:
     """绘制 Rayleigh 拾取解释图。
 
@@ -646,10 +685,10 @@ def plot_rayleigh_pick_interpretation(result: dict[str, Any], output_path: Path)
     metrics = result.get("best_case_metrics", {})
     categories = ["surface event", "body wave", "boundary reflection", "late coda"]
     values = [
-        float(metrics.get("surface_event_energy", 0.0)),
-        float(metrics.get("body_wave_leakage_indicator", 0.0)),
-        float(metrics.get("boundary_reflection_indicator", 0.0)),
-        float(metrics.get("late_coda_indicator", metrics.get("boundary_reflection_indicator", 0.0))),
+        float(result.get("likely_surface_wave_score", 0.0)),
+        float(result.get("likely_body_wave_score", metrics.get("body_wave_leakage_indicator", 0.0))),
+        float(result.get("likely_boundary_reflection_score", metrics.get("boundary_reflection_indicator", 0.0))),
+        float(result.get("late_coda_score", metrics.get("late_coda_indicator", metrics.get("boundary_reflection_indicator", 0.0)))),
     ]
     labels = ["表面事件能量", "体波泄漏指标", "边界反射指标", "尾波指标"]
     fig, ax = plt.subplots(figsize=(7.2, 4.2), dpi=150)
@@ -659,8 +698,9 @@ def plot_rayleigh_pick_interpretation(result: dict[str, Any], output_path: Path)
     ax.text(
         0.02,
         0.95,
-        f"rayleigh_like_event_detected={result.get('rayleigh_like_event_detected')}\n"
-        "未通过时只作失败原因解释，不宣称 Rayleigh 正演成功。",
+          f"rayleigh_like_event_detected={result.get('rayleigh_like_event_detected')}\n"
+          f"picked={result.get('picked_event_interpretation')}\n"
+          "未通过时只作失败原因解释，不宣称 Rayleigh 正演成功。",
         transform=ax.transAxes,
         va="top",
         fontsize=9,

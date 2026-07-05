@@ -1,4 +1,4 @@
-"""Stage 5G 图件标签中文化审计。
+"""Stage 5H 图件标签中文化审计。
 
 不使用 OCR，而是检查 latest_stable manifest、绘图标签映射和报告文本中的 case key。
 目标是防止 `collocated_vertical` 这类内部英文 key 直接出现在当前精选图件说明里。
@@ -28,7 +28,7 @@ def run_figure_label_audit(latest_stable_dir: Path) -> dict[str, Any]:
     checked = len(manifest.get("passed_items", []))
     zh_rewritten = sorted(CASE_LABEL_ZH.items())
     return {
-        "stage": "Stage 5G",
+        "stage": "Stage 5H",
         "checked_count": checked,
         "allowed_abbreviations": sorted(ALLOWED_LATIN_TERMS),
         "rewritten_case_labels": zh_rewritten,

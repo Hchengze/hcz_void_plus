@@ -86,6 +86,14 @@ def plot_3d_high_score_region(
         fig.colorbar(scatter, ax=ax, fraction=0.04, pad=0.06, label="score")
     ax.scatter([truth[0]], [truth[1]], [truth[2]], marker="x", s=90, color="black", linewidths=2.0, label="真值位置")
     ax.scatter([recommended[0]], [recommended[1]], [recommended[2]], marker="o", s=90, facecolors="none", edgecolors="#e15759", linewidths=2.0, label="推荐/最佳位置")
+    ax.text2D(
+        0.02,
+        0.02,
+        "说明：这是三维运动学定位点云，不代表当前 elastic2d 已是三维弹性正演。",
+        transform=ax.transAxes,
+        fontsize=8.5,
+        color="#e15759",
+    )
     ax.set_xlabel("x / m")
     ax.set_ylabel("y / m")
     ax.set_zlabel("埋深 h / m")
@@ -108,6 +116,7 @@ def plot_recommended_location_3d(
     truth = np.array([params.anomaly.x0_m, params.anomaly.y0_m, params.anomaly.depth_m], dtype=float)
     best = _location_array(scan_result.get("best_location"), truth)
     recommended = _location_array(confidence_metrics.get("recommended_location"), best)
+    distance = float(np.linalg.norm(recommended - truth))
     fig = plt.figure(figsize=(7.6, 5.6), dpi=150)
     ax = fig.add_subplot(111, projection="3d")
     ax.scatter([truth[0]], [truth[1]], [truth[2]], marker="x", s=110, color="black", linewidths=2.2, label="真值位置")
@@ -119,6 +128,14 @@ def plot_recommended_location_3d(
     ax.set_zlabel("埋深 h / m")
     ax.invert_zaxis()
     ax.set_title("三维推荐位置：科研候选，不是工程确诊")
+    ax.text2D(
+        0.02,
+        0.02,
+        f"推荐-真值距离约 {distance:.2f} m；三维表达不代表 3D elastic 正演。",
+        transform=ax.transAxes,
+        fontsize=8.5,
+        color="#e15759",
+    )
     ax.legend(loc="upper left", fontsize=8)
     _save(fig, output_path)
 
@@ -166,5 +183,13 @@ def plot_3d_uncertainty_box(
     ax.set_zlabel("埋深 h / m")
     ax.invert_zaxis()
     ax.set_title(f"三维不确定性盒子：x={spans[0]:.2f} m, y={spans[1]:.2f} m, h={spans[2]:.2f} m")
+    ax.text2D(
+        0.02,
+        0.02,
+        "深度向下为正；盒子来自 x-y-depth 运动学高分区。",
+        transform=ax.transAxes,
+        fontsize=8.5,
+        color="#e15759",
+    )
     ax.legend(loc="upper left", fontsize=8)
     _save(fig, output_path)

@@ -23,10 +23,13 @@ def test_elastic2d_rayleigh_benchmark_outputs_multiple_cases(tmp_path):
         )
     )
     result = run_elastic2d_rayleigh_benchmark(params)
-    assert result["stage"] == "Stage 5G"
+    assert result["stage"] == "Stage 5H"
     assert result["case_count"] >= 6
     assert result["best_case"] in result["cases"]
     assert result["staggered_grid_status"] == "implemented_minimal_validation"
+    assert result["picked_event_interpretation"]
+    assert result["failure_reason_ranked"]
+    assert "likely_surface_wave_score" in result
     assert result["ready_for_2p5d"] == bool(result["rayleigh_like_event_detected"])
     if not result["rayleigh_like_event_detected"]:
         assert result["ready_for_2p5d"] is False

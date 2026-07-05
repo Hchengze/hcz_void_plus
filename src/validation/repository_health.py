@@ -76,7 +76,7 @@ def build_repository_health_report(repo_root: Path, latest_stable_dir: Path) -> 
     return {
         "head_commit": head,
         "latest_stable_summary_commit": summary_commit,
-        "latest_stable_stage5g": "Stage 5G" in (latest / "summary.md").read_text(encoding="utf-8")
+        "latest_stable_stage5h": "Stage 5H" in (latest / "summary.md").read_text(encoding="utf-8")
         if (latest / "summary.md").exists()
         else False,
         "latest_stable_old_stage_marker": any(
@@ -110,7 +110,7 @@ def write_repository_health_report(path: Path, result: dict[str, Any]) -> None:
         "",
         f"- 当前 HEAD commit：`{result['head_commit']}`",
         f"- latest_stable summary commit：`{result['latest_stable_summary_commit']}`",
-        f"- latest_stable 是否为 Stage 5G：`{result['latest_stable_stage5g']}`",
+        f"- latest_stable 是否为 Stage 5H：`{result['latest_stable_stage5h']}`",
         f"- latest_stable 是否混入旧阶段主结论：`{result['latest_stable_old_stage_marker']}`",
         f"- figures 根目录 PNG 数量：`{result['figures_root_png_count']}`",
         f"- reports 根目录 MD 数量：`{result['reports_root_md_count']}`",

@@ -87,3 +87,15 @@ Stage 5G 不继续堆功能，而是收敛输出体系并强化三维主线。
 - Rayleigh benchmark 未通过前，`ready_for_2p5d=False`，不得进入 2.5D。
 - DAS gauge 统一结论为 `nonzero_but_weak_not_for_default_localization`，不得默认用于定位。
 - 2D elastic 仍只是服务三维道路 DAS-like 场景的局部 validation，不能替代三维 x-y-h 定位。
+
+## Stage 5H 边界
+
+Stage 5H 不进入 2.5D，也不继续堆图，而是把 Stage 5G 成果修成可审计稳定成果。
+
+- summary 必须同时记录 `algorithm_commit`、`latest_stable_commit`、`previous_stage`、`source_run_dir` 和 `generated_time`。
+- latest_stable 必须生成 `metadata/latest_stable_tree_snapshot.txt` 和 `report_latest_stable_tree_snapshot.md`，以本地文件树为准。
+- manual review 清单必须只引用 `forward / localization / error_analysis` 三类目录中的当前精选图件和动图。
+- 三维图件必须明确表达道路范围、光纤线、震源点、异常体、候选体、高分区、推荐点或不确定性盒子，不能只是空 3D 坐标轴。
+- 三维图件必须说明：这是三维几何与定位表达，不代表当前 `elastic2d` 已是三维弹性正演。
+- Rayleigh benchmark 未通过时，只能解释 picked event 更像表面事件、体波、边界反射还是尾波/网格频散，不得写 Rayleigh 正演成功。
+- DAS gauge 弱响应必须说明旧相对指标可能为 0、绝对 RMS 弱非零，以及为什么仍禁止默认用于定位。

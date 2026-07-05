@@ -1,8 +1,8 @@
-# 当前状态：Stage 5G
+# 当前状态：Stage 5H
 
 ## 最新事实
 
-1. Stage 5F 已完成，当前进入 **Stage 5G：latest_stable 三类结果重构 + 图件中文化 + 动图整合 + 测试收缩 + 三维可视化增强**。
+1. Stage 5G 已完成，当前进入 **Stage 5H：Stage 5G 成果校验 + latest_stable 元数据修复 + 三维图件人工可读性增强 + Rayleigh/DAS 解释加固**。
 2. 当前 active velocity model 是 `layered`，不是 `uniform`。
 3. 当前 active forward engine 是 `layered_kinematic`，它仍是 straight-ray kinematic approximation。
 4. `elastic2d_prototype` 与 staggered-grid benchmark 都只属于 validation forward，不替代主定位 forward。
@@ -10,7 +10,7 @@
 6. Rayleigh-like benchmark 尚未通过；未通过前 `ready_for_2p5d=False`。
 7. DAS-like gauge strain 统一口径为 `nonzero_but_weak_not_for_default_localization`，不能默认用于定位。
 8. latest_stable 是当前精选成果目录，不是历史图件堆积目录。
-9. Stage 5G 将 latest_stable 收敛为 `forward / localization / error_analysis` 三类，并新增正演动图与三维定位图件。
+9. Stage 5G 已将 latest_stable 收敛为 `forward / localization / error_analysis` 三类；Stage 5H 在此基础上修复 algorithm/latest_stable commit 元数据、固化 tree snapshot，并建立 manual review readiness 报告。
 10. 三维场景仍是项目主问题：`source_xyz / receiver_xyz / candidate_xyz / x-y-depth high-score region` 必须保留。
 11. 2D elastic 只是服务三维道路 DAS-like 场景的局部物理验证，不得替代三维 x-y-h 定位。
 
@@ -40,7 +40,7 @@
 - `outputs/latest_stable/figures/localization/fig_3d_high_score_region.png`
 - `outputs/latest_stable/figures/localization/fig_recommended_location_3d.png`
 - `outputs/latest_stable/figures/localization/fig_3d_uncertainty_box.png`
-- `outputs/latest_stable/figures/error_analysis/fig_stage5g_status_badge.png`
+- `outputs/latest_stable/figures/error_analysis/fig_stage5h_status_badge.png`
 - `outputs/latest_stable/animations/forward/anim_multishot_forward_overview.gif`
 - `outputs/latest_stable/animations/forward/anim_single_shot_wavefield.gif`
 
