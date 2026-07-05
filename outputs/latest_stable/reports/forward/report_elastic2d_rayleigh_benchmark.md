@@ -11,6 +11,12 @@
 - best_free_surface_mode：`stress_zero_variant`
 - best_boundary_mode：`sponge_medium`
 - ready_for_2p5d：`False`
+- picked_event_interpretation：`likely_boundary_reflection_or_late_surface_coda`
+- likely_surface_wave_score：`0.18860776053413242`
+- likely_boundary_reflection_score：`0.25`
+- likely_body_wave_score：`0.2`
+- late_coda_score：`0.2`
+- failure_reason_ranked：`['boundary_reflection', 'body_wave_or_direct_leakage', 'late_coda_or_grid_dispersion', 'surface_wave_candidate']`
 
 | case | scheme | source | free_surface | boundary | velocity | expected | rel_error | detected | boundary_reflection |
 |---|---|---|---|---|---:|---|---:|---|---:|
@@ -25,5 +31,8 @@
 
 ## 结论边界
 
+最佳 case 仍不算通过，因为拾取速度没有落入保守 Rayleigh-like 速度范围，且误差仍高于当前 sanity check 门槛。
+当前拾取更可能是表面事件、体波泄漏、边界反射和尾波/网格频散的混合结果；具体排序见 failure_reason_ranked。
+速度偏差可能同时来自 free surface 近似、海绵边界反射、拾取窗口和小网格频散；下一步优先加固 free surface 与 PML，再做 source/receiver 标定。
 若 rayleigh_like_event_detected=False，则不得进入 2.5D 或把 elastic2d 写成 Rayleigh 正演成功。
 staggered-grid 本轮只是 benchmark validation engine，不是工业级模拟。

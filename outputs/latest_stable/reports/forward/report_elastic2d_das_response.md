@@ -17,14 +17,25 @@
 - das_gauge_final_status：`nonzero_but_weak_not_for_default_localization`。
 - default localization：`False`，当前不能默认使用 gauge strain。
 
+## Stage 5H 统一解释
+
+- 旧相对指标可能显示 0：strain_rms / point_rms 会被强 point receiver 分量和极小 gauge 有限差分同时压低。
+- 绝对弱响应检查能显示非零：Stage 5H 直接检查 velocity gauge strain RMS，并使用非零 receiver pair。
+- 非零不代表有效：当前仍未校准光纤切向方向、gauge length、仪器响应和真实接收道距。
+
 ## Stage 5E 非零响应检查
 
 - das_gauge_nonzero_status：`nonzero`。
 - best_velocity_gauge_case：`vertical_force_g0.5`。
 - best_velocity_gauge_rms：`5.40751067390065e-09`。
+- best_velocity_gauge_source_type：`vertical_force`。
+- best_velocity_gauge_length_m：`0.5`。
 - best_displacement_gauge_case：`vertical_force_g0.5`。
 - best_displacement_gauge_rms：`2.160818842329346e-11`。
 - default_localization_should_use_gauge_strain：`False`。
 - diagnosis：gauge strain 非零，但仍只属于 DAS-like validation，不是真实 DAS 仪器响应。
+- old_relative_metric_zero_reason：旧指标使用 strain_rms / point_rms，相对量会被强 point receiver 分量和极小 gauge 有限差分同时压低，格式化或阈值判断时可能显示为 0。
+- absolute_nonzero_reason：Stage 5H 改看 velocity gauge strain 的绝对 RMS，并使用非零 receiver pair；因此能识别弱非零响应，但这不等于已具备定位解释力。
+- required_for_real_das：`['光纤局部切向方向', 'gauge length 校准', '仪器响应', '真实接收道距', '弹性波场中合适的水平分量或轴向应变']`
 
 若 gauge strain 为零或很弱，必须明确禁止默认纳入定位；即使非零，也仍需真实 DAS gauge/方向/仪器响应校准。

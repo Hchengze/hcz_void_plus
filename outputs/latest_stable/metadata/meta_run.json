@@ -1,6 +1,6 @@
 {
   "project": "hcz_void_plus",
-  "stage": "Stage 5G latest_stable three-category curation and 3D visualization",
+  "stage": "Stage 5H metadata/manual-review hardening",
   "data_shape": {
     "order": "shot × time × channel",
     "shape": [
@@ -34,7 +34,7 @@
     "is_true_elastic_wavefield": false,
     "is_true_wave_equation_snapshot": false,
     "rayleigh_depth_sensitivity_included": true,
-    "forward_engine_note": "Stage 5G 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d/staggered 只作 validation，并新增三类 latest_stable、中文图件和三维可视化。"
+    "forward_engine_note": "Stage 5H 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；elastic2d/staggered 只作 validation，本轮加固 metadata、人工复查入口和 Rayleigh/DAS 解释。"
   },
   "physics": {
     "rayleigh_depth_sensitivity_enabled": true,
@@ -69,22 +69,22 @@
     "wavefield_info": {
       "snapshot_count": 12,
       "snapshot_files": [
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t000.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t001.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t002.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t003.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t004.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t005.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t006.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t007.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t008.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t009.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t010.png",
-        "outputs\\stage5g_run_20260705_015323\\snapshots\\snap_pseudo_wavefield_t011.png"
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t007.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t008.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t009.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t010.png",
+        "outputs\\stage5h_run_20260705_121825\\snapshots\\snap_pseudo_wavefield_t011.png"
       ],
       "animation": {
         "success": true,
-        "path": "outputs\\stage5g_run_20260705_015323\\animations\\anim_pseudo_wavefield.gif",
+        "path": "outputs\\stage5h_run_20260705_121825\\animations\\anim_pseudo_wavefield.gif",
         "reason": null
       }
     }
@@ -281,76 +281,76 @@
     }
   },
   "diagnostics": {
-    "diffraction_travel_time_curve_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_diffraction_travel_time_curves.png",
-    "path_section_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_source_anomaly_receiver_path_section.png",
-    "depth_sensitivity_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_rayleigh_depth_sensitivity.png",
-    "raw_vs_weighted_best_location_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_raw_vs_weighted_best_location.png",
-    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
-    "y_high_score_width_check_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_y_high_score_width_check.png",
-    "score_method_depth_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_score_method_depth_comparison.png",
-    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_3d_high_score_uncertainty_summary.png",
-    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_x_y_depth_uncertainty_slices.png",
-    "multi_attribute_score_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_multi_attribute_score_comparison.png",
-    "depth_prior_sensitivity_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_depth_prior_sensitivity.png",
-    "preprocessing_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_preprocessing_comparison.png",
-    "preprocessing_ablation_summary_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_preprocessing_ablation_summary.png",
-    "fk_spectrum_before_after_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_fk_spectrum_before_after.png",
-    "fk_filter_effect_on_gather_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_fk_filter_effect_on_gather.png",
-    "matched_wavelet_score_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_matched_wavelet_score_comparison.png",
-    "semblance_score_volume_slice_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_semblance_score_volume_slice.png",
-    "frequency_shift_attribute_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_frequency_shift_attribute.png",
-    "geometry_ablation_best_locations_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_geometry_ablation_best_locations.png",
-    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_geometry_ablation_uncertainty_spans.png",
-    "multi_attribute_ablation_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_multi_attribute_ablation.png",
-    "3d_high_score_components_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_3d_high_score_components.png",
-    "recommendation_decision_flow_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_recommendation_decision_flow.png",
-    "velocity_model_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_velocity_model_comparison.png",
-    "layered_velocity_profile_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_layered_velocity_profile.png",
-    "velocity_model_travel_time_residuals_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_velocity_model_travel_time_residuals.png",
-    "model_mismatch_error_summary_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_model_mismatch_error_summary.png",
-    "forward_engine_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_forward_engine_comparison.png",
-    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
-    "forward_roadmap_status_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_forward_roadmap_status.png",
-    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_acoustic2d_wavefield_snapshots.png",
-    "acoustic2d_shot_gather_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_acoustic2d_shot_gather.png",
-    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
-    "elastic2d_surface_gather_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_surface_gather.png",
-    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
-    "elastic2d_void_scattering_residual_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_void_scattering_residual.png",
-    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_void_diffraction_overlay.png",
-    "elastic2d_das_gauge_response_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_gauge_response.png",
-    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic_vs_kinematic_overlay.png",
-    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
-    "velocity_model_profile_current_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_velocity_model_profile_current.png",
-    "velocity_model_2d_slice_current_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_velocity_model_2d_slice_current.png",
-    "velocity_sampling_paths_current_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_velocity_sampling_paths_current.png",
-    "uniform_vs_layered_travel_time_difference_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
-    "velocity_model_active_badge_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_velocity_model_active_badge.png",
-    "elastic2d_rayleigh_pick_diagnostics_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
-    "elastic2d_void_parameter_sensitivity_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
-    "elastic2d_void_residual_energy_map_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_void_residual_energy_map.png",
-    "elastic2d_das_component_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_component_comparison.png",
-    "elastic2d_das_gauge_length_sensitivity_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
-    "elastic_vs_kinematic_energy_partition_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
-    "stage5e_status_badge_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_stage5e_status_badge.png",
-    "elastic2d_numerical_sensitivity_summary_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_numerical_sensitivity_summary.png",
-    "elastic2d_rayleigh_pick_case_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_rayleigh_pick_case_comparison.png",
-    "elastic2d_das_response_nonzero_check_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_response_nonzero_check.png",
-    "elastic2d_das_force_direction_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_force_direction_comparison.png",
-    "rayleigh_equivalent_vs_elastic_velocity_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_rayleigh_equivalent_vs_elastic_velocity.png",
-    "elastic_vp_vs_rho_model_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic_vp_vs_rho_model.png",
-    "velocity_model_physics_bridge_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_velocity_model_physics_bridge.png",
-    "stage5f_status_badge_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_stage5f_status_badge.png",
-    "elastic2d_rayleigh_benchmark_matrix_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
-    "elastic2d_rayleigh_velocity_error_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
-    "elastic2d_surface_event_ridge_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_surface_event_ridge.png",
-    "elastic2d_free_surface_mode_comparison_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_free_surface_mode_comparison.png",
-    "elastic2d_boundary_reflection_diagnostics_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
-    "elastic2d_das_staggered_vs_collocated_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_staggered_vs_collocated.png",
-    "elastic2d_das_best_case_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_best_case.png",
-    "elastic2d_das_report_consistency_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_elastic2d_das_report_consistency.png",
-    "bridge_derived_elastic_parameters_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_bridge_derived_elastic_parameters.png",
-    "latest_stable_quality_summary_figure": "outputs\\stage5g_run_20260705_015323\\figures\\fig_latest_stable_quality_summary.png"
+    "diffraction_travel_time_curve_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_rayleigh_depth_sensitivity.png",
+    "raw_vs_weighted_best_location_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_raw_vs_weighted_best_location.png",
+    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
+    "y_high_score_width_check_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_y_high_score_width_check.png",
+    "score_method_depth_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_score_method_depth_comparison.png",
+    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_3d_high_score_uncertainty_summary.png",
+    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_x_y_depth_uncertainty_slices.png",
+    "multi_attribute_score_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_multi_attribute_score_comparison.png",
+    "depth_prior_sensitivity_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_depth_prior_sensitivity.png",
+    "preprocessing_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_preprocessing_comparison.png",
+    "preprocessing_ablation_summary_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_preprocessing_ablation_summary.png",
+    "fk_spectrum_before_after_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_fk_spectrum_before_after.png",
+    "fk_filter_effect_on_gather_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_fk_filter_effect_on_gather.png",
+    "matched_wavelet_score_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_matched_wavelet_score_comparison.png",
+    "semblance_score_volume_slice_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_semblance_score_volume_slice.png",
+    "frequency_shift_attribute_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_frequency_shift_attribute.png",
+    "geometry_ablation_best_locations_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_geometry_ablation_best_locations.png",
+    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_geometry_ablation_uncertainty_spans.png",
+    "multi_attribute_ablation_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_multi_attribute_ablation.png",
+    "3d_high_score_components_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_3d_high_score_components.png",
+    "recommendation_decision_flow_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_recommendation_decision_flow.png",
+    "velocity_model_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_comparison.png",
+    "layered_velocity_profile_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_layered_velocity_profile.png",
+    "velocity_model_travel_time_residuals_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_travel_time_residuals.png",
+    "model_mismatch_error_summary_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_model_mismatch_error_summary.png",
+    "forward_engine_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_forward_engine_comparison.png",
+    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
+    "forward_roadmap_status_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_forward_roadmap_status.png",
+    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_acoustic2d_wavefield_snapshots.png",
+    "acoustic2d_shot_gather_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_acoustic2d_shot_gather.png",
+    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
+    "elastic2d_surface_gather_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_surface_gather.png",
+    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
+    "elastic2d_void_scattering_residual_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_void_scattering_residual.png",
+    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_void_diffraction_overlay.png",
+    "elastic2d_das_gauge_response_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_gauge_response.png",
+    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic_vs_kinematic_overlay.png",
+    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
+    "velocity_model_profile_current_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_profile_current.png",
+    "velocity_model_2d_slice_current_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_2d_slice_current.png",
+    "velocity_sampling_paths_current_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_sampling_paths_current.png",
+    "uniform_vs_layered_travel_time_difference_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
+    "velocity_model_active_badge_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_active_badge.png",
+    "elastic2d_rayleigh_pick_diagnostics_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
+    "elastic2d_void_parameter_sensitivity_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
+    "elastic2d_void_residual_energy_map_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_void_residual_energy_map.png",
+    "elastic2d_das_component_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_component_comparison.png",
+    "elastic2d_das_gauge_length_sensitivity_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
+    "elastic_vs_kinematic_energy_partition_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
+    "stage5e_status_badge_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_stage5e_status_badge.png",
+    "elastic2d_numerical_sensitivity_summary_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_numerical_sensitivity_summary.png",
+    "elastic2d_rayleigh_pick_case_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_pick_case_comparison.png",
+    "elastic2d_das_response_nonzero_check_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_response_nonzero_check.png",
+    "elastic2d_das_force_direction_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_force_direction_comparison.png",
+    "rayleigh_equivalent_vs_elastic_velocity_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_rayleigh_equivalent_vs_elastic_velocity.png",
+    "elastic_vp_vs_rho_model_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic_vp_vs_rho_model.png",
+    "velocity_model_physics_bridge_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_physics_bridge.png",
+    "stage5f_status_badge_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_stage5f_status_badge.png",
+    "elastic2d_rayleigh_benchmark_matrix_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
+    "elastic2d_rayleigh_velocity_error_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
+    "elastic2d_surface_event_ridge_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_surface_event_ridge.png",
+    "elastic2d_free_surface_mode_comparison_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_free_surface_mode_comparison.png",
+    "elastic2d_boundary_reflection_diagnostics_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
+    "elastic2d_das_staggered_vs_collocated_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_staggered_vs_collocated.png",
+    "elastic2d_das_best_case_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_best_case.png",
+    "elastic2d_das_report_consistency_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_report_consistency.png",
+    "bridge_derived_elastic_parameters_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_bridge_derived_elastic_parameters.png",
+    "latest_stable_quality_summary_figure": "outputs\\stage5h_run_20260705_121825\\figures\\fig_latest_stable_quality_summary.png"
   },
   "confidence": {
     "peak_sharpness": 2.0599457066651934,
@@ -427,7 +427,7 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "128d807",
+    "commit_id": "516bf41",
     "push_attempted": true,
     "push_success": false
   },
@@ -2027,9 +2027,20 @@
         "best_displacement_gauge_case": "vertical_force_g0.5",
         "best_velocity_gauge_rms": 5.40751067390065e-09,
         "best_displacement_gauge_rms": 2.160818842329346e-11,
+        "best_velocity_gauge_source_type": "vertical_force",
+        "best_velocity_gauge_length_m": 0.5,
         "das_gauge_nonzero_status": "nonzero",
         "default_localization_should_use_gauge_strain": false,
         "diagnosis": "gauge strain 非零，但仍只属于 DAS-like validation，不是真实 DAS 仪器响应。",
+        "old_relative_metric_zero_reason": "旧指标使用 strain_rms / point_rms，相对量会被强 point receiver 分量和极小 gauge 有限差分同时压低，格式化或阈值判断时可能显示为 0。",
+        "absolute_nonzero_reason": "Stage 5H 改看 velocity gauge strain 的绝对 RMS，并使用非零 receiver pair；因此能识别弱非零响应，但这不等于已具备定位解释力。",
+        "required_for_real_das": [
+          "光纤局部切向方向",
+          "gauge length 校准",
+          "仪器响应",
+          "真实接收道距",
+          "弹性波场中合适的水平分量或轴向应变"
+        ],
         "threshold": 1e-18,
         "note": "即使 gauge strain 非零，也必须经过真实 DAS gauge/方向/仪器响应校准后才能用于主定位。"
       }
@@ -2415,9 +2426,20 @@
         "best_displacement_gauge_case": "vertical_force_g0.5",
         "best_velocity_gauge_rms": 5.40751067390065e-09,
         "best_displacement_gauge_rms": 2.160818842329346e-11,
+        "best_velocity_gauge_source_type": "vertical_force",
+        "best_velocity_gauge_length_m": 0.5,
         "das_gauge_nonzero_status": "nonzero",
         "default_localization_should_use_gauge_strain": false,
         "diagnosis": "gauge strain 非零，但仍只属于 DAS-like validation，不是真实 DAS 仪器响应。",
+        "old_relative_metric_zero_reason": "旧指标使用 strain_rms / point_rms，相对量会被强 point receiver 分量和极小 gauge 有限差分同时压低，格式化或阈值判断时可能显示为 0。",
+        "absolute_nonzero_reason": "Stage 5H 改看 velocity gauge strain 的绝对 RMS，并使用非零 receiver pair；因此能识别弱非零响应，但这不等于已具备定位解释力。",
+        "required_for_real_das": [
+          "光纤局部切向方向",
+          "gauge length 校准",
+          "仪器响应",
+          "真实接收道距",
+          "弹性波场中合适的水平分量或轴向应变"
+        ],
         "threshold": 1e-18,
         "note": "即使 gauge strain 非零，也必须经过真实 DAS gauge/方向/仪器响应校准后才能用于主定位。"
       }
@@ -2810,9 +2832,20 @@
       "best_displacement_gauge_case": "vertical_force_g0.5",
       "best_velocity_gauge_rms": 5.40751067390065e-09,
       "best_displacement_gauge_rms": 2.160818842329346e-11,
+      "best_velocity_gauge_source_type": "vertical_force",
+      "best_velocity_gauge_length_m": 0.5,
       "das_gauge_nonzero_status": "nonzero",
       "default_localization_should_use_gauge_strain": false,
       "diagnosis": "gauge strain 非零，但仍只属于 DAS-like validation，不是真实 DAS 仪器响应。",
+      "old_relative_metric_zero_reason": "旧指标使用 strain_rms / point_rms，相对量会被强 point receiver 分量和极小 gauge 有限差分同时压低，格式化或阈值判断时可能显示为 0。",
+      "absolute_nonzero_reason": "Stage 5H 改看 velocity gauge strain 的绝对 RMS，并使用非零 receiver pair；因此能识别弱非零响应，但这不等于已具备定位解释力。",
+      "required_for_real_das": [
+        "光纤局部切向方向",
+        "gauge length 校准",
+        "仪器响应",
+        "真实接收道距",
+        "弹性波场中合适的水平分量或轴向应变"
+      ],
       "threshold": 1e-18,
       "note": "即使 gauge strain 非零，也必须经过真实 DAS gauge/方向/仪器响应校准后才能用于主定位。"
     },
@@ -2824,7 +2857,7 @@
   },
   "stage5f_validation": {
     "elastic2d_rayleigh_benchmark": {
-      "stage": "Stage 5G",
+      "stage": "Stage 5H",
       "cases": {
         "collocated_vertical": {
           "name": "collocated_vertical",
@@ -2957,7 +2990,9 @@
             0.03311381056296602
           ],
           "surface_event_energy": 4.3982730100334695e-12,
+          "body_wave_leakage_indicator": 7.201017855489217e-07,
           "boundary_reflection_indicator": 0.4511077926415965,
+          "late_coda_indicator": 0.8218524118423693,
           "max_amplitude": 3.688216435635537e-08,
           "gauge_metric": 2.6316423651052764e-09
         },
@@ -3092,7 +3127,9 @@
             0.03311381056296602
           ],
           "surface_event_energy": 5.606655870283591e-13,
+          "body_wave_leakage_indicator": 4.5274875487395635e-06,
           "boundary_reflection_indicator": 0.3443054143959791,
+          "late_coda_indicator": 0.5251039117247361,
           "max_amplitude": 1.4068548495363135e-08,
           "gauge_metric": 5.648471512793432e-26
         },
@@ -3227,7 +3264,9 @@
             0.03311381056296602
           ],
           "surface_event_energy": 3.821897083759135e-13,
+          "body_wave_leakage_indicator": 1.4927091027567002e-06,
           "boundary_reflection_indicator": 0.1969142076198991,
+          "late_coda_indicator": 0.24519743157794208,
           "max_amplitude": 1.0481189507430301e-08,
           "gauge_metric": 1.4320783720972956e-25
         },
@@ -3362,7 +3401,9 @@
             0.03311381056296602
           ],
           "surface_event_energy": 4.724754788237807e-13,
+          "body_wave_leakage_indicator": 5.397783679934151e-06,
           "boundary_reflection_indicator": 0.3419982427733688,
+          "late_coda_indicator": 0.5197570440403331,
           "max_amplitude": 1.2774226656326846e-08,
           "gauge_metric": 4.803503604995551e-19
         },
@@ -3497,7 +3538,9 @@
             0.03312653848502738
           ],
           "surface_event_energy": 8.187833985342137e-13,
+          "body_wave_leakage_indicator": 1.5039150214485252e-05,
           "boundary_reflection_indicator": 0.29165308161984277,
+          "late_coda_indicator": 0.41174637224701927,
           "max_amplitude": 1.5244882888423848e-08,
           "gauge_metric": 4.0445703693349094e-10
         },
@@ -3632,7 +3675,9 @@
             0.03312653848502738
           ],
           "surface_event_energy": 4.0068503557353136e-14,
+          "body_wave_leakage_indicator": 9.583351720375094e-06,
           "boundary_reflection_indicator": 0.2904383411469343,
+          "late_coda_indicator": 0.40932632173857075,
           "max_amplitude": 2.084418236614683e-09,
           "gauge_metric": 1.077141454306898e-10
         },
@@ -3767,7 +3812,9 @@
             0.021134007476103535
           ],
           "surface_event_energy": 0.0,
+          "body_wave_leakage_indicator": 0.0,
           "boundary_reflection_indicator": 0.0,
+          "late_coda_indicator": 0.0,
           "max_amplitude": 0.0,
           "gauge_metric": 1.5470274121573893e-10
         },
@@ -3902,7 +3949,9 @@
             0.03312653848502738
           ],
           "surface_event_energy": 4.0830091092390875e-14,
+          "body_wave_leakage_indicator": 9.414267763922475e-06,
           "boundary_reflection_indicator": 0.28682905246396345,
+          "late_coda_indicator": 0.40219366733015577,
           "max_amplitude": 2.105852731693189e-09,
           "gauge_metric": 1.0598419277746637e-10
         }
@@ -4041,7 +4090,9 @@
           0.021134007476103535
         ],
         "surface_event_energy": 0.0,
+        "body_wave_leakage_indicator": 0.0,
         "boundary_reflection_indicator": 0.0,
+        "late_coda_indicator": 0.0,
         "max_amplitude": 0.0,
         "gauge_metric": 1.5470274121573893e-10
       },
@@ -4050,6 +4101,17 @@
       "best_source_type": "horizontal_force",
       "rayleigh_like_event_detected": false,
       "rayleigh_velocity_relative_error": 0.2028480598664669,
+      "picked_event_interpretation": "likely_boundary_reflection_or_late_surface_coda",
+      "likely_surface_wave_score": 0.18860776053413242,
+      "likely_boundary_reflection_score": 0.25,
+      "likely_body_wave_score": 0.2,
+      "late_coda_score": 0.2,
+      "failure_reason_ranked": [
+        "boundary_reflection",
+        "body_wave_or_direct_leakage",
+        "late_coda_or_grid_dispersion",
+        "surface_wave_candidate"
+      ],
       "staggered_grid_status": "implemented_minimal_validation",
       "ready_for_2p5d": false,
       "note": "该 benchmark 是小网格 Rayleigh-like sanity check，不是工业级 Rayleigh 正演。"
@@ -4070,5 +4132,18 @@
     "animations_required": true,
     "ready_for_2p5d": false,
     "das_gauge_default_localization": false
-  }
+  },
+  "stage5h_validation": {
+    "metadata_consistency": true,
+    "tree_snapshot_required": true,
+    "manual_review_readiness_required": true,
+    "ready_for_2p5d": false
+  },
+  "previous_stage": "Stage 5G",
+  "algorithm_commit": "516bf41",
+  "latest_stable_commit": "generated_from_algorithm_commit",
+  "previous_latest_stable_commit": "4a7eeb1",
+  "source_run_dir": "outputs\\stage5h_run_20260705_121825",
+  "generated_time": "2026-07-05T12:19:19",
+  "ready_for_2p5d": false
 }

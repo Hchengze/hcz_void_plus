@@ -1,11 +1,15 @@
-# latest_stable Stage 5G 摘要
+# latest_stable Stage 5H 摘要
 
 ## 当前阶段
 
-- stage = Stage 5G
-- commit id：`128d807`
-- 任务名称：`Stage 5G latest_stable 三类结果重构 + 图件中文化 + 动图整合 + 三维可视化增强`
-- 运行时间：`2026-07-05T01:54:17`
+- stage = Stage 5H
+- previous_stage = Stage 5G
+- algorithm_commit = `516bf41`
+- latest_stable_commit = `generated_from_algorithm_commit`
+- previous_latest_stable_commit = `4a7eeb1`
+- source_run_dir = `outputs\stage5h_run_20260705_121825`
+- generated_time = `2026-07-05T12:19:19`
+- 任务名称：`Stage 5H Stage 5G 成果校验 + metadata 修复 + 人工复查入口加固`
 - active_velocity_model = `layered`
 - active_forward_engine = `layered_kinematic`
 - validation_forward = `elastic2d/staggered`
@@ -18,7 +22,9 @@
 - error_analysis 图件数：`7`
 - 静态图总数：`23`
 - 动图总数：`2`
-- 报告总数：`12`
+- 报告总数：`10`
+- latest_stable_tree_snapshot_status：`pass`
+- manual_review_readiness_status：`pass`
 
 ## 三维定位结论
 
@@ -32,7 +38,14 @@
 - best_rayleigh_benchmark_case：`staggered_traction_variant`
 - rayleigh_like_event_detected：`False`
 - rayleigh_velocity_relative_error：`0.2028480598664669`
+- picked_event_interpretation：`likely_boundary_reflection_or_late_surface_coda`
+- likely_surface_wave_score：`0.18860776053413242`
+- likely_boundary_reflection_score：`0.25`
+- likely_body_wave_score：`0.2`
+- late_coda_score：`0.2`
+- failure_reason_ranked：`['boundary_reflection', 'body_wave_or_direct_leakage', 'late_coda_or_grid_dispersion', 'surface_wave_candidate']`
 - das_gauge_final_status：`nonzero_but_weak_not_for_default_localization`
+- das_best_velocity_gauge_rms：`5.40751067390065e-09`
 - DAS gauge 默认定位使用：`False`
 
 ## 图件质量与中文化
@@ -46,6 +59,13 @@
 - figure_label_audit_status：`pass`
 - english_case_label_count：`0`
 
+## 人工复查准备度
+
+- manual_review_figure_count：`10`
+- manual_review_animation_count：`2`
+- required_3d_figures_present：`True`
+- required_animations_present：`True`
+
 ## manual_review_figures
 
 - figures/forward/fig_geometry_3d_overview.png
@@ -57,7 +77,7 @@
 - figures/localization/fig_3d_high_score_region.png
 - figures/localization/fig_recommended_location_3d.png
 - figures/localization/fig_3d_uncertainty_box.png
-- figures/error_analysis/fig_stage5g_status_badge.png
+- figures/error_analysis/fig_stage5h_status_badge.png
 
 ## manual_review_animations
 
@@ -74,5 +94,5 @@
 
 ## 导出记录
 
-- copied：`43`
+- copied：`44`
 - missing：`0`
