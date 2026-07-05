@@ -1,14 +1,14 @@
-﻿# latest_stable Stage 5H 摘要
+# latest_stable Stage 5H 摘要
 
 ## 当前阶段
 
 - stage = Stage 5H
 - previous_stage = Stage 5G
 - algorithm_commit = `516bf41`
-- latest_stable_commit = `aa8ffd9`
+- latest_stable_commit = `448c700`
 - previous_latest_stable_commit = `4a7eeb1`
-- source_run_dir = `outputs\stage5h_run_20260705_121825`
-- generated_time = `2026-07-05T12:19:19`
+- source_run_dir = `outputs\stage5h_run_20260705_122432`
+- generated_time = `2026-07-05T12:25:29`
 - 任务名称：`Stage 5H Stage 5G 成果校验 + metadata 修复 + 人工复查入口加固`
 - active_velocity_model = `layered`
 - active_forward_engine = `layered_kinematic`

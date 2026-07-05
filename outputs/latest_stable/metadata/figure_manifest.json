@@ -6,7 +6,7 @@
   "items": [
     {
       "filename": "fig_geometry_3d_overview.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_geometry_3d_overview.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_geometry_3d_overview.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -25,7 +25,7 @@
     },
     {
       "filename": "fig_velocity_model_active_badge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_active_badge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_velocity_model_active_badge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -44,7 +44,7 @@
     },
     {
       "filename": "fig_velocity_model_physics_bridge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_physics_bridge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_velocity_model_physics_bridge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -63,7 +63,7 @@
     },
     {
       "filename": "fig_velocity_sampling_paths_3d.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_sampling_paths_3d.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_velocity_sampling_paths_3d.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -82,7 +82,7 @@
     },
     {
       "filename": "fig_elastic2d_rayleigh_benchmark_matrix.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -101,7 +101,7 @@
     },
     {
       "filename": "fig_elastic2d_rayleigh_velocity_error.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -120,7 +120,7 @@
     },
     {
       "filename": "fig_elastic2d_surface_event_ridge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_surface_event_ridge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_surface_event_ridge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -139,7 +139,7 @@
     },
     {
       "filename": "fig_elastic2d_das_best_case.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_best_case.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_das_best_case.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -158,7 +158,7 @@
     },
     {
       "filename": "fig_single_shot_wavefield_snapshots.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_single_shot_wavefield_snapshots.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_single_shot_wavefield_snapshots.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -177,7 +177,7 @@
     },
     {
       "filename": "fig_elastic2d_boundary_reflection_diagnostics.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -196,7 +196,7 @@
     },
     {
       "filename": "fig_scan_x_y_slice.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_scan_x_y_slice.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_scan_x_y_slice.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -215,7 +215,7 @@
     },
     {
       "filename": "fig_scan_x_depth_slice.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_scan_x_depth_slice.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_scan_x_depth_slice.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -234,7 +234,7 @@
     },
     {
       "filename": "fig_3d_high_score_region.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_3d_high_score_region.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_3d_high_score_region.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -253,7 +253,7 @@
     },
     {
       "filename": "fig_recommended_location_3d.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_recommended_location_3d.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_recommended_location_3d.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -272,7 +272,7 @@
     },
     {
       "filename": "fig_3d_uncertainty_box.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_3d_uncertainty_box.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_3d_uncertainty_box.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -291,7 +291,7 @@
     },
     {
       "filename": "fig_x_y_depth_uncertainty_slices.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_x_y_depth_uncertainty_slices.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_x_y_depth_uncertainty_slices.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -310,7 +310,7 @@
     },
     {
       "filename": "fig_stage5h_status_badge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_stage5h_status_badge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_stage5h_status_badge.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -329,7 +329,7 @@
     },
     {
       "filename": "fig_latest_stable_quality_summary.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_latest_stable_quality_summary.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_latest_stable_quality_summary.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -348,7 +348,7 @@
     },
     {
       "filename": "fig_rayleigh_pick_interpretation.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_rayleigh_pick_interpretation.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_rayleigh_pick_interpretation.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -367,7 +367,7 @@
     },
     {
       "filename": "fig_elastic2d_das_report_consistency.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_report_consistency.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_das_report_consistency.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -386,7 +386,7 @@
     },
     {
       "filename": "fig_elastic_vs_kinematic_energy_partition.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -405,7 +405,7 @@
     },
     {
       "filename": "fig_confidence_diagnostics.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_confidence_diagnostics.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_confidence_diagnostics.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -424,7 +424,7 @@
     },
     {
       "filename": "fig_model_mismatch_error_summary.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_model_mismatch_error_summary.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_model_mismatch_error_summary.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -445,7 +445,7 @@
   "passed_items": [
     {
       "filename": "fig_geometry_3d_overview.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_geometry_3d_overview.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_geometry_3d_overview.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -464,7 +464,7 @@
     },
     {
       "filename": "fig_velocity_model_active_badge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_active_badge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_velocity_model_active_badge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -483,7 +483,7 @@
     },
     {
       "filename": "fig_velocity_model_physics_bridge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_model_physics_bridge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_velocity_model_physics_bridge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -502,7 +502,7 @@
     },
     {
       "filename": "fig_velocity_sampling_paths_3d.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_velocity_sampling_paths_3d.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_velocity_sampling_paths_3d.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -521,7 +521,7 @@
     },
     {
       "filename": "fig_elastic2d_rayleigh_benchmark_matrix.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -540,7 +540,7 @@
     },
     {
       "filename": "fig_elastic2d_rayleigh_velocity_error.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -559,7 +559,7 @@
     },
     {
       "filename": "fig_elastic2d_surface_event_ridge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_surface_event_ridge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_surface_event_ridge.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -578,7 +578,7 @@
     },
     {
       "filename": "fig_elastic2d_das_best_case.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_best_case.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_das_best_case.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -597,7 +597,7 @@
     },
     {
       "filename": "fig_single_shot_wavefield_snapshots.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_single_shot_wavefield_snapshots.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_single_shot_wavefield_snapshots.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -616,7 +616,7 @@
     },
     {
       "filename": "fig_elastic2d_boundary_reflection_diagnostics.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
       "category": "forward",
       "passed": true,
       "reasons": [],
@@ -635,7 +635,7 @@
     },
     {
       "filename": "fig_scan_x_y_slice.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_scan_x_y_slice.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_scan_x_y_slice.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -654,7 +654,7 @@
     },
     {
       "filename": "fig_scan_x_depth_slice.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_scan_x_depth_slice.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_scan_x_depth_slice.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -673,7 +673,7 @@
     },
     {
       "filename": "fig_3d_high_score_region.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_3d_high_score_region.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_3d_high_score_region.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -692,7 +692,7 @@
     },
     {
       "filename": "fig_recommended_location_3d.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_recommended_location_3d.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_recommended_location_3d.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -711,7 +711,7 @@
     },
     {
       "filename": "fig_3d_uncertainty_box.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_3d_uncertainty_box.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_3d_uncertainty_box.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -730,7 +730,7 @@
     },
     {
       "filename": "fig_x_y_depth_uncertainty_slices.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_x_y_depth_uncertainty_slices.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_x_y_depth_uncertainty_slices.png",
       "category": "localization",
       "passed": true,
       "reasons": [],
@@ -749,7 +749,7 @@
     },
     {
       "filename": "fig_stage5h_status_badge.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_stage5h_status_badge.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_stage5h_status_badge.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -768,7 +768,7 @@
     },
     {
       "filename": "fig_latest_stable_quality_summary.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_latest_stable_quality_summary.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_latest_stable_quality_summary.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -787,7 +787,7 @@
     },
     {
       "filename": "fig_rayleigh_pick_interpretation.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_rayleigh_pick_interpretation.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_rayleigh_pick_interpretation.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -806,7 +806,7 @@
     },
     {
       "filename": "fig_elastic2d_das_report_consistency.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic2d_das_report_consistency.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic2d_das_report_consistency.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -825,7 +825,7 @@
     },
     {
       "filename": "fig_elastic_vs_kinematic_energy_partition.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -844,7 +844,7 @@
     },
     {
       "filename": "fig_confidence_diagnostics.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_confidence_diagnostics.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_confidence_diagnostics.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
@@ -863,7 +863,7 @@
     },
     {
       "filename": "fig_model_mismatch_error_summary.png",
-      "path": "outputs\\stage5h_run_20260705_121825\\figures\\fig_model_mismatch_error_summary.png",
+      "path": "outputs\\stage5h_run_20260705_122432\\figures\\fig_model_mismatch_error_summary.png",
       "category": "error_analysis",
       "passed": true,
       "reasons": [],
