@@ -1,8 +1,8 @@
 # manual review readiness 报告
 
-本报告检查 Stage 5H 的人工复查入口是否清晰、受控、真实存在。
+本报告检查 Stage 5I 的人工复查入口是否清晰、受控、真实存在。
 
-- stage：`Stage 5H`
+- stage：`Stage 5I`
 - manual_review_figures 数量：`10`
 - manual_review_animations 数量：`2`
 - 关键三维图齐全：`True`
@@ -11,7 +11,7 @@
 
 ## 人工建议查看顺序
 
-1. `figures/error_analysis/fig_stage5h_status_badge.png`
+1. `figures/error_analysis/fig_stage5i_status_badge.png`
 2. `figures/forward/fig_geometry_3d_overview.png`
 3. `animations/forward/anim_multishot_forward_overview.gif`
 4. `animations/forward/anim_single_shot_wavefield.gif`

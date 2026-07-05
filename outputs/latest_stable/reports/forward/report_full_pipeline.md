@@ -22,30 +22,30 @@
 - active score kind：`multi_attribute_unweighted`
 - scan score mode：`multi_attribute`
 - scan depth weighting：`True`
-- best_location：x=`60.0` m，y=`10.0` m，h=`2.5` m
-- truth_error distance：`1.118033988749895` m
+- best_location：x=`60.0` m，y=`6.0` m，h=`2.5` m
+- truth_error distance：`3.0413812651491097` m
 
 ## raw 与 weighted best 对比
 
-- unweighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
-- weighted_best：x=`60.0` m，y=`10.0` m，h=`2.5` m
+- unweighted_best：x=`60.0` m，y=`6.0` m，h=`2.5` m
+- weighted_best：x=`60.0` m，y=`6.0` m，h=`2.5` m
 - unweighted -> weighted 差异：dx=`0.0` m，dy=`0.0` m，dh=`0.0` m，三维距离=`0.0` m
 - depth_prior_bias_warning：`False`
 
 ## 推荐位置与三维不确定性
 
 - recommended_location_type：`uncertainty_interval`
-- recommended_location：`{'x_m': 60.0, 'y_m': 10.0, 'depth_m': 2.5, 'x_interval_m': [60.0, 60.0], 'y_interval_m': [8.0, 12.0], 'depth_interval_m': [2.5, 2.5], 'component_boxes': [{'point_count': 3, 'x_min_m': 60.0, 'x_max_m': 60.0, 'y_min_m': 8.0, 'y_max_m': 12.0, 'depth_min_m': 2.5, 'depth_max_m': 2.5, 'x_span_m': 0.0, 'y_span_m': 4.0, 'depth_span_m': 0.0}]}`
+- recommended_location：`{'x_m': 60.0, 'y_m': 6.0, 'depth_m': 2.5, 'x_interval_m': [56.0, 64.0], 'y_interval_m': [4.0, 16.0], 'depth_interval_m': [2.5, 3.5], 'component_boxes': [{'point_count': 20, 'x_min_m': 56.0, 'x_max_m': 64.0, 'y_min_m': 4.0, 'y_max_m': 16.0, 'depth_min_m': 2.5, 'depth_max_m': 3.5, 'x_span_m': 8.0, 'y_span_m': 12.0, 'depth_span_m': 1.0}]}`
 - recommended_reason：weighted_best 受到深度权重影响，或触发边界、宽 y、unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。
-- depth uncertainty interval：`[2.5, 2.5]` m
-- 3D high-score span：x=`0.0` m，y=`4.0` m，depth=`0.0` m
+- depth uncertainty interval：`[2.5, 3.5]` m
+- 3D high-score span：x=`8.0` m，y=`12.0` m，depth=`1.0` m
 
 ## 基础置信度分析
 
-- peak sharpness：`2.06`
-- score contrast：`8.188`
+- peak sharpness：`1.345`
+- score contrast：`4.05`
 - score percentile：`100.00%`
-- multi-shot consistency CV：`0.1279`
+- multi-shot consistency CV：`0.1101`
 - y-depth coupling warning：`False`
 - best_depth_at_boundary_warning：`False`
 - wide_y_high_score_zone_warning：`True`

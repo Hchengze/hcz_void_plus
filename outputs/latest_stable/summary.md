@@ -1,26 +1,38 @@
-# latest_stable Stage 5H 摘要
+# latest_stable Stage 5I 摘要
 
 ## 当前阶段
 
-- stage = Stage 5H
-- previous_stage = Stage 5G
-- algorithm_commit = `516bf41`
-- latest_stable_commit = `448c700`
-- previous_latest_stable_commit = `4a7eeb1`
-- source_run_dir = `outputs\stage5h_run_20260705_122432`
-- generated_time = `2026-07-05T12:25:29`
-- 任务名称：`Stage 5H Stage 5G 成果校验 + metadata 修复 + 人工复查入口加固`
+- stage = Stage 5I
+- previous_stage = Stage 5H
+- algorithm_commit = `a202fee`
+- latest_stable_commit = `generated_from_algorithm_commit`
+- previous_latest_stable_commit = `a202fee`
+- source_run_dir = `outputs\stage5i_run_20260705_132534`
+- generated_time = `2026-07-05T13:27:40`
+- 任务名称：`Stage 5I 三维运动学正演-定位一致性修复 + 三维多属性反演增强`
 - active_velocity_model = `layered`
 - active_forward_engine = `layered_kinematic`
 - validation_forward = `elastic2d/staggered`
 - ready_for_2p5d = `False`
 
+## Stage 5I 三维反演主线
+
+- scan_candidate_uses_path_integration = `True`
+- scan_uses_representative_velocity = `False`
+- multi_attribute_inversion_enabled = `True`
+- posterior_volume_status = `generated`
+- posterior_peak_location = `{'x_m': 52.0, 'y_m': 12.0, 'depth_m': 2.5}`
+- posterior_mean_location = `{'x_m': 65.32635052587617, 'y_m': 10.068445559182855, 'depth_m': 3.9003988407759906}`
+- posterior_uncertainty_axes = `[26.986846401825968, 5.142243049077285, 1.706998715345629]`
+- geometry_resolution_status = `computed`
+- ambiguity_warning = `True`
+
 ## 三类精选结果
 
 - forward 图件数：`10`
-- localization 图件数：`6`
+- localization 图件数：`7`
 - error_analysis 图件数：`7`
-- 静态图总数：`23`
+- 静态图总数：`24`
 - 动图总数：`2`
 - 报告总数：`10`
 - latest_stable_tree_snapshot_status：`pass`
@@ -28,10 +40,10 @@
 
 ## 三维定位结论
 
-- recommended/best location：x=`60.0` m, y=`10.0` m, depth=`2.5` m
-- truth_error：`1.118033988749895` m
-- 3D high-score span：x=`0.0` m, y=`4.0` m, depth=`0.0` m
-- high-score point count：`3`
+- recommended/best location：x=`60.0` m, y=`6.0` m, depth=`2.5` m
+- truth_error：`3.0413812651491097` m
+- 3D high-score span：x=`8.0` m, y=`12.0` m, depth=`1.0` m
+- high-score point count：`20`
 
 ## Rayleigh 与 DAS 状态
 
@@ -77,7 +89,7 @@
 - figures/localization/fig_3d_high_score_region.png
 - figures/localization/fig_recommended_location_3d.png
 - figures/localization/fig_3d_uncertainty_box.png
-- figures/error_analysis/fig_stage5h_status_badge.png
+- figures/error_analysis/fig_stage5i_status_badge.png
 
 ## manual_review_animations
 
@@ -94,5 +106,5 @@
 
 ## 导出记录
 
-- copied：`44`
+- copied：`45`
 - missing：`0`
