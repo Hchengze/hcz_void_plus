@@ -1,8 +1,8 @@
 # manual review readiness 报告
 
-本报告检查 Stage 5I 的人工复查入口是否清晰、受控、真实存在。
+本报告检查 Stage 5J 的人工复查入口是否清晰、受控、真实存在。
 
-- stage：`Stage 5I`
+- stage：`Stage 5J`
 - manual_review_figures 数量：`10`
 - manual_review_animations 数量：`2`
 - 关键三维图齐全：`True`
@@ -11,23 +11,23 @@
 
 ## 人工建议查看顺序
 
-1. `figures/error_analysis/fig_stage5i_status_badge.png`
+1. `figures/error_analysis/fig_stage5j_status_badge.png`
 2. `figures/forward/fig_geometry_3d_overview.png`
-3. `animations/forward/anim_multishot_forward_overview.gif`
-4. `animations/forward/anim_single_shot_wavefield.gif`
-5. `figures/forward/fig_velocity_model_active_badge.png`
-6. `figures/forward/fig_velocity_model_physics_bridge.png`
-7. `figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png`
-8. `figures/forward/fig_elastic2d_das_best_case.png`
-9. `figures/localization/fig_3d_high_score_region.png`
-10. `figures/localization/fig_recommended_location_3d.png`
-11. `figures/localization/fig_3d_uncertainty_box.png`
-12. `figures/error_analysis/fig_rayleigh_pick_interpretation.png`
+3. `figures/forward/fig_volume_wavefield_xyz_slices.png`
+4. `figures/forward/fig_volume_wavefield_3d_energy_proxy.png`
+5. `figures/forward/fig_shot_gather_with_velocity_model.png`
+6. `figures/forward/fig_shot_gather_attenuation_comparison.png`
+7. `figures/error_analysis/fig_forward_localization_consistency.png`
+8. `figures/localization/fig_3d_posterior_volume.png`
+9. `figures/localization/fig_3d_uncertainty_ellipsoid.png`
+10. `figures/error_analysis/fig_rayleigh_pick_interpretation.png`
+11. `animations/forward/anim_single_shot_volume_wavefield.gif`
+12. `animations/forward/anim_multishot_forward_overview.gif`
 
 ## 动图大小
 
-- `animations/forward/anim_multishot_forward_overview.gif`：`517286` bytes
-- `animations/forward/anim_single_shot_wavefield.gif`：`511043` bytes
+- `animations/forward/anim_single_shot_volume_wavefield.gif`：`223027` bytes
+- `animations/forward/anim_multishot_forward_overview.gif`：`509774` bytes
 
 ## warnings
 

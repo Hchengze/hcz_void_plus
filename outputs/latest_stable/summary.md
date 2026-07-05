@@ -1,29 +1,47 @@
-# latest_stable Stage 5I 摘要
+# latest_stable Stage 5J 摘要
 
 ## 当前阶段
 
-- stage = Stage 5I
-- previous_stage = Stage 5H
-- algorithm_commit = `f22cc22`
-- latest_stable_commit = `8fae3a9`
-- previous_latest_stable_commit = `a202fee`
-- source_run_dir = `outputs\stage5i_run_20260705_132534`
-- generated_time = `2026-07-05T13:27:40`
-- 任务名称：`Stage 5I 三维运动学正演-定位一致性修复 + 三维多属性反演增强`
+- stage = Stage 5J
+- previous_stage = Stage 5I
+- algorithm_commit = `6534fef`
+- latest_stable_commit = `generated_from_algorithm_commit`
+- previous_latest_stable_commit = `27f000d`
+- source_run_dir = `outputs\stage5j_run_20260705_193045`
+- generated_time = `2026-07-05T19:32:34`
+- 任务名称：`Stage 5J 代码优先的三维运动学正演补强 + 衰减模型`
 - active_velocity_model = `layered`
 - active_forward_engine = `layered_kinematic`
 - validation_forward = `elastic2d/staggered`
 - ready_for_2p5d = `False`
 
-## Stage 5I 三维反演主线
+## Stage 5J 三维正演补强主线
+
+- volume_wavefield_available = `True`
+- volume_wavefield_grid_shape = `[8, 12, 24, 72]`
+- volume_wavefield_uses_depth = `True`
+- volume_wavefield_uses_velocity_path_integration = `True`
+- volume_wavefield_is_kinematic_proxy = `True`
+- shot_gather_velocity_overlay_available = `True`
+- attenuation_model_enabled = `True`
+- direct_attenuation_applied = `True`
+- scatter_attenuation_applied = `True`
+- attenuation_rms_difference = `0.011080776907474723`
+- attenuation_relative_rms_difference = `0.6080739622929309`
+- forward_localization_link_status = `warning`
+- tests_reduced_count = `9`
+- validation_scripts_added_count = `1`
+- new_test_files_count = `3`
+
+## Stage 5I 三维反演主线（保留为定位算法基线）
 
 - scan_candidate_uses_path_integration = `True`
 - scan_uses_representative_velocity = `False`
 - multi_attribute_inversion_enabled = `True`
 - posterior_volume_status = `generated`
 - posterior_peak_location = `{'x_m': 52.0, 'y_m': 12.0, 'depth_m': 2.5}`
-- posterior_mean_location = `{'x_m': 65.32635052587617, 'y_m': 10.068445559182855, 'depth_m': 3.9003988407759906}`
-- posterior_uncertainty_axes = `[26.986846401825968, 5.142243049077285, 1.706998715345629]`
+- posterior_mean_location = `{'x_m': 65.19784347842014, 'y_m': 10.06710843295581, 'depth_m': 3.7926336938366427}`
+- posterior_uncertainty_axes = `[27.330194619366242, 5.134057900588129, 1.6364233665537635]`
 - geometry_resolution_status = `computed`
 - ambiguity_warning = `True`
 
@@ -34,7 +52,7 @@
 - error_analysis 图件数：`7`
 - 静态图总数：`24`
 - 动图总数：`2`
-- 报告总数：`10`
+- 报告总数：`11`
 - latest_stable_tree_snapshot_status：`pass`
 - manual_review_readiness_status：`pass`
 
@@ -43,7 +61,7 @@
 - recommended/best location：x=`60.0` m, y=`6.0` m, depth=`2.5` m
 - truth_error：`3.0413812651491097` m
 - 3D high-score span：x=`8.0` m, y=`12.0` m, depth=`1.0` m
-- high-score point count：`20`
+- high-score point count：`14`
 
 ## Rayleigh 与 DAS 状态
 
@@ -82,19 +100,19 @@
 
 - figures/forward/fig_geometry_3d_overview.png
 - figures/forward/fig_velocity_model_active_badge.png
-- figures/forward/fig_velocity_model_physics_bridge.png
-- figures/forward/fig_elastic2d_rayleigh_benchmark_matrix.png
-- figures/forward/fig_elastic2d_rayleigh_velocity_error.png
-- figures/forward/fig_elastic2d_das_best_case.png
-- figures/localization/fig_3d_high_score_region.png
-- figures/localization/fig_recommended_location_3d.png
-- figures/localization/fig_3d_uncertainty_box.png
-- figures/error_analysis/fig_stage5i_status_badge.png
+- figures/forward/fig_velocity_sampling_paths_3d.png
+- figures/forward/fig_volume_wavefield_xyz_slices.png
+- figures/forward/fig_volume_wavefield_3d_energy_proxy.png
+- figures/forward/fig_shot_gather_with_velocity_model.png
+- figures/forward/fig_shot_gather_attenuation_comparison.png
+- figures/localization/fig_3d_posterior_volume.png
+- figures/localization/fig_3d_uncertainty_ellipsoid.png
+- figures/error_analysis/fig_forward_localization_consistency.png
 
 ## manual_review_animations
 
+- animations/forward/anim_single_shot_volume_wavefield.gif
 - animations/forward/anim_multishot_forward_overview.gif
-- animations/forward/anim_single_shot_wavefield.gif
 
 ## 当前限制
 
@@ -106,5 +124,5 @@
 
 ## 导出记录
 
-- copied：`45`
+- copied：`46`
 - missing：`0`

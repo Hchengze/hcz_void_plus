@@ -1,6 +1,6 @@
 {
   "project": "hcz_void_plus",
-  "stage": "Stage 5I 3D kinematic inversion and scan velocity consistency",
+  "stage": "Stage 5J 3D kinematic forward volume and attenuation modeling",
   "data_shape": {
     "order": "shot × time × channel",
     "shape": [
@@ -34,7 +34,9 @@
     "is_true_elastic_wavefield": false,
     "is_true_wave_equation_snapshot": false,
     "rayleigh_depth_sensitivity_included": true,
-    "forward_engine_note": "Stage 5I 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；本轮重点修复 scan travel-time 与 forward path integration 一致性，并增强三维多属性 posterior-like 反演；elastic2d/staggered 仍只作 validation。"
+    "volume_wavefield_is_kinematic_proxy": true,
+    "volume_wavefield_uses_depth": true,
+    "forward_engine_note": "Stage 5J 当前主流程 forward 仍为 layered_kinematic straight-ray kinematic approximation；本轮新增 x-y-depth 三维运动学体响应 proxy、经验 Q attenuation 和带速度模型上下文的炮集图；elastic2d/staggered 仍只作 validation。"
   },
   "physics": {
     "rayleigh_depth_sensitivity_enabled": true,
@@ -55,6 +57,20 @@
       260.0,
       350.0
     ],
+    "attenuation": {
+      "attenuation_enabled": true,
+      "q_default": 35.0,
+      "layer_q": [
+        25.0,
+        35.0,
+        50.0,
+        80.0
+      ],
+      "frequency_dependent": true,
+      "geometric_spreading_power": 0.5,
+      "min_amplitude": 1e-08,
+      "attenuation_note": "empirical Q attenuation, not viscoelastic wave equation"
+    },
     "note": "这是 Rayleigh 波深度敏感性的简化权重，不是严格 Rayleigh 模态深度核。"
   },
   "visualization": {
@@ -67,27 +83,56 @@
       "warning": null
     },
     "wavefield_info": {
-      "snapshot_count": 12,
+      "snapshot_count": 8,
       "snapshot_files": [
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t000.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t001.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t002.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t003.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t004.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t005.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t006.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t007.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t008.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t009.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t010.png",
-        "outputs\\stage5i_run_20260705_132534\\snapshots\\snap_pseudo_wavefield_t011.png"
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t000.png",
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t001.png",
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t002.png",
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t003.png",
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t004.png",
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t005.png",
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t006.png",
+        "outputs\\stage5j_run_20260705_193045\\snapshots\\snap_pseudo_wavefield_t007.png"
       ],
       "animation": {
         "success": true,
-        "path": "outputs\\stage5i_run_20260705_132534\\animations\\anim_pseudo_wavefield.gif",
+        "path": "outputs\\stage5j_run_20260705_193045\\animations\\anim_pseudo_wavefield.gif",
+        "reason": null
+      },
+      "volume_response": {
+        "volume_grid_shape": [
+          8,
+          12,
+          24,
+          72
+        ],
+        "volume_frame_count": 8,
+        "volume_nh_ny_nx": [
+          12,
+          24,
+          72
+        ],
+        "depth_axis_positive_down": true,
+        "volume_uses_velocity_path_integration": true,
+        "volume_uses_attenuation": true,
+        "volume_is_kinematic_proxy": true,
+        "selected_shot_index": 0,
+        "selected_scatter_count": 7,
+        "volume_peak_energy": 0.8861728612276573,
+        "volume_peak_xyz_m": {
+          "x_m": 10.140845070422536,
+          "y_m": 18.0,
+          "depth_m": 0.0
+        },
+        "note": "3D kinematic volume response proxy, not 3D elastic wavefield"
+      },
+      "volume_animation": {
+        "success": true,
+        "path": "outputs\\stage5j_run_20260705_193045\\animations\\anim_single_shot_volume_wavefield.gif",
         "reason": null
       }
-    }
+    },
+    "volume_wavefield_available": true
   },
   "scan": {
     "enabled": true,
@@ -154,21 +199,45 @@
       ],
       "component_boxes": [
         {
-          "point_count": 20,
+          "point_count": 12,
           "x_min_m": 56.0,
           "x_max_m": 64.0,
           "y_min_m": 4.0,
-          "y_max_m": 16.0,
+          "y_max_m": 14.0,
           "depth_min_m": 2.5,
           "depth_max_m": 3.5,
           "x_span_m": 8.0,
-          "y_span_m": 12.0,
+          "y_span_m": 10.0,
           "depth_span_m": 1.0
+        },
+        {
+          "point_count": 1,
+          "x_min_m": 56.0,
+          "x_max_m": 56.0,
+          "y_min_m": 6.0,
+          "y_max_m": 6.0,
+          "depth_min_m": 3.5,
+          "depth_max_m": 3.5,
+          "x_span_m": 0.0,
+          "y_span_m": 0.0,
+          "depth_span_m": 0.0
+        },
+        {
+          "point_count": 1,
+          "x_min_m": 60.0,
+          "x_max_m": 60.0,
+          "y_min_m": 16.0,
+          "y_max_m": 16.0,
+          "depth_min_m": 3.5,
+          "depth_max_m": 3.5,
+          "x_span_m": 0.0,
+          "y_span_m": 0.0,
+          "depth_span_m": 0.0
         }
       ]
     },
-    "recommended_location_type": "uncertainty_interval",
-    "recommended_location_reason": "weighted_best 受到深度权重影响，或触发边界、宽 y、unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。",
+    "recommended_location_type": "multi_region_uncertainty",
+    "recommended_location_reason": "weighted_best 受到深度权重影响，或触发边界、宽 y、unweighted-weighted 分歧等 warning；因此不把 weighted_best 作为单点推荐，而采用 unweighted_best 作为参考点，并以三维高分区区间表达不确定性。 高分区存在多个分离连通团块，应表达为候选区集合。",
     "depth_uncertainty_interval_m": [
       2.5,
       3.5
@@ -289,115 +358,123 @@
       "depth_m": 2.5
     },
     "posterior_mean_location": {
-      "x_m": 65.32635052587617,
-      "y_m": 10.068445559182855,
-      "depth_m": 3.9003988407759906
+      "x_m": 65.19784347842014,
+      "y_m": 10.06710843295581,
+      "depth_m": 3.7926336938366427
     },
     "posterior_covariance_3x3": [
       [
-        728.2829273717381,
-        -1.6003471976528787,
-        1.5478631247801686
+        746.9294720262914,
+        -1.9037067474257885,
+        1.9362180248535725
       ],
       [
-        -1.6003471976528787,
-        26.4460436938504,
-        0.07602964403615209
+        -1.9037067474257885,
+        26.363446456721633,
+        0.05112190339936781
       ],
       [
-        1.5478631247801686,
-        0.07602964403615209,
-        2.9174158401339043
+        1.9362180248535725,
+        0.05112190339936781,
+        2.6830514106169514
       ]
     ],
     "posterior_uncertainty_axes": [
-      26.986846401825968,
-      5.142243049077285,
-      1.706998715345629
+      27.330194619366242,
+      5.134057900588129,
+      1.6364233665537635
     ],
     "geometry_resolution_status": "computed",
     "ambiguity_warning": true,
     "multi_peak_warning": true
   },
   "diagnostics": {
-    "diffraction_travel_time_curve_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_diffraction_travel_time_curves.png",
-    "path_section_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_source_anomaly_receiver_path_section.png",
-    "depth_sensitivity_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_rayleigh_depth_sensitivity.png",
-    "raw_vs_weighted_best_location_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_raw_vs_weighted_best_location.png",
-    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
-    "y_high_score_width_check_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_y_high_score_width_check.png",
-    "score_method_depth_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_score_method_depth_comparison.png",
-    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_3d_high_score_uncertainty_summary.png",
-    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_x_y_depth_uncertainty_slices.png",
-    "multi_attribute_score_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_multi_attribute_score_comparison.png",
-    "depth_prior_sensitivity_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_depth_prior_sensitivity.png",
-    "preprocessing_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_preprocessing_comparison.png",
-    "preprocessing_ablation_summary_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_preprocessing_ablation_summary.png",
-    "fk_spectrum_before_after_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_fk_spectrum_before_after.png",
-    "fk_filter_effect_on_gather_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_fk_filter_effect_on_gather.png",
-    "matched_wavelet_score_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_matched_wavelet_score_comparison.png",
-    "semblance_score_volume_slice_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_semblance_score_volume_slice.png",
-    "frequency_shift_attribute_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_frequency_shift_attribute.png",
-    "geometry_ablation_best_locations_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_geometry_ablation_best_locations.png",
-    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_geometry_ablation_uncertainty_spans.png",
-    "multi_attribute_ablation_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_multi_attribute_ablation.png",
-    "3d_high_score_components_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_3d_high_score_components.png",
-    "recommendation_decision_flow_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_recommendation_decision_flow.png",
-    "velocity_model_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_velocity_model_comparison.png",
-    "layered_velocity_profile_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_layered_velocity_profile.png",
-    "velocity_model_travel_time_residuals_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_velocity_model_travel_time_residuals.png",
-    "model_mismatch_error_summary_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_model_mismatch_error_summary.png",
-    "forward_engine_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_forward_engine_comparison.png",
-    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
-    "forward_roadmap_status_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_forward_roadmap_status.png",
-    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_acoustic2d_wavefield_snapshots.png",
-    "acoustic2d_shot_gather_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_acoustic2d_shot_gather.png",
-    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
-    "elastic2d_surface_gather_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_surface_gather.png",
-    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
-    "elastic2d_void_scattering_residual_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_void_scattering_residual.png",
-    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_void_diffraction_overlay.png",
-    "elastic2d_das_gauge_response_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_gauge_response.png",
-    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic_vs_kinematic_overlay.png",
-    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
-    "velocity_model_profile_current_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_velocity_model_profile_current.png",
-    "velocity_model_2d_slice_current_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_velocity_model_2d_slice_current.png",
-    "velocity_sampling_paths_current_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_velocity_sampling_paths_current.png",
-    "uniform_vs_layered_travel_time_difference_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
-    "velocity_model_active_badge_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_velocity_model_active_badge.png",
-    "elastic2d_rayleigh_pick_diagnostics_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
-    "elastic2d_void_parameter_sensitivity_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
-    "elastic2d_void_residual_energy_map_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_void_residual_energy_map.png",
-    "elastic2d_das_component_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_component_comparison.png",
-    "elastic2d_das_gauge_length_sensitivity_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
-    "elastic_vs_kinematic_energy_partition_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
-    "stage5e_status_badge_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_stage5e_status_badge.png",
-    "elastic2d_numerical_sensitivity_summary_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_numerical_sensitivity_summary.png",
-    "elastic2d_rayleigh_pick_case_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_rayleigh_pick_case_comparison.png",
-    "elastic2d_das_response_nonzero_check_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_response_nonzero_check.png",
-    "elastic2d_das_force_direction_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_force_direction_comparison.png",
-    "rayleigh_equivalent_vs_elastic_velocity_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_rayleigh_equivalent_vs_elastic_velocity.png",
-    "elastic_vp_vs_rho_model_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic_vp_vs_rho_model.png",
-    "velocity_model_physics_bridge_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_velocity_model_physics_bridge.png",
-    "stage5f_status_badge_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_stage5f_status_badge.png",
-    "elastic2d_rayleigh_benchmark_matrix_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
-    "elastic2d_rayleigh_velocity_error_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
-    "elastic2d_surface_event_ridge_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_surface_event_ridge.png",
-    "elastic2d_free_surface_mode_comparison_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_free_surface_mode_comparison.png",
-    "elastic2d_boundary_reflection_diagnostics_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
-    "elastic2d_das_staggered_vs_collocated_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_staggered_vs_collocated.png",
-    "elastic2d_das_best_case_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_best_case.png",
-    "elastic2d_das_report_consistency_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_elastic2d_das_report_consistency.png",
-    "bridge_derived_elastic_parameters_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_bridge_derived_elastic_parameters.png",
-    "latest_stable_quality_summary_figure": "outputs\\stage5i_run_20260705_132534\\figures\\fig_latest_stable_quality_summary.png"
+    "diffraction_travel_time_curve_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_diffraction_travel_time_curves.png",
+    "path_section_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_source_anomaly_receiver_path_section.png",
+    "depth_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_rayleigh_depth_sensitivity.png",
+    "raw_vs_weighted_best_location_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_raw_vs_weighted_best_location.png",
+    "raw_vs_weighted_x_depth_slice_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_raw_vs_weighted_x_depth_slice.png",
+    "y_high_score_width_check_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_y_high_score_width_check.png",
+    "score_method_depth_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_score_method_depth_comparison.png",
+    "3d_high_score_uncertainty_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_high_score_uncertainty_summary.png",
+    "x_y_depth_uncertainty_slices_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_x_y_depth_uncertainty_slices.png",
+    "multi_attribute_score_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_multi_attribute_score_comparison.png",
+    "depth_prior_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_depth_prior_sensitivity.png",
+    "preprocessing_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_preprocessing_comparison.png",
+    "preprocessing_ablation_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_preprocessing_ablation_summary.png",
+    "fk_spectrum_before_after_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_fk_spectrum_before_after.png",
+    "fk_filter_effect_on_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_fk_filter_effect_on_gather.png",
+    "matched_wavelet_score_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_matched_wavelet_score_comparison.png",
+    "semblance_score_volume_slice_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_semblance_score_volume_slice.png",
+    "frequency_shift_attribute_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_frequency_shift_attribute.png",
+    "geometry_ablation_best_locations_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_geometry_ablation_best_locations.png",
+    "geometry_ablation_uncertainty_spans_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_geometry_ablation_uncertainty_spans.png",
+    "multi_attribute_ablation_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_multi_attribute_ablation.png",
+    "3d_high_score_components_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_3d_high_score_components.png",
+    "recommendation_decision_flow_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_recommendation_decision_flow.png",
+    "velocity_model_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_comparison.png",
+    "layered_velocity_profile_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_layered_velocity_profile.png",
+    "velocity_model_travel_time_residuals_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_travel_time_residuals.png",
+    "model_mismatch_error_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_model_mismatch_error_summary.png",
+    "forward_engine_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_engine_comparison.png",
+    "layered_kinematic_vs_baseline_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_layered_kinematic_vs_baseline_gather.png",
+    "forward_roadmap_status_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_roadmap_status.png",
+    "acoustic2d_wavefield_snapshots_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_acoustic2d_wavefield_snapshots.png",
+    "acoustic2d_shot_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_acoustic2d_shot_gather.png",
+    "elastic2d_rayleigh_wavefield_snapshots_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_wavefield_snapshots.png",
+    "elastic2d_surface_gather_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_surface_gather.png",
+    "elastic2d_rayleigh_velocity_check_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_velocity_check.png",
+    "elastic2d_void_scattering_residual_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_scattering_residual.png",
+    "elastic2d_void_diffraction_overlay_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_diffraction_overlay.png",
+    "elastic2d_das_gauge_response_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_gauge_response.png",
+    "elastic_vs_kinematic_overlay_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vs_kinematic_overlay.png",
+    "elastic_vs_kinematic_residual_energy_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vs_kinematic_residual_energy.png",
+    "velocity_model_profile_current_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_profile_current.png",
+    "velocity_model_2d_slice_current_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_2d_slice_current.png",
+    "velocity_sampling_paths_current_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_sampling_paths_current.png",
+    "uniform_vs_layered_travel_time_difference_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_uniform_vs_layered_travel_time_difference.png",
+    "velocity_model_active_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_active_badge.png",
+    "elastic2d_rayleigh_pick_diagnostics_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_pick_diagnostics.png",
+    "elastic2d_void_parameter_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_parameter_sensitivity.png",
+    "elastic2d_void_residual_energy_map_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_void_residual_energy_map.png",
+    "elastic2d_das_component_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_component_comparison.png",
+    "elastic2d_das_gauge_length_sensitivity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_gauge_length_sensitivity.png",
+    "elastic_vs_kinematic_energy_partition_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vs_kinematic_energy_partition.png",
+    "stage5e_status_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5e_status_badge.png",
+    "elastic2d_numerical_sensitivity_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_numerical_sensitivity_summary.png",
+    "elastic2d_rayleigh_pick_case_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_pick_case_comparison.png",
+    "elastic2d_das_response_nonzero_check_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_response_nonzero_check.png",
+    "elastic2d_das_force_direction_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_force_direction_comparison.png",
+    "rayleigh_equivalent_vs_elastic_velocity_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_rayleigh_equivalent_vs_elastic_velocity.png",
+    "elastic_vp_vs_rho_model_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic_vp_vs_rho_model.png",
+    "velocity_model_physics_bridge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_velocity_model_physics_bridge.png",
+    "stage5f_status_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5f_status_badge.png",
+    "elastic2d_rayleigh_benchmark_matrix_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_benchmark_matrix.png",
+    "elastic2d_rayleigh_velocity_error_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_rayleigh_velocity_error.png",
+    "elastic2d_surface_event_ridge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_surface_event_ridge.png",
+    "elastic2d_free_surface_mode_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_free_surface_mode_comparison.png",
+    "elastic2d_boundary_reflection_diagnostics_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_boundary_reflection_diagnostics.png",
+    "elastic2d_das_staggered_vs_collocated_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_staggered_vs_collocated.png",
+    "elastic2d_das_best_case_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_best_case.png",
+    "elastic2d_das_report_consistency_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_elastic2d_das_report_consistency.png",
+    "bridge_derived_elastic_parameters_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_bridge_derived_elastic_parameters.png",
+    "latest_stable_quality_summary_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_latest_stable_quality_summary.png",
+    "stage5j_status_badge_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_stage5j_status_badge.png",
+    "volume_wavefield_xyz_slices_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_xyz_slices.png",
+    "volume_wavefield_depth_slices_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_depth_slices.png",
+    "volume_wavefield_3d_energy_proxy_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_volume_wavefield_3d_energy_proxy.png",
+    "shot_gather_with_velocity_model_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_with_velocity_model.png",
+    "shot_gather_uniform_vs_layered_overlay_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_uniform_vs_layered_overlay.png",
+    "shot_gather_attenuation_comparison_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_shot_gather_attenuation_comparison.png",
+    "forward_localization_consistency_figure": "outputs\\stage5j_run_20260705_193045\\figures\\fig_forward_localization_consistency.png"
   },
   "confidence": {
-    "peak_sharpness": 1.3449465369235434,
-    "score_contrast": 4.050120516582519,
+    "peak_sharpness": 1.3969755165261222,
+    "score_contrast": 4.2742084062394845,
     "score_percentile": 100.0,
-    "multi_shot_consistency_mean": 89.92685235841492,
-    "multi_shot_consistency_std": 9.896831704857938,
-    "multi_shot_consistency_cv": 0.11005424348016603,
+    "multi_shot_consistency_mean": 178.35176365919796,
+    "multi_shot_consistency_std": 24.405384551724065,
+    "multi_shot_consistency_cv": 0.13683848172288837,
     "y_depth_coupling_warning": false,
     "best_depth_at_boundary_warning": false,
     "wide_y_high_score_zone_warning": true,
@@ -407,11 +484,11 @@
       "threshold_ratio": 0.9,
       "threshold": 0.9,
       "best_score": 1.0,
-      "high_score_region_point_count": 20,
+      "high_score_region_point_count": 14,
       "x_span_m": 8.0,
       "y_span_m": 12.0,
       "depth_span_m": 1.0,
-      "high_score_region_volume_estimate_m3": 160.0,
+      "high_score_region_volume_estimate_m3": 112.0,
       "equivalent_uncertainty_box": {
         "x_min_m": 56.0,
         "x_max_m": 64.0,
@@ -420,34 +497,58 @@
         "depth_min_m": 2.5,
         "depth_max_m": 3.5
       },
-      "high_score_component_count": 1,
+      "high_score_component_count": 3,
       "component_boxes": [
         {
-          "point_count": 20,
+          "point_count": 12,
           "x_min_m": 56.0,
           "x_max_m": 64.0,
           "y_min_m": 4.0,
-          "y_max_m": 16.0,
+          "y_max_m": 14.0,
           "depth_min_m": 2.5,
           "depth_max_m": 3.5,
           "x_span_m": 8.0,
-          "y_span_m": 12.0,
+          "y_span_m": 10.0,
           "depth_span_m": 1.0
+        },
+        {
+          "point_count": 1,
+          "x_min_m": 56.0,
+          "x_max_m": 56.0,
+          "y_min_m": 6.0,
+          "y_max_m": 6.0,
+          "depth_min_m": 3.5,
+          "depth_max_m": 3.5,
+          "x_span_m": 0.0,
+          "y_span_m": 0.0,
+          "depth_span_m": 0.0
+        },
+        {
+          "point_count": 1,
+          "x_min_m": 60.0,
+          "x_max_m": 60.0,
+          "y_min_m": 16.0,
+          "y_max_m": 16.0,
+          "depth_min_m": 3.5,
+          "depth_max_m": 3.5,
+          "x_span_m": 0.0,
+          "y_span_m": 0.0,
+          "depth_span_m": 0.0
         }
       ],
       "largest_component_box": {
-        "point_count": 20,
+        "point_count": 12,
         "x_min_m": 56.0,
         "x_max_m": 64.0,
         "y_min_m": 4.0,
-        "y_max_m": 16.0,
+        "y_max_m": 14.0,
         "depth_min_m": 2.5,
         "depth_max_m": 3.5,
         "x_span_m": 8.0,
-        "y_span_m": 12.0,
+        "y_span_m": 10.0,
         "depth_span_m": 1.0
       },
-      "multi_region_warning": false
+      "multi_region_warning": true
     },
     "low_confidence_flag": "medium-low"
   },
@@ -466,7 +567,7 @@
     "latest_stable_path": "outputs\\latest_stable"
   },
   "git": {
-    "commit_id": "a202fee",
+    "commit_id": "6534fef",
     "push_attempted": true,
     "push_success": false
   },
@@ -475,6 +576,7 @@
     "不是完整三维弹性波全波场模拟。",
     "gauge length 当前进入参数和 metadata，但 point_receiver 模式下不参与波形计算。",
     "运动学伪波场快照只是传播示意，不是真实弹性波方程数值模拟。",
+    "Stage 5J 三维体响应是 x-y-depth kinematic proxy，不是真实 3D elastic wavefield。",
     "运动学地表响应图不是地下点源真实波场，只是 Rayleigh 波走时控制的地表响应示意。",
     "Rayleigh 深度敏感性权重不是严格模态深度核。",
     "基础扫描 best_location 不能作为工程确诊结论。",
@@ -579,13 +681,13 @@
             "ddepth_m": -0.5,
             "distance_m": 3.0413812651491097
           },
-          "x_span_m": 8.0,
+          "x_span_m": 4.0,
           "y_span_m": 6.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 11,
+          "high_score_region_point_count": 7,
           "high_score_component_count": 1,
-          "diffraction_curve_energy_ratio": 0.19638773777067603,
-          "direct_wave_residual_ratio": 0.8795101311098442,
+          "diffraction_curve_energy_ratio": 0.23750099795625892,
+          "direct_wave_residual_ratio": 0.867537492641635,
           "low_confidence_flag": "low"
         },
         "bandpass": {
@@ -609,10 +711,10 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 20,
+          "high_score_region_point_count": 19,
           "high_score_component_count": 1,
-          "diffraction_curve_energy_ratio": 0.19603448882777677,
-          "direct_wave_residual_ratio": 0.8785306872700032,
+          "diffraction_curve_energy_ratio": 0.23704530065663917,
+          "direct_wave_residual_ratio": 0.8666061134244835,
           "low_confidence_flag": "low"
         },
         "bandpass_trace_normalization": {
@@ -637,10 +739,10 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 19,
-          "high_score_component_count": 1,
-          "diffraction_curve_energy_ratio": 0.19576092978277318,
-          "direct_wave_residual_ratio": 0.8444202098449718,
+          "high_score_region_point_count": 15,
+          "high_score_component_count": 2,
+          "diffraction_curve_energy_ratio": 0.35160163418115387,
+          "direct_wave_residual_ratio": 0.6743436830610873,
           "low_confidence_flag": "low"
         },
         "bandpass_trace_normalization_taper_direct_mute": {
@@ -665,10 +767,10 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 20,
-          "high_score_component_count": 1,
-          "diffraction_curve_energy_ratio": 0.5364484063651045,
-          "direct_wave_residual_ratio": 0.4242552033551668,
+          "high_score_region_point_count": 14,
+          "high_score_component_count": 3,
+          "diffraction_curve_energy_ratio": 0.7207027303369896,
+          "direct_wave_residual_ratio": 0.21962954485293174,
           "low_confidence_flag": "low"
         },
         "bandpass_trace_normalization_fk_filter": {
@@ -682,22 +784,22 @@
           },
           "best_location": {
             "x_m": 60.0,
-            "y_m": 6.0,
+            "y_m": 4.0,
             "depth_m": 3.5
           },
           "truth_error": {
             "dx_m": 0.0,
-            "dy_m": -3.0,
+            "dy_m": -5.0,
             "ddepth_m": 0.5,
-            "distance_m": 3.0413812651491097
+            "distance_m": 5.024937810560445
           },
-          "x_span_m": 32.0,
+          "x_span_m": 20.0,
           "y_span_m": 16.0,
-          "depth_span_m": 2.0,
-          "high_score_region_point_count": 64,
-          "high_score_component_count": 4,
-          "diffraction_curve_energy_ratio": 0.18400585384704854,
-          "direct_wave_residual_ratio": 0.8240421297734621,
+          "depth_span_m": 1.0,
+          "high_score_region_point_count": 62,
+          "high_score_component_count": 3,
+          "diffraction_curve_energy_ratio": 0.2878409141148479,
+          "direct_wave_residual_ratio": 0.6409912970336942,
           "low_confidence_flag": "low"
         },
         "bandpass_trace_normalization_envelope": {
@@ -723,10 +825,10 @@
           "x_span_m": 8.0,
           "y_span_m": 16.0,
           "depth_span_m": 2.0,
-          "high_score_region_point_count": 30,
+          "high_score_region_point_count": 27,
           "high_score_component_count": 1,
-          "diffraction_curve_energy_ratio": 0.19852853478267501,
-          "direct_wave_residual_ratio": 0.8412369342562581,
+          "diffraction_curve_energy_ratio": 0.35592789358336235,
+          "direct_wave_residual_ratio": 0.671905774153008,
           "low_confidence_flag": "low"
         }
       },
@@ -741,12 +843,12 @@
     },
     "fk_filter_validation": {
       "warning": null,
-      "before_direct_wave_residual_ratio": 0.4242552033551668,
-      "after_direct_wave_residual_ratio": 0.41082534204802346,
-      "direct_wave_reduction_ratio": 0.0316551481300289,
-      "before_diffraction_curve_energy_ratio": 0.5364484063651045,
-      "after_diffraction_curve_energy_ratio": 0.5255463560185524,
-      "diffraction_preservation_ratio": 0.9796773553296154,
+      "before_direct_wave_residual_ratio": 0.21962954485293174,
+      "after_direct_wave_residual_ratio": 0.20533071108028514,
+      "direct_wave_reduction_ratio": 0.0651043272990498,
+      "before_diffraction_curve_energy_ratio": 0.7207027303369896,
+      "after_diffraction_curve_energy_ratio": 0.717103691626634,
+      "diffraction_preservation_ratio": 0.9950062091360848,
       "shape_preserved": true,
       "applicable_as_strict_fk": true
     },
@@ -811,7 +913,7 @@
             "ddepth_m": 0.5,
             "distance_m": 1.118033988749895
           },
-          "x_span_m": 4.0,
+          "x_span_m": 0.0,
           "y_span_m": 8.0,
           "depth_span_m": 0.0,
           "high_score_component_count": 1,
@@ -824,20 +926,20 @@
           },
           "best_location": {
             "x_m": 172.0,
-            "y_m": 4.0,
+            "y_m": 18.0,
             "depth_m": 1.5
           },
           "truth_error": {
             "dx_m": 112.0,
-            "dy_m": -5.0,
+            "dy_m": 9.0,
             "ddepth_m": -1.5,
-            "distance_m": 112.12158578971312
+            "distance_m": 112.3710371937538
           },
           "x_span_m": 0.0,
           "y_span_m": 16.0,
           "depth_span_m": 0.0,
-          "high_score_component_count": 2,
-          "multi_region_warning": true,
+          "high_score_component_count": 1,
+          "multi_region_warning": false,
           "low_confidence_flag": "low"
         },
         "energy_matched_wavelet": {
@@ -856,7 +958,7 @@
             "ddepth_m": -0.5,
             "distance_m": 1.118033988749895
           },
-          "x_span_m": 0.0,
+          "x_span_m": 4.0,
           "y_span_m": 8.0,
           "depth_span_m": 0.0,
           "high_score_component_count": 1,
@@ -935,9 +1037,9 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 20,
-          "high_score_component_count": 1,
-          "multi_region_warning": false,
+          "high_score_region_point_count": 14,
+          "high_score_component_count": 3,
+          "multi_region_warning": true,
           "preprocessing_info": {
             "enabled": true,
             "steps": [
@@ -964,9 +1066,9 @@
           "x_span_m": 8.0,
           "y_span_m": 10.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 18,
-          "high_score_component_count": 1,
-          "multi_region_warning": false,
+          "high_score_region_point_count": 10,
+          "high_score_component_count": 2,
+          "multi_region_warning": true,
           "preprocessing_info": {
             "enabled": true,
             "steps": [
@@ -993,7 +1095,7 @@
           "x_span_m": 8.0,
           "y_span_m": 4.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 8,
+          "high_score_region_point_count": 7,
           "high_score_component_count": 1,
           "multi_region_warning": false,
           "preprocessing_info": {
@@ -1022,9 +1124,9 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 20,
-          "high_score_component_count": 1,
-          "multi_region_warning": false,
+          "high_score_region_point_count": 14,
+          "high_score_component_count": 3,
+          "multi_region_warning": true,
           "preprocessing_info": {
             "enabled": true,
             "steps": [
@@ -1067,7 +1169,7 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 7.0,
-          "high_score_region_point_count": 67,
+          "high_score_region_point_count": 100,
           "high_score_component_count": 1,
           "recommended_location_type": "uncertainty_interval",
           "confidence_flag": "low",
@@ -1097,8 +1199,8 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 1.0,
-          "high_score_region_point_count": 20,
-          "high_score_component_count": 1,
+          "high_score_region_point_count": 14,
+          "high_score_component_count": 3,
           "recommended_location_type": "uncertainty_interval",
           "confidence_flag": "low",
           "travel_time_residual_to_uniform_mean_s": 0.05389150787466237,
@@ -1114,20 +1216,20 @@
         "lateral_gradient": {
           "model_type": "lateral_gradient",
           "best_location": {
-            "x_m": 60.0,
-            "y_m": 6.0,
-            "depth_m": 0.5
+            "x_m": 56.0,
+            "y_m": 10.0,
+            "depth_m": 2.5
           },
           "truth_error": {
-            "dx_m": 0.0,
-            "dy_m": -3.0,
-            "ddepth_m": -2.5,
-            "distance_m": 3.905124837953327
+            "dx_m": -4.0,
+            "dy_m": 1.0,
+            "ddepth_m": -0.5,
+            "distance_m": 4.153311931459037
           },
           "x_span_m": 8.0,
-          "y_span_m": 12.0,
+          "y_span_m": 14.0,
           "depth_span_m": 7.0,
-          "high_score_region_point_count": 69,
+          "high_score_region_point_count": 97,
           "high_score_component_count": 1,
           "recommended_location_type": "uncertainty_interval",
           "confidence_flag": "low",
@@ -1157,7 +1259,7 @@
           "x_span_m": 8.0,
           "y_span_m": 16.0,
           "depth_span_m": 7.0,
-          "high_score_region_point_count": 73,
+          "high_score_region_point_count": 90,
           "high_score_component_count": 1,
           "recommended_location_type": "uncertainty_interval",
           "confidence_flag": "low",
@@ -1187,8 +1289,8 @@
           "x_span_m": 8.0,
           "y_span_m": 10.0,
           "depth_span_m": 0.0,
-          "high_score_region_point_count": 9,
-          "high_score_component_count": 4,
+          "high_score_region_point_count": 8,
+          "high_score_component_count": 3,
           "recommended_location_type": "uncertainty_interval",
           "confidence_flag": "low",
           "travel_time_residual_to_uniform_mean_s": 0.06658847678146736,
@@ -1255,7 +1357,7 @@
           "x_span_m": 8.0,
           "y_span_m": 12.0,
           "depth_span_m": 1.0,
-          "high_score_component_count": 1,
+          "high_score_component_count": 3,
           "low_confidence_flag": "low",
           "preprocessing_info": {
             "enabled": true,
@@ -1280,7 +1382,7 @@
             "ddepth_m": 4.5,
             "distance_m": 10.062305898749054
           },
-          "x_span_m": 12.0,
+          "x_span_m": 16.0,
           "y_span_m": 16.0,
           "depth_span_m": 7.0,
           "high_score_component_count": 1,
@@ -1311,7 +1413,7 @@
           "x_span_m": 8.0,
           "y_span_m": 16.0,
           "depth_span_m": 7.0,
-          "high_score_component_count": 1,
+          "high_score_component_count": 2,
           "low_confidence_flag": "low",
           "preprocessing_info": {
             "enabled": true,
@@ -1422,9 +1524,9 @@
             801,
             121
           ],
-          "direct_rms": 0.017587418148068138,
-          "scatter_rms": 0.009939178415580764,
-          "synthetic_rms": 0.021777025403476175
+          "direct_rms": 0.011398406789485165,
+          "scatter_rms": 0.004709904846741386,
+          "synthetic_rms": 0.012816906523191767
         },
         "layered_kinematic": {
           "forward_engine": "layered_kinematic",
@@ -1436,9 +1538,9 @@
             801,
             121
           ],
-          "direct_rms": 0.01751283174004882,
-          "scatter_rms": 0.0066976932960702415,
-          "synthetic_rms": 0.018845655870672384
+          "direct_rms": 0.007431199405408726,
+          "scatter_rms": 0.0030203232221531645,
+          "synthetic_rms": 0.008075678559244409
         },
         "acoustic2d_prototype": {
           "forward_engine": "acoustic2d_prototype",
@@ -1461,8 +1563,8 @@
         }
       },
       "layered_vs_baseline": {
-        "synthetic_rms_difference": 0.028746888159701372,
-        "synthetic_relative_difference": 1.320055775620881,
+        "synthetic_rms_difference": 0.015123138166528199,
+        "synthetic_relative_difference": 1.179936682784054,
         "travel_time_residual_mean_ms": 53.891507874662366,
         "travel_time_residual_rms_ms": 57.07585810059442,
         "travel_time_residual_max_abs_ms": 102.37405197450688,
@@ -4189,30 +4291,30 @@
       "depth_m": 2.5
     },
     "posterior_mean_location": {
-      "x_m": 65.32635052587617,
-      "y_m": 10.068445559182855,
-      "depth_m": 3.9003988407759906
+      "x_m": 65.19784347842014,
+      "y_m": 10.06710843295581,
+      "depth_m": 3.7926336938366427
     },
     "posterior_uncertainty_axes": [
-      26.986846401825968,
-      5.142243049077285,
-      1.706998715345629
+      27.330194619366242,
+      5.134057900588129,
+      1.6364233665537635
     ],
     "posterior_covariance_3x3": [
       [
-        728.2829273717381,
-        -1.6003471976528787,
-        1.5478631247801686
+        746.9294720262914,
+        -1.9037067474257885,
+        1.9362180248535725
       ],
       [
-        -1.6003471976528787,
-        26.4460436938504,
-        0.07602964403615209
+        -1.9037067474257885,
+        26.363446456721633,
+        0.05112190339936781
       ],
       [
-        1.5478631247801686,
-        0.07602964403615209,
-        2.9174158401339043
+        1.9362180248535725,
+        0.05112190339936781,
+        2.6830514106169514
       ]
     ],
     "geometry_resolution_status": "computed",
@@ -4221,11 +4323,55 @@
     "multi_peak_warning": true,
     "ready_for_2p5d": false
   },
-  "previous_stage": "Stage 5H",
-  "algorithm_commit": "f22cc22",
-  "latest_stable_commit": "8fae3a9",
-  "previous_latest_stable_commit": "a202fee",
-  "source_run_dir": "outputs\\stage5i_run_20260705_132534",
-  "generated_time": "2026-07-05T13:27:40",
+  "stage5j_validation": {
+    "volume_wavefield_available": true,
+    "volume_wavefield_grid_shape": [
+      8,
+      12,
+      24,
+      72
+    ],
+    "volume_wavefield_uses_depth": true,
+    "volume_wavefield_uses_velocity_path_integration": true,
+    "volume_wavefield_is_kinematic_proxy": true,
+    "shot_gather_velocity_overlay_available": true,
+    "attenuation_model_enabled": true,
+    "direct_attenuation_applied": true,
+    "scatter_attenuation_applied": true,
+    "attenuation_rms_difference": 0.011080776907474723,
+    "attenuation_relative_rms_difference": 0.6080739622929309,
+    "forward_localization_link_status": "warning",
+    "forward_localization_link": {
+      "forward_localization_link_status": "warning",
+      "volume_peak_xyz_m": {
+        "x_m": 10.140845070422536,
+        "y_m": 18.0,
+        "depth_m": 0.0
+      },
+      "posterior_peak_location": {
+        "x_m": 52.0,
+        "y_m": 12.0,
+        "depth_m": 2.5
+      },
+      "volume_peak_to_truth_distance_m": 50.75367307192268,
+      "posterior_peak_to_truth_distance_m": 8.558621384311845,
+      "volume_peak_to_posterior_peak_distance_m": 42.36081740734436,
+      "posterior_vs_truth_scatter_curve_rms_ms": 39.33348544547595,
+      "likely_reasons": [
+        "geometry ambiguity or attribute weighting",
+        "attenuation changes amplitude ranking"
+      ]
+    },
+    "tests_reduced_count": 9,
+    "validation_scripts_added_count": 1,
+    "new_test_files_count": 3,
+    "ready_for_2p5d": false
+  },
+  "previous_stage": "Stage 5I",
+  "algorithm_commit": "6534fef",
+  "latest_stable_commit": "generated_from_algorithm_commit",
+  "previous_latest_stable_commit": "27f000d",
+  "source_run_dir": "outputs\\stage5j_run_20260705_193045",
+  "generated_time": "2026-07-05T19:32:34",
   "ready_for_2p5d": false
 }
